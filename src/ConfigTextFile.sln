@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29920.165
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigTextFile", "ConfigLoader\ConfigTextFile.csproj", "{7EB97539-518F-4388-B079-D09D5EE92F47}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigTextFile", "ConfigTextFile\ConfigTextFile.csproj", "{7EB97539-518F-4388-B079-D09D5EE92F47}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigTextFile.Test", "ConfigLoader.Test\ConfigTextFile.Test.csproj", "{673CC4C8-5659-44FD-8B4C-672835236B0D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigTextFile.Test", "ConfigTextFile.Test\ConfigTextFile.Test.csproj", "{673CC4C8-5659-44FD-8B4C-672835236B0D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

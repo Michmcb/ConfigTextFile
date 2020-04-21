@@ -21,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ConfigLoader\ConfigTextFile.csproj" />
+    <ProjectReference Include="..\ConfigTextFile\ConfigTextFile.csproj" />
   </ItemGroup>
 
   <ItemGroup>

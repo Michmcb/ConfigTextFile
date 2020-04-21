@@ -32,11 +32,12 @@ namespace ConfigTextFile
 			Tokens = tokens;
 		}
 		/// <summary>
-		/// All tokens, keyed by scope concatenated with the name.
+		/// All tokens, keyed by scope:name.
 		/// </summary>
 		public IDictionary<string, IConfigValue> Tokens { get; }
 		/// <summary>
-		/// 
+		/// Retrieves a ConfigValue given a key.
+		/// If the ConfigValue does not exist, returns null.
 		/// </summary>
 		/// <param name="key">The key of the config value</param>
 		public IConfigValue? this[string key]
