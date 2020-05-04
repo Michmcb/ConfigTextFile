@@ -1,8 +1,36 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
-    <Nullable>enable</Nullable>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <Company />
+    <Product>ConfigTextFile</Product>
+    <Authors>Michael McBride</Authors>
+    <RepositoryUrl>https://github.com/Michmcb/ConfigTextFile</RepositoryUrl>
+    <RepositoryType>Github</RepositoryType>
+    <PackageTags>config text</PackageTags>
+    <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
+    <Description>A .NET library which allows you to load plain-text configuration files</Description>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <PackageReleaseNotes>Huge rework; implements the IConfiguration and IConfigurationSection interfaces from Microsoft.Extensions.Configuration. Also implements its own IConfigElement, which provides a bit more finer control if you need.
+Elements of the config file are stored in a hierarchical manner.</PackageReleaseNotes>
+    <PackageIcon>icon.png</PackageIcon>
+    <Version>1.1.0</Version>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+    <None Include="..\icon.png">
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.3" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.3" />
+  </ItemGroup>
 
 </Project>
