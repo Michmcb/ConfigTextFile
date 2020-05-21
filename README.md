@@ -1,10 +1,16 @@
 # ConfigTextFile
 A .NET library which allows you to load plain-text configuration files.
 
+## Overview
+There are three different kinds of elements in this config file; Sections, Comments, and Key/Value pairs.
+Sections are denoted by a name and braces.
+Comments are preceded by #.
+Key/Value pairs are delimited with the equals sign, and Values can either be a single string, or an array of strings.
+
 ## Usage
 The ConfigFile class represents a single loaded file. To load one, use the static method TryLoadFile. It accepts either a stream, or string and Encoding.
 Once it's loaded, you can either use ConfigFile.GetElement("key") to retrieve parts of the file, or use the IConfiguration interface i.e. ConfigFile.GetSection("key")
-You can also use the ConfigFile.Elements Dictionary, but it's inconvenient for reading collections.
+You can also use the ConfigFile.Elements Dictionary, but it's inconvenient for reading arrays.
 
 ```csharp
 LoadResult result = ConfigFile.TryLoadFile("MyFile.cfg", Encoding.UTF8);
@@ -27,11 +33,11 @@ if(result.Success)
 	// This returns an empty string if it's not a single string
 	myString = singleString.Value;
 
-	IConfigElement collection = file.Elements["SomeCollection"];
-	// We can iterate over each string in the collection by doing this
-	foreach(IConfigElement elem = collection.Elements.Values)
+	IConfigElement array = file.Elements["SomeArray"];
+	// We can iterate over each string in the array by doing this
+	foreach(IConfigElement elem = array.Elements.Values)
 	{
-		Console.WriteLine("Collection element: " + elem.Value);
+		Console.WriteLine("Array element: " + elem.Value);
 	}
 
 	// Can get the sections, and loop over everything they have
@@ -52,6 +58,9 @@ if(result.Success)
 				break;
 		}
 	}
+
+	// If we need to get at the root section, we can do that too
+	ConfigSectionElement root = file.Root;
 }
 else
 {
@@ -60,8 +69,8 @@ else
 ```
 
 ## Examples
-### Strings, Collections, Comments
-Here is a config file with some keys, strings, and string collections, and descriptive comments.
+### Strings, Arrays, Comments
+Here is a config file with some keys, strings, and string arrays, and descriptive comments.
 
 ```
 # Syntax is simple
@@ -83,16 +92,16 @@ It spans many lines"
 # Quotes only have an effect if they are the very first thing in the string. You can use all kinds of quotes all you want so long as they're not the first character of the string.
 Doesn't Cause Problems=We're using "quotes" `just` fine!
 
-# String Collections are defined as per below.
+# String Arrays are defined as per below.
 "My Array"=[StringOne, String two, "String Three", "Multiline
 within an array"]
 
-# You don't need an equals sign when defining a collection, it's optional (but may be easier to read). The below still works.
-"Interpreted as a collection" [Element 1, Element 2]
+# You don't need an equals sign when defining a array, it's optional (but may be easier to read). The below still works.
+"Interpreted as an Array" [Element 1, Element 2]
 ```
 
 ### Sections
-Sections are defined by {braces}. Using sections will cause the resultant paths of the config elements to be constructed the key of each section, and finally the key of the value. In the case of collections, the key of the value is followed by the array index, to represent a specific string in the array.
+Sections are defined by {braces}. Using sections will cause the resultant paths of the config elements to be constructed the key of each section, and finally the key of the value. In the case of arrays, the key of the value is followed by the array index, to represent a specific string in the array.
 
 ```
 global{
@@ -104,7 +113,7 @@ global{
 		ValueTwo = Deeper Scope!
 	}
 	
-	# Each of these strings gets a separate path. They are, in order: global:Collection:0, global:Collection:1, global:Collection:2
-	Collection=[ValueOne, ValueTwo, ValueThree]
+	# Each of these strings gets a separate path. They are, in order: global:Collection:0, global:Array:1, global:Array:2
+	Array=[ValueOne, ValueTwo, ValueThree]
 }
 ```

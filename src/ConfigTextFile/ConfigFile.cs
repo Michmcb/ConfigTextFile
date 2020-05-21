@@ -10,7 +10,7 @@ namespace ConfigTextFile
 {
 	public class ConfigFile : IConfiguration
 	{
-		private static readonly ConfigFile Empty = new ConfigFile(null);
+		private static readonly ConfigFile Empty = new ConfigFile(null, null);
 		public const char ArrayElementDelimiter = ',';
 		public const char ArrayStart = '[';
 		public const char ArrayEnd = ']';
@@ -29,24 +29,29 @@ namespace ConfigTextFile
 		private static readonly char[] StartSeparators = new char[] { StringStart, ArrayStart, SectionStart };
 		public ConfigFile()
 		{
-			Elements = new Dictionary<string, IConfigElement>();
+			AllElements = new Dictionary<string, IConfigElement>();
 		}
-		public ConfigFile(IDictionary<string, IConfigElement> tokens)
+		public ConfigFile(IDictionary<string, IConfigElement> tokens, ConfigSectionElement root)
 		{
-			Elements = tokens;
+			AllElements = tokens;
+			Root = root;
 		}
 		/// <summary>
-		/// All TextConfigElements, keyed by section:name[arrayIndex].
+		/// All IConfigElements, keyed by section:name[arrayIndex].
 		/// </summary>
-		public IDictionary<string, IConfigElement> Elements { get; }
+		public IDictionary<string, IConfigElement> AllElements { get; }
+		/// <summary>
+		/// The root-level ConfigSection. Its Key/Path are empty strings, and it is not included in AllElements.
+		/// </summary>
+		public ConfigSectionElement Root { get; }
 		public ConfigurationReloadToken ChangeToken { get; set; }
 		public IConfigurationSection GetSection(string key)
 		{
-			return Elements.TryGetValue(key, out IConfigElement section) ? section : ConfigInvalidElement.Inst;
+			return AllElements.TryGetValue(key, out IConfigElement section) ? section : ConfigInvalidElement.Inst;
 		}
 		public IEnumerable<IConfigurationSection> GetChildren()
 		{
-			return Elements.Values;
+			return AllElements.Values;
 		}
 		public IChangeToken GetReloadToken()
 		{
@@ -61,11 +66,11 @@ namespace ConfigTextFile
 		{
 			get
 			{
-				return Elements.TryGetValue(key, out IConfigElement section) ? section.Value : null;
+				return AllElements.TryGetValue(key, out IConfigElement section) ? section.Value : null;
 			}
 			set
 			{
-				if (Elements.TryGetValue(key, out IConfigElement section))
+				if (AllElements.TryGetValue(key, out IConfigElement section))
 				{
 					section.Value = value;
 				}
@@ -84,12 +89,13 @@ namespace ConfigTextFile
 		}
 		public static LoadResult TryLoadFile(StreamReader reader)
 		{
-			// TODO clean this up a bit I guess.
+			// TODO This logic should use a ConfigReader, perhaps called ConfigTextReader or somesuch
 			// TODO if we encounter a duplicate key, such as a key being the same name as a scope or another key, then throw an exception. Should also do that if we that collide with a full path of an array, too.
 			string content = reader.ReadToEnd();
 			Stack<ConfigSectionElement> parentSections = new Stack<ConfigSectionElement>();
 			string currentSectionPath = "";
-			ConfigSectionElement currentSection = null;
+			ConfigSectionElement root = new ConfigSectionElement("", "");
+			ConfigSectionElement currentSection = root;
 			Dictionary<string, IConfigElement> allElements = new Dictionary<string, IConfigElement>();
 			for (int i = content.SkipWhiteSpaceAndComments(0, CommentStart); i < content.Length; i = content.SkipWhiteSpaceAndComments(i, CommentStart))
 			{
@@ -120,14 +126,18 @@ namespace ConfigTextFile
 						if (parentSections.Count > 0)
 						{
 							currentSection = parentSections.Pop();
-							currentSectionPath = currentSection != null ? currentSection.Path + KeyDelimiter : "";
+							currentSectionPath = currentSection.Path.Length > 0 ? currentSection.Path + KeyDelimiter : "";
 							++i;
 						}
 						else
 						{
-							return new LoadResult(false, Empty, string.Concat("Unexpected ", SectionEnd.ToString(), " found at " + i));
+							return new LoadResult(false, Empty, string.Concat("Unexpected ", SectionEnd.ToString(), " found at ", i.ToString()));
 						}
 						continue;
+				}
+				if (string.IsNullOrWhiteSpace(key))
+				{
+					return new LoadResult(false, Empty, "Failed to find a key at position" + i.ToString());
 				}
 				// i now refers to the separator, or content.Length
 				if (i == content.Length)
@@ -235,7 +245,7 @@ namespace ConfigTextFile
 			}
 			if (parentSections.Count == 0)
 			{
-				return new LoadResult(true, new ConfigFile(allElements), "");
+				return new LoadResult(true, new ConfigFile(allElements, root), "");
 			}
 			else
 			{

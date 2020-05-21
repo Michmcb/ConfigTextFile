@@ -11,10 +11,12 @@
     <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
     <Description>A .NET library which allows you to load plain-text configuration files</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>Huge rework; implements the IConfiguration and IConfigurationSection interfaces from Microsoft.Extensions.Configuration. Also implements its own IConfigElement, which provides a bit more finer control if you need.
-Elements of the config file are stored in a hierarchical manner.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added a Root ConfigSectionElement to the ConfigFile. It contains everything that's at the root of the file.</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.1.0</Version>
+    <Version>1.2.0</Version>
+    <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
+    <AssemblyVersion>1.2.0.0</AssemblyVersion>
+    <FileVersion>1.2.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>

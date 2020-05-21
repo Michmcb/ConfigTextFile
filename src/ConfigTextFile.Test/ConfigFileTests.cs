@@ -13,12 +13,20 @@ namespace ConfigTextFile.Test
 			ConfigFile ctf = loaded.ConfigTextFile;
 			Assert.True(loaded.Success);
 
-			ConfigStringElement val = (ConfigStringElement)ctf.Elements["First KEy"];
+			ConfigSectionElement root = ctf.Root;
+			ConfigStringElement val = (ConfigStringElement)root.Elements["First KEy"];
 			Assert.Equal("blah blah", val.Value);
-			val = (ConfigStringElement)ctf.Elements["ValueAfterLastScopeEnds"];
+			val = (ConfigStringElement)root.Elements["ValueAfterLastScopeEnds"];
+			Assert.Equal("Blah blah", val.Value);
+			ConfigSectionElement global = (ConfigSectionElement)root.Elements["global"];
+			Assert.Equal(8, global.Elements.Count);
+
+			val = (ConfigStringElement)ctf.AllElements["First KEy"];
+			Assert.Equal("blah blah", val.Value);
+			val = (ConfigStringElement)ctf.AllElements["ValueAfterLastScopeEnds"];
 			Assert.Equal("Blah blah", val.Value);
 
-			ConfigSectionElement global = (ConfigSectionElement)ctf.Elements["global"];
+			global = (ConfigSectionElement)ctf.AllElements["global"];
 			Assert.Equal(8, global.Elements.Count);
 			Assert.Equal("true", global["Value"]);
 			Assert.Equal("12345", global["Value Two"]);
@@ -40,12 +48,12 @@ that spans many lines", global["Multiline'd Value"]);
 			Assert.Equal(1, global.Elements["AnArray"].Elements.Count);
 			Assert.Equal("[String]", global["NotArray"]);
 
-			ConfigSectionElement myscope = (ConfigSectionElement)ctf.Elements["global:myscope"];
+			ConfigSectionElement myscope = (ConfigSectionElement)ctf.AllElements["global:myscope"];
 			Assert.Equal(2, myscope.Elements.Count);
 			Assert.Equal("12345", myscope["Quoted Value"]);
 			Assert.Contains("nested scope", myscope.Elements);
 
-			ConfigSectionElement nested_scope = (ConfigSectionElement)ctf.Elements["global:myscope:nested scope"];
+			ConfigSectionElement nested_scope = (ConfigSectionElement)ctf.AllElements["global:myscope:nested scope"];
 			Assert.Equal(1, nested_scope.Elements.Count);
 			Assert.Equal("=Yes", nested_scope["Value with Equals Sign"]);
 
@@ -56,7 +64,7 @@ that spans many lines", global["Multiline'd Value"]);
 			Assert.Same(nested_scope, ctf.GetSection("global:myscope:nested scope"));
 			Assert.Same(nested_scope, myscope.Elements["nested scope"]);
 			Assert.Same(nested_scope, myscope.GetSection("nested scope"));
-			Assert.Same(array, ctf.Elements["global:ArrayValue"]);
+			Assert.Same(array, ctf.AllElements["global:ArrayValue"]);
 			Assert.Same(array, ctf.GetSection("global:ArrayValue"));
 		}
 		[Fact]
