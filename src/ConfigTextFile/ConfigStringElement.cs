@@ -16,6 +16,14 @@ namespace ConfigTextFile
 			Key = key;
 			Path = path;
 			Value = value;
+			Comments = new List<string>();
+		}
+		public ConfigStringElement(string key, string path, string value, IEnumerable<string> comments)
+		{
+			Key = key;
+			Path = path;
+			Value = value;
+			Comments = new List<string>(comments);
 		}
 		/// <summary>
 		/// Always throws an InvalidOperationException, as strings don't have any children.
@@ -35,6 +43,10 @@ namespace ConfigTextFile
 		public string Path { get; }
 		public string Value { get; set; }
 		/// <summary>
+		/// Always true
+		/// </summary>
+		public bool IsValid => true;
+		/// <summary>
 		/// Always throws an InvalidOperationException, as strings don't have any children.
 		/// </summary>
 		public IDictionary<string, IConfigElement> Elements => throw new InvalidOperationException("This is a ConfigStringElement; it has no children to get");
@@ -42,6 +54,10 @@ namespace ConfigTextFile
 		/// Returns ConfigElementType.String
 		/// </summary>
 		public ConfigElementType Type => ConfigElementType.String;
+		/// <summary>
+		/// The comments that preceded this ConfigStringElement
+		/// </summary>
+		public ICollection<string> Comments { get; set; }
 		/// <summary>
 		/// Returns an Empty sequence
 		/// </summary>
@@ -78,5 +94,17 @@ namespace ConfigTextFile
 		/// Never throws
 		/// </summary>
 		public void ThrowIfInvalid() { }
+		public ConfigArrayElement AsArrayElement()
+		{
+			throw new InvalidCastException("This is not a ConfigArrayElement; it is a ConfigStringElement");
+		}
+		public ConfigSectionElement AsSectionElement()
+		{
+			throw new InvalidCastException("This is not a ConfigSectionElement; it is a ConfigStringElement");
+		}
+		public ConfigStringElement AsStringElement()
+		{
+			return this;
+		}
 	}
 }

@@ -23,8 +23,30 @@ namespace ConfigTextFile
 		/// </summary>
 		IDictionary<string, IConfigElement> Elements { get; }
 		/// <summary>
-		/// Throws if and only if this ConfigElement is a ConfigInvalidElement.
+		/// Throws if and only if this IConfigElement is a ConfigInvalidElement.
 		/// </summary>
 		void ThrowIfInvalid();
+		/// <summary>
+		/// Returns false if this IConfigElement is a ConfigInvalidElement. Otherwise, returns true.
+		/// </summary>
+		bool IsValid { get; }
+		/// <summary>
+		/// Returns the IConfigElement as a ConfigArrayElement, if possible.
+		/// Throws an InvalidCastException if this is not a ConfigArrayElement.
+		/// (No cast actually takes place; simply returns this)
+		/// </summary>
+		ConfigArrayElement AsArrayElement();
+		/// <summary>
+		/// Returns the IConfigElement as a ConfigSectionElement, if possible.
+		/// Throws an InvalidCastException if this is not a ConfigSectionElement
+		/// (No cast actually takes place; simply returns this)
+		/// </summary>
+		ConfigSectionElement AsSectionElement();
+		/// <summary>
+		/// Returns the IConfigElement as a ConfigStringElement, if possible.
+		/// Throws an InvalidCastException if this is not a ConfigStringElement
+		/// (No cast actually takes place; simply returns this)
+		/// </summary>
+		ConfigStringElement AsStringElement();
 	}
 }

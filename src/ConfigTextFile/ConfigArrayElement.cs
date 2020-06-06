@@ -17,6 +17,13 @@ namespace ConfigTextFile
 			Path = path;
 			Elements = new Dictionary<string, IConfigElement>();
 		}
+		public ConfigArrayElement(string key, string path, List<string> comments)
+		{
+			Key = key;
+			Path = path;
+			Elements = new Dictionary<string, IConfigElement>();
+			Comments = new List<string>(comments);
+		}
 		/// <summary>
 		/// Gets or sets a IConfigElement's value.
 		/// <paramref name="key"/> should refer to a ConfigStringElement.
@@ -39,20 +46,29 @@ namespace ConfigTextFile
 				}
 			}
 		}
+		public string Key { get; }
+		public string Path { get; }
+		/// <summary>
+		/// Always returns an empty string. Setting this throws an InvalidOperationException.
+		/// </summary>
+		public string Value { get => ""; set => throw new InvalidOperationException("You cannot set the value of a ConfigArrayElement"); }
+		/// <summary>
+		/// Always true
+		/// </summary>
+		public bool IsValid => true;
+		/// <summary>
+		/// All IConfigElements within this Section.
+		/// All of these are ConfigStringElements.
+		/// </summary>
+		public IDictionary<string, IConfigElement> Elements { get; }
 		/// <summary>
 		/// Returns ConfigElementType.Array
 		/// </summary>
 		public ConfigElementType Type => ConfigElementType.Array;
-		public string Key { get; }
-		public string Path { get; }
 		/// <summary>
-		/// Always returns an empty string. Setting this does nothing.
+		/// The comments that preceded this ConfigArrayElement
 		/// </summary>
-		public string Value { get => ""; set { } }
-		/// <summary>
-		/// All IConfigElements within this Section
-		/// </summary>
-		public IDictionary<string, IConfigElement> Elements { get; }
+		public ICollection<string> Comments { get; set; }
 		public IConfigElement GetElement(string key)
 		{
 			return Elements.TryGetValue(key, out IConfigElement section) ? section : ConfigInvalidElement.Inst;
@@ -64,6 +80,16 @@ namespace ConfigTextFile
 		public IEnumerable<IConfigurationSection> GetChildren()
 		{
 			return Elements.Values;
+		}
+		/// <summary>
+		/// A convenience method that loops over all strings in this array.
+		/// </summary>
+		public IEnumerable<string> GetValues()
+		{
+			foreach (IConfigElement e in Elements.Values)
+			{
+				yield return e.Value;
+			}
 		}
 		public IChangeToken GetReloadToken()
 		{
@@ -80,5 +106,17 @@ namespace ConfigTextFile
 		/// Never throws
 		/// </summary>
 		public void ThrowIfInvalid() { }
+		public ConfigArrayElement AsArrayElement()
+		{
+			return this;
+		}
+		public ConfigSectionElement AsSectionElement()
+		{
+			throw new InvalidCastException("This is not a ConfigSectionElement; it is a ConfigArrayElement");
+		}
+		public ConfigStringElement AsStringElement()
+		{
+			throw new InvalidCastException("This is not a ConfigStringElement; it is a ConfigArrayElement");
+		}
 	}
 }
