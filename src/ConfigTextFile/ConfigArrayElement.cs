@@ -32,7 +32,11 @@ namespace ConfigTextFile
 		{
 			get
 			{
-				return Elements.TryGetValue(key, out IConfigElement section) ? section.Value : null;
+				return Elements.TryGetValue(key, out IConfigElement section)
+					? section.Type == ConfigElementType.String
+						? section.Value
+						: throw new InvalidOperationException(string.Concat("The ConfigElement with the key ", key, "was found, but it was a " + section.Type + ", not a String. Path: ", section.Path))
+					: throw new KeyNotFoundException("There is no ConfigStringElement with the key " + key);
 			}
 			set
 			{
@@ -73,14 +77,6 @@ namespace ConfigTextFile
 		{
 			return Elements.TryGetValue(key, out IConfigElement section) ? section : ConfigInvalidElement.Inst;
 		}
-		public IConfigurationSection GetSection(string key)
-		{
-			return GetElement(key);
-		}
-		public IEnumerable<IConfigurationSection> GetChildren()
-		{
-			return Elements.Values;
-		}
 		/// <summary>
 		/// A convenience method that loops over all strings in this array.
 		/// </summary>
@@ -90,10 +86,6 @@ namespace ConfigTextFile
 			{
 				yield return e.Value;
 			}
-		}
-		public IChangeToken GetReloadToken()
-		{
-			throw new NotImplementedException("Currently you can't reload this, so Change Tokens are not implemented yet");
 		}
 		/// <summary>
 		/// Returns Path
@@ -117,6 +109,18 @@ namespace ConfigTextFile
 		public ConfigStringElement AsStringElement()
 		{
 			throw new InvalidCastException("This is not a ConfigStringElement; it is a ConfigArrayElement");
+		}
+		public IChangeToken GetReloadToken()
+		{
+			throw new NotImplementedException("Currently you can't reload this, so Change Tokens are not implemented yet");
+		}
+		public IConfigurationSection GetSection(string key)
+		{
+			return GetElement(key);
+		}
+		public IEnumerable<IConfigurationSection> GetChildren()
+		{
+			return Elements.Values;
 		}
 	}
 }

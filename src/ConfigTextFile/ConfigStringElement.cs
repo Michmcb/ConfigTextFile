@@ -59,29 +59,11 @@ namespace ConfigTextFile
 		/// </summary>
 		public ICollection<string> Comments { get; set; }
 		/// <summary>
-		/// Returns an Empty sequence
-		/// </summary>
-		public IEnumerable<IConfigurationSection> GetChildren()
-		{
-			yield break;
-		}
-		/// <summary>
-		/// Returns the ConfigInvalidElement instance
-		/// </summary>
-		public IConfigurationSection GetSection(string key)
-		{
-			return ConfigInvalidElement.Inst;
-		}
-		/// <summary>
 		/// Returns the ConfigInvalidElement instance
 		/// </summary>
 		public IConfigElement GetElement(string key)
 		{
 			return ConfigInvalidElement.Inst;
-		}
-		public IChangeToken GetReloadToken()
-		{
-			throw new NotImplementedException("Currently you can't reload this, so Change Tokens are not implemented yet");
 		}
 		/// <summary>
 		/// Returns Path=Value
@@ -105,6 +87,24 @@ namespace ConfigTextFile
 		public ConfigStringElement AsStringElement()
 		{
 			return this;
+		}
+		/// <summary>
+		/// Returns an Empty sequence
+		/// </summary>
+		public IEnumerable<IConfigurationSection> GetChildren()
+		{
+			yield break;
+		}
+		public IChangeToken GetReloadToken()
+		{
+			throw new NotImplementedException("Currently you can't reload this, so Change Tokens are not implemented yet");
+		}
+		/// <summary>
+		/// Returns the ConfigInvalidElement instance
+		/// </summary>
+		public IConfigurationSection GetSection(string key)
+		{
+			return ConfigInvalidElement.Inst;
 		}
 	}
 }
