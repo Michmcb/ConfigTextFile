@@ -18,13 +18,10 @@ if(result.Success)
 {
 	ConfigFile file = result.ConfigTextFile;
 
-	// We can interpret it as an IConfigurationSection by using GetSection
-	string myString = file.GetSection("SomeSection:SomeKey").Value;
-
 	// We can just directly get the string this way. This is less verbose, but throws exceptions when keys are not found or are not a single string
 	myString = file["SomeSection:SomeKey"];
 
-	// And finally this lets us use the IConfigElement interface
+	// This lets us use the IConfigElement interface
 	IConfigElement singleString = file.GetElement("SomeSection:SomeKey");
 
 	// Throws an exception if the above key was not found
