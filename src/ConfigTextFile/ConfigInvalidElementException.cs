@@ -1,6 +1,7 @@
-﻿using System;
-namespace ConfigTextFile
+﻿namespace ConfigTextFile
 {
+	using System;
+
 	public sealed class ConfigInvalidElementException : Exception
 	{
 		public ConfigInvalidElementException() : base("This ConfigElement is Invalid. This usually means the key used to get this ConfigElement did not exist in the file that was loaded.")

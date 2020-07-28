@@ -24,8 +24,6 @@ namespace ConfigTextFile.Test.ConfigInvalidElementTests
 			Assert.False(e.IsValid);
 
 			Assert.Equal(e, e.GetElement(""));
-			Assert.Equal(e, e.GetSection(""));
-			Assert.Empty(e.GetChildren());
 
 			Assert.Empty(e.Value);
 			ConfigInvalidElement.InvalidValue = null;

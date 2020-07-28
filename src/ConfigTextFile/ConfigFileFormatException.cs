@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace ConfigTextFile
+﻿namespace ConfigTextFile
 {
+	using System;
+
 	public sealed class ConfigFileFormatException : Exception
 	{
 		public ConfigFileFormatException()

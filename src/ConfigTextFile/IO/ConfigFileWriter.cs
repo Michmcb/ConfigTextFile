@@ -1,15 +1,15 @@
-﻿using System;
-using System.IO;
-using System.Linq;
-
-namespace ConfigTextFile.IO
+﻿namespace ConfigTextFile.IO
 {
+	using System;
+	using System.IO;
+	using System.Linq;
+
 	/// <summary>
 	/// Writes a formatted ConfigFile to a StreamWriter
 	/// </summary>
 	public sealed class ConfigFileWriter : IDisposable
 	{
-		private string currentIndentation = "";
+		private string currentIndentation = string.Empty;
 		private ConfigFileToken previousWrite = 0;
 		/// <summary>
 		/// Creates a new ConfigFileWriter which writes to <paramref name="writer"/>.
@@ -212,7 +212,7 @@ namespace ConfigTextFile.IO
 					Writer.WriteLine();
 				}
 
-				currentIndentation = string.IsNullOrEmpty(Formatting.Indentation) ? "" : string.Concat(Enumerable.Repeat(Formatting.Indentation, ++SectionLevel));
+				currentIndentation = string.IsNullOrEmpty(Formatting.Indentation) ? string.Empty : string.Concat(Enumerable.Repeat(Formatting.Indentation, ++SectionLevel));
 				// Not allowed to finish until all sections are closed
 				ValidWrites = ConfigFileToken.Key | ConfigFileToken.Comment;
 				previousWrite = ConfigFileToken.StartSection;
@@ -230,7 +230,7 @@ namespace ConfigTextFile.IO
 			if (CanWrite(ConfigFileToken.EndSection))
 			{
 				WriteBlankLineIfNeeded(previousWrite, ConfigFileToken.EndSection);
-				currentIndentation = string.IsNullOrEmpty(Formatting.Indentation) ? "" : string.Concat(Enumerable.Repeat(Formatting.Indentation, --SectionLevel));
+				currentIndentation = string.IsNullOrEmpty(Formatting.Indentation) ? string.Empty : string.Concat(Enumerable.Repeat(Formatting.Indentation, --SectionLevel));
 				Writer.Write(currentIndentation);
 				Writer.WriteLine(SyntaxCharacters.SectionEnd);
 				// Only allow writing another end section if there's a section open
@@ -389,26 +389,17 @@ namespace ConfigTextFile.IO
 		}
 		#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
-		private void Dispose(bool disposing)
+		public void Dispose()
 		{
 			if (!disposedValue)
 			{
-				if (disposing)
+				if (CloseOutput)
 				{
-					if (CloseOutput)
-					{
-						Writer.Dispose();
-					}
+					Writer.Dispose();
 				}
 
 				disposedValue = true;
 			}
-		}
-		// This code added to correctly implement the disposable pattern.
-		public void Dispose()
-		{
-			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-			Dispose(true);
 		}
 		#endregion
 	}

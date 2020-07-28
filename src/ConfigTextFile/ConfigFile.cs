@@ -1,14 +1,12 @@
-﻿using ConfigTextFile.IO;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.Primitives;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-
-namespace ConfigTextFile
+﻿namespace ConfigTextFile
 {
-	public class ConfigFile : IConfiguration
+	using ConfigTextFile.IO;
+	using System.Collections.Generic;
+	using System.IO;
+	using System.Linq;
+	using System.Text;
+
+	public sealed class ConfigFile
 	{
 		private static readonly ConfigFile Empty = new ConfigFile(null, null);
 		public ConfigFile()
@@ -21,29 +19,49 @@ namespace ConfigTextFile
 			Root = root;
 		}
 		/// <summary>
-		/// All IConfigElements, keyed by section:name[arrayIndex].
+		/// All IConfigElements, keyed by section:name:arrayindex.
 		/// </summary>
 		public IDictionary<string, IConfigElement> AllElements { get; }
 		/// <summary>
 		/// The root-level ConfigSection. Its Key/Path are empty strings, and it is not included in AllElements.
 		/// </summary>
 		public ConfigSectionElement Root { get; }
-		public ConfigurationReloadToken ChangeToken { get; set; }
+		/// <summary>
+		/// Creates a Dictionary, with the same keys as <see cref="AllElements"/>, but the values are the string values of all ConfigElements.
+		/// </summary>
+		public Dictionary<string, string> CreateStringDictionary()
+		{
+			Dictionary<string, string> dict = new Dictionary<string, string>();
+			FillStringDictionary(dict);
+			return dict;
+		}
+		/// <summary>
+		/// Fills the provided <paramref name="dict"/> with the same keys as <see cref="AllElements"/>, but the values are the string values of all ConfigElements.
+		/// If <paramref name="overwrite"/> is true, keys already present are overwritten. Otherwise, a <see cref="System.ArgumentException"/> is thrown.
+		/// </summary>
+		/// <param name="dict">The dictionary to fill.</param>
+		/// <param name="overwrite">If true, overwrites key/value pairs in the provided dict. Otherwise, throws an exception.</param>
+		public void FillStringDictionary(IDictionary<string, string> dict, bool overwrite = true)
+		{
+			IEnumerable<IConfigElement> strings = AllElements.Values.Where(x => x.Type == ConfigElementType.String);
+			if (overwrite)
+			{
+				foreach (IConfigElement sv in strings)
+				{
+					dict[sv.Path] = sv.Value;
+				}
+			}
+			else
+			{
+				foreach (IConfigElement sv in strings)
+				{
+					dict.Add(sv.Path, sv.Value);
+				}
+			}
+		}
 		public IConfigElement GetElement(string key)
 		{
 			return AllElements.TryGetValue(key, out IConfigElement section) ? section : ConfigInvalidElement.Inst;
-		}
-		public IConfigurationSection GetSection(string key)
-		{
-			return AllElements.TryGetValue(key, out IConfigElement section) ? section : ConfigInvalidElement.Inst;
-		}
-		public IEnumerable<IConfigurationSection> GetChildren()
-		{
-			return AllElements.Values;
-		}
-		public IChangeToken GetReloadToken()
-		{
-			throw new NotImplementedException("Currently you can't reload this, so Change Tokens are not implemented yet");
 		}
 		/// <summary>
 		/// Retrieves a string, given a key.
@@ -66,6 +84,32 @@ namespace ConfigTextFile
 				{
 					throw new KeyNotFoundException("There is no TextConfigSection with the key " + key);
 				}
+			}
+		}
+		/// <summary>
+		/// Creates a Dictionary, with the same keys as all of the <see cref="AllElements"/> property of all <paramref name="configs"/>, but the values are the string values of all ConfigElements.
+		/// If <paramref name="overwrite"/> is true, keys already present are overwritten. Otherwise, a <see cref="System.ArgumentException"/> is thrown.
+		/// </summary>
+		/// <param name="overwrite">If true, overwrites key/value pairs in the provided dict. Otherwise, throws an exception.</param>
+		/// <param name="configs">The ConfigFiles from which to create a Dictionary.</param>
+		public static Dictionary<string, string> CreateStringDictionary(bool overwrite, params ConfigFile[] configs)
+		{
+			Dictionary<string, string> dict = new Dictionary<string, string>();
+			FillStringDictionary(dict, overwrite, configs);
+			return dict;
+		}
+		/// <summary>
+		/// Fills the provided <paramref name="dict"/> with the same keys as all of the <see cref="AllElements"/> property of all <paramref name="configs"/>, but the values are the string values of all ConfigElements.
+		/// If <paramref name="overwrite"/> is true, keys already present are overwritten. Otherwise, a <see cref="System.ArgumentException"/> is thrown.
+		/// </summary>
+		/// <param name="dict">The dictionary to fill.</param>
+		/// <param name="overwrite">If true, overwrites key/value pairs in the provided dict. Otherwise, throws an exception.</param>
+		/// <param name="configs">The ConfigFiles to use to fill the dictionary.</param>
+		public static void FillStringDictionary(IDictionary<string, string> dict, bool overwrite, params ConfigFile[] configs)
+		{
+			foreach (ConfigFile config in configs)
+			{
+				config.FillStringDictionary(dict, overwrite);
 			}
 		}
 		public static ConfigFile LoadFile(string path, Encoding encoding)
@@ -103,11 +147,11 @@ namespace ConfigTextFile
 		{
 			List<string> comments = new List<string>();
 			Stack<ConfigSectionElement> parentSections = new Stack<ConfigSectionElement>();
-			string currentSectionPath = "";
-			ConfigSectionElement root = new ConfigSectionElement("", "");
+			string currentSectionPath = string.Empty;
+			ConfigSectionElement root = new ConfigSectionElement(string.Empty, string.Empty);
 			ConfigSectionElement currentSection = root;
 			Dictionary<string, IConfigElement> allElements = new Dictionary<string, IConfigElement>();
-			string key = "";
+			string key = string.Empty;
 			try
 			{
 				while (reader.MoreToRead)
@@ -152,7 +196,7 @@ namespace ConfigTextFile
 								if (fRead.Type == ConfigFileToken.ArrayValue)
 								{
 									string arrayIndex = index.ToString();
-									string arrayElementPath = string.Concat(arrayPath, SyntaxCharacters.KeyDelimiter, arrayIndex);
+									string arrayElementPath = string.Concat(arrayPath, SyntaxCharacters.SectionDelimiter, arrayIndex);
 									ConfigStringElement arrayElement = new ConfigStringElement(arrayIndex, arrayElementPath, fRead.Value);
 									if (!allElements.ContainsKey(arrayElementPath))
 									{
@@ -181,7 +225,7 @@ namespace ConfigTextFile
 								currentSection?.Elements.Add(key, newSection);
 								currentSection = newSection;
 								allElements.Add(currentSectionPath, currentSection);
-								currentSectionPath += SyntaxCharacters.KeyDelimiter;
+								currentSectionPath += SyntaxCharacters.SectionDelimiter;
 							}
 							else
 							{
@@ -191,7 +235,7 @@ namespace ConfigTextFile
 						case ConfigFileToken.EndSection:
 							// Section end, pop back to the upper scope
 							currentSection = parentSections.Pop();
-							currentSectionPath = currentSection.Path.Length > 0 ? currentSection.Path + SyntaxCharacters.KeyDelimiter : "";
+							currentSectionPath = currentSection.Path.Length > 0 ? currentSection.Path + SyntaxCharacters.SectionDelimiter : string.Empty;
 							break;
 						case ConfigFileToken.Comment:
 							comments.Add(fRead.Value);
@@ -202,7 +246,7 @@ namespace ConfigTextFile
 							break;
 					}
 				}
-				return new LoadResult(true, new ConfigFile(allElements, root), "");
+				return new LoadResult(true, new ConfigFile(allElements, root), string.Empty);
 			}
 			catch (ConfigFileFormatException ex)
 			{

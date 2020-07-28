@@ -14,10 +14,10 @@
     <PackageReleaseNotes>- When trying to get a string value by using array indexers e.g. ConfigSectionElement["key"], this now throws an exception rather than returning null, if the key does not resolve to a ConfigStringElement. Prefer array indexers if you want exceptions, prefer methods if you don't.
 - Setting ConfigInvalidElement.Value throws an exception. Use ConfigInvalidElement.InvalidValue to set the default value which gets returned (Which is empty string by default)</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.4.0</Version>
+    <Version>1.5.0</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.4.0.0</AssemblyVersion>
-    <FileVersion>1.4.0.0</FileVersion>
+    <AssemblyVersion>1.5.0.0</AssemblyVersion>
+    <FileVersion>1.5.0.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -29,11 +29,6 @@
       <Pack>True</Pack>
       <PackagePath></PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <PackageReference Include="Microsoft.Extensions.Configuration" Version="3.1.4" />
-    <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="3.1.4" />
   </ItemGroup>
 
 </Project>

@@ -1,15 +1,39 @@
 ﻿namespace ConfigTextFile.IO
 {
-	public sealed class SyntaxCharacters
+	public static class SyntaxCharacters
 	{
+		/// <summary>
+		/// Delimits individual elements in an array
+		/// </summary>
 		public const char ArrayElementDelimiter = ',';
+		/// <summary>
+		/// Denotes the start of an array
+		/// </summary>
 		public const char ArrayStart = '[';
+		/// <summary>
+		/// Denotes the end of an array
+		/// </summary>
 		public const char ArrayEnd = ']';
+		/// <summary>
+		/// Denotes the start of a section
+		/// </summary>
 		public const char SectionStart = '{';
+		/// <summary>
+		/// Denotes the end of a section
+		/// </summary>
 		public const char SectionEnd = '}';
+		/// <summary>
+		/// Goes between a key/value, or key/array
+		/// </summary>
 		public const char ValueStart = '=';
+		/// <summary>
+		/// Lines starting with this are a comment
+		/// </summary>
 		public const char CommentStart = '#';
-		public const string KeyDelimiter = ":";
+		/// <summary>
+		/// Delimits section names. e.g. Section1:Section2:Key
+		/// </summary>
+		public const string SectionDelimiter = ":";
 
 		/// <summary>
 		/// ArrayElementDelimiter and ArrayEnd

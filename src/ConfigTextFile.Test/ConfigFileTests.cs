@@ -62,15 +62,15 @@ that spans many lines", val.Value);
 			Assert.Equal(1, nested_scope.Elements.Count);
 			Assert.Equal("=Yes", nested_scope["Value with Equals Sign"]);
 
-			Assert.Same(global, ctf.GetSection("global"));
-			Assert.Same(myscope, ctf.GetSection("global:myscope"));
+			Assert.Same(global, ctf.GetElement("global"));
+			Assert.Same(myscope, ctf.GetElement("global:myscope"));
 			Assert.Same(myscope, global.Elements["myscope"]);
-			Assert.Same(myscope, global.GetSection("myscope"));
-			Assert.Same(nested_scope, ctf.GetSection("global:myscope:nested scope"));
+			Assert.Same(myscope, global.GetElement("myscope"));
+			Assert.Same(nested_scope, ctf.GetElement("global:myscope:nested scope"));
 			Assert.Same(nested_scope, myscope.Elements["nested scope"]);
-			Assert.Same(nested_scope, myscope.GetSection("nested scope"));
+			Assert.Same(nested_scope, myscope.GetElement("nested scope"));
 			Assert.Same(array, ctf.AllElements["global:ArrayValue"]);
-			Assert.Same(array, ctf.GetSection("global:ArrayValue"));
+			Assert.Same(array, ctf.GetElement("global:ArrayValue"));
 		}
 		[Fact]
 		public void MalformedFiles()

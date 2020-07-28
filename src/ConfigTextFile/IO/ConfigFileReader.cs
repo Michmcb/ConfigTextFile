@@ -1,9 +1,9 @@
-﻿using System;
-using System.IO;
-using System.Text;
-
-namespace ConfigTextFile.IO
+﻿namespace ConfigTextFile.IO
 {
+	using System;
+	using System.IO;
+	using System.Text;
+
 	/// <summary>
 	/// A forward-only reader for a ConfigFile. Ensures that it is syntactically valid as it reads.
 	/// If it encounters something syntactically invalid, it will throw an exception when you attempt to read it.
@@ -62,7 +62,7 @@ namespace ConfigTextFile.IO
 							{
 								throw new ConfigFileFormatException("Found end of file when there were still " + SectionLevel.ToString() + " sections to close");
 							}
-							return new ReadCfgToken("", ConfigFileToken.Finish);
+							return new ReadCfgToken(string.Empty, ConfigFileToken.Finish);
 						}
 						if (c == SyntaxCharacters.CommentStart)
 						{
@@ -77,7 +77,7 @@ namespace ConfigTextFile.IO
 							{
 								throw new ConfigFileFormatException("Found } (section close) when there was no section to close.");
 							}
-							return new ReadCfgToken("", ConfigFileToken.EndSection);
+							return new ReadCfgToken(string.Empty, ConfigFileToken.EndSection);
 						}
 						// In all other cases it's either a quoted or unquoted key
 						if (IsQuote(c.Value))
@@ -112,13 +112,13 @@ namespace ConfigTextFile.IO
 					}
 				case ReadState.AtStartOfSection:
 					State = ReadState.Expecting_Key_Comment_EndSection_EndFile;
-					return new ReadCfgToken("", ConfigFileToken.StartSection);
+					return new ReadCfgToken(string.Empty, ConfigFileToken.StartSection);
 				case ReadState.AtStartOfArray:
 					State = ReadState.ReadingArray;
-					return new ReadCfgToken("", ConfigFileToken.StartArray);
+					return new ReadCfgToken(string.Empty, ConfigFileToken.StartArray);
 				case ReadState.AtEndOfArray:
 					State = ReadState.Expecting_Key_Comment_EndSection_EndFile;
-					return new ReadCfgToken("", ConfigFileToken.EndArray);
+					return new ReadCfgToken(string.Empty, ConfigFileToken.EndArray);
 				case ReadState.AtStartOfArrayOrValue:
 					{
 						// A singular value. Either quoted or unquoted.
@@ -130,7 +130,7 @@ namespace ConfigTextFile.IO
 						if (c == SyntaxCharacters.ArrayStart)
 						{
 							State = ReadState.ReadingArray;
-							return new ReadCfgToken("", ConfigFileToken.StartArray);
+							return new ReadCfgToken(string.Empty, ConfigFileToken.StartArray);
 						}
 						if (IsQuote(c.Value))
 						{
@@ -180,7 +180,7 @@ namespace ConfigTextFile.IO
 						}
 					}
 				case ReadState.EndOfFile:
-					return new ReadCfgToken("", ConfigFileToken.Finish);
+					return new ReadCfgToken(string.Empty, ConfigFileToken.Finish);
 				default:
 					throw new InvalidOperationException("State was not a valid value");
 			}
@@ -318,26 +318,17 @@ namespace ConfigTextFile.IO
 		}
 		#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
-		private void Dispose(bool disposing)
+		public void Dispose()
 		{
 			if (!disposedValue)
 			{
-				if (disposing)
+				if (CloseInput)
 				{
-					if (CloseInput)
-					{
-						Reader.Dispose();
-					}
+					Reader.Dispose();
 				}
 
 				disposedValue = true;
 			}
-		}
-		// This code added to correctly implement the disposable pattern.
-		public void Dispose()
-		{
-			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-			Dispose(true);
 		}
 		#endregion
 	}

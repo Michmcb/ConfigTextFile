@@ -1,22 +1,33 @@
-﻿using Microsoft.Extensions.Configuration;
-using System.Collections.Generic;
-
-namespace ConfigTextFile
+﻿namespace ConfigTextFile
 {
+	using System.Collections.Generic;
+
 	/// <summary>
 	/// Represents a ConfigElement within a ConfigFile.
 	/// </summary>
-	public interface IConfigElement : IConfigurationSection
+	public interface IConfigElement
 	{
 		/// <summary>
-		/// The Type of this element
+		/// The Key of this ConfigElement.
+		/// </summary>
+		string Key { get; }
+		/// <summary>
+		/// The full path to this ConfigElement.
+		/// </summary>
+		string Path { get; }
+		/// <summary>
+		/// Gets or sets this ConfigElement's value.
+		/// </summary>
+		string Value { get; set; }
+		/// <summary>
+		/// The Type of this element.
 		/// </summary>
 		ConfigElementType Type { get; }
 		/// <summary>
 		/// Tries to get the ConfigElement identified by <paramref name="key"/>.
 		/// If it does not exist, returns a <see cref="ConfigInvalidElement"/>.
 		/// </summary>
-		/// <param name="key">The key of the element</param>
+		/// <param name="key">The key of the element.</param>
 		IConfigElement GetElement(string key);
 		/// <summary>
 		/// Child elements, if the Element is a Section or Array. In other cases, throws an InvalidOperationException.
@@ -33,19 +44,19 @@ namespace ConfigTextFile
 		/// <summary>
 		/// Returns the IConfigElement as a ConfigArrayElement, if possible.
 		/// Throws an InvalidCastException if this is not a ConfigArrayElement.
-		/// (No cast actually takes place; simply returns this)
+		/// (No cast actually takes place; simply returns this).
 		/// </summary>
 		ConfigArrayElement AsArrayElement();
 		/// <summary>
 		/// Returns the IConfigElement as a ConfigSectionElement, if possible.
 		/// Throws an InvalidCastException if this is not a ConfigSectionElement
-		/// (No cast actually takes place; simply returns this)
+		/// (No cast actually takes place; simply returns this).
 		/// </summary>
 		ConfigSectionElement AsSectionElement();
 		/// <summary>
 		/// Returns the IConfigElement as a ConfigStringElement, if possible.
 		/// Throws an InvalidCastException if this is not a ConfigStringElement
-		/// (No cast actually takes place; simply returns this)
+		/// (No cast actually takes place; simply returns this).
 		/// </summary>
 		ConfigStringElement AsStringElement();
 	}

@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace ConfigTextFile.IO
+﻿namespace ConfigTextFile.IO
 {
+	using System;
+
 	[Flags]
 	public enum ConfigFileToken
 	{

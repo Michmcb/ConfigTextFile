@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace ConfigTextFile.IO.Fluent
+﻿namespace ConfigTextFile.IO.Fluent
 {
+	using System;
+	using System.Collections.Generic;
+
 	public sealed class FluentConfigFileSection
 	{
 		private readonly ConfigFileWriter writer;

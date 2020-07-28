@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-
-namespace ConfigTextFile.IO
+﻿namespace ConfigTextFile.IO
 {
+	using System.Collections.Generic;
+
 	public sealed class ConfigFileFormatting
 	{
-		private QuotePreference quotePreference;
 		private readonly char[] quotesInOrderOfPreference;
+		private QuotePreference quotePreference;
 		/// <summary>
 		/// Creates formatting with default values
 		/// </summary>

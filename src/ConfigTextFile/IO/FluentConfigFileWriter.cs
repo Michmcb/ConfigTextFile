@@ -1,8 +1,8 @@
-﻿using ConfigTextFile.IO.Fluent;
-using System;
-
-namespace ConfigTextFile.IO
+﻿namespace ConfigTextFile.IO
 {
+	using ConfigTextFile.IO.Fluent;
+	using System;
+
 	public sealed class FluentConfigFileWriter : IDisposable
 	{
 		/// <summary>
@@ -38,26 +38,17 @@ namespace ConfigTextFile.IO
 		}
 		#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
-		private void Dispose(bool disposing)
+		public void Dispose()
 		{
 			if (!disposedValue)
 			{
-				if (disposing)
+				if (CloseOutput)
 				{
-					if (CloseOutput)
-					{
-						Writer.Dispose();
-					}
+					Writer.Dispose();
 				}
 
 				disposedValue = true;
 			}
-		}
-		// This code added to correctly implement the disposable pattern.
-		public void Dispose()
-		{
-			// Do not change this code. Put cleanup code in Dispose(bool disposing) above.
-			Dispose(true);
 		}
 		#endregion
 	}

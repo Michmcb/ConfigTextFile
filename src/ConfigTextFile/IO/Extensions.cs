@@ -1,18 +1,7 @@
-﻿using System;
-using System.IO;
-
-namespace ConfigTextFile.IO
+﻿namespace ConfigTextFile.IO
 {
-	public static class ExtensionsAndHelpers
+	public static class Extensions
 	{
-		public static void WriteLine(this StreamWriter writer, in ReadOnlySpan<char> str)
-		{
-			foreach (char c in str)
-			{
-				writer.Write(c);
-			}
-			writer.WriteLine();
-		}
 		/// <summary>
 		/// Returns the zero-based index of the first occurrence in this instance of a character NOT in <paramref name="chars"/>, starting from <paramref name="startIndex"/>.
 		/// </summary>

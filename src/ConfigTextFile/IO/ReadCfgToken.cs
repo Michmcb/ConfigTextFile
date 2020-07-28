@@ -1,9 +1,9 @@
-﻿using System;
-
-namespace ConfigTextFile.IO
+﻿namespace ConfigTextFile.IO
 {
+	using System;
+
 	/// <summary>
-	/// Represents a single token that was read
+	/// Represents a single token that was read.
 	/// </summary>
 	public readonly struct ReadCfgToken : IEquatable<ReadCfgToken>
 	{
@@ -13,7 +13,7 @@ namespace ConfigTextFile.IO
 			Type = type;
 		}
 		/// <summary>
-		/// The value of the token that was read
+		/// The value of the token that was read.
 		/// </summary>
 		public string Value { get; }
 		/// <summary>
@@ -21,24 +21,24 @@ namespace ConfigTextFile.IO
 		/// </summary>
 		public ConfigFileToken Type { get; }
 		/// <summary>
-		/// Returns true if Value and Type are the same
+		/// Returns true if Value and Type are the same.
 		/// </summary>
 		public override bool Equals(object obj)
 		{
 			return obj is ReadCfgToken token && Equals(token);
 		}
 		/// <summary>
-		/// Returns true if Value and Type are the same
+		/// Returns true if Value and Type are the same.
 		/// </summary>
 		public bool Equals(ReadCfgToken other)
 		{
 			return Value == other.Value &&
-				   Type == other.Type;
+					Type == other.Type;
 		}
 		/// <summary>
-		/// HashCode based on Value and Type
+		/// HashCode based on Value and Type.
 		/// </summary>
-		/// <returns></returns>
+		/// <returns>Returns a hashcode, calculated from Value and Type.</returns>
 		public override int GetHashCode()
 		{
 			int hashCode = 1574892647;
@@ -47,7 +47,7 @@ namespace ConfigTextFile.IO
 			return hashCode;
 		}
 		/// <summary>
-		/// Returns Value
+		/// Returns Value.
 		/// </summary>
 		public override string ToString()
 		{
