@@ -156,6 +156,7 @@
 						{
 							throw new ConfigFileFormatException("Encountered end of file when trying to read Array after a key");
 						}
+						// c may be an end of array character here, which means we have to stop.
 						if (IsQuote(c.Value))
 						{
 							string str = ReadQuotedString(Reader, c.Value);
@@ -168,7 +169,7 @@
 							CheckCharAndUpdateStateInsideArray(c.Value);
 							return new ReadCfgToken(str, ConfigFileToken.ArrayValue);
 						}
-						else
+						else if (c != SyntaxCharacters.ArrayEnd)
 						{
 							(string str, char? nextChar) = ReadStringUntil(Reader, c.Value, SyntaxCharacters.ArrayElementDelimiterAndEnd);
 							if (!nextChar.HasValue)
@@ -177,6 +178,12 @@
 							}
 							CheckCharAndUpdateStateInsideArray(nextChar.Value);
 							return new ReadCfgToken(str, ConfigFileToken.ArrayValue);
+						}
+						else
+						{
+							// If it's an end of array, then do the same thing as the state AtEndOfArray
+							State = ReadState.Expecting_Key_Comment_EndSection_EndFile;
+							return new ReadCfgToken(string.Empty, ConfigFileToken.EndArray);
 						}
 					}
 				case ReadState.EndOfFile:

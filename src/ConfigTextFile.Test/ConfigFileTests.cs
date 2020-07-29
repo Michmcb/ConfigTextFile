@@ -20,7 +20,7 @@ namespace ConfigTextFile.Test
 			val = (ConfigStringElement)root.Elements["ValueAfterLastScopeEnds"];
 			Assert.Equal("Blah blah", val.Value);
 			ConfigSectionElement global = (ConfigSectionElement)root.Elements["global"];
-			Assert.Equal(8, global.Elements.Count);
+			Assert.Equal(9, global.Elements.Count);
 
 			val = (ConfigStringElement)ctf.AllElements["First KEy"];
 			Assert.Equal("blah blah", val.Value);
@@ -28,7 +28,7 @@ namespace ConfigTextFile.Test
 			Assert.Equal("Blah blah", val.Value);
 
 			global = (ConfigSectionElement)ctf.AllElements["global"];
-			Assert.Equal(8, global.Elements.Count);
+			Assert.Equal(9, global.Elements.Count);
 			Assert.Equal("true", global["Value"]);
 			Assert.Equal("12345", global["Value Two"]);
 			val = (ConfigStringElement)global.Elements["Multiline'd Value"];
@@ -52,6 +52,9 @@ that spans many lines", val.Value);
 			Assert.Contains("AnArray", global.Elements);
 			Assert.Equal(1, global.Elements["AnArray"].Elements.Count);
 			Assert.Equal("[String]", global["NotArray"]);
+
+			IConfigElement emptyArray = Assert.Contains("EmptyArray", global.Elements);
+			Assert.Empty(emptyArray.Elements);
 
 			ConfigSectionElement myscope = (ConfigSectionElement)ctf.AllElements["global:myscope"];
 			Assert.Equal(2, myscope.Elements.Count);
@@ -129,6 +132,9 @@ that spans many lines", val.Value);
 			ReadAndAssertToken(reader, "", ConfigFileToken.EndArray);
 			ReadAndAssertToken(reader, "NotArray", ConfigFileToken.Key);
 			ReadAndAssertToken(reader, "[String]", ConfigFileToken.Value);
+			ReadAndAssertToken(reader, "EmptyArray", ConfigFileToken.Key);
+			ReadAndAssertToken(reader, "", ConfigFileToken.StartArray);
+			ReadAndAssertToken(reader, "", ConfigFileToken.EndArray);
 			ReadAndAssertToken(reader, "", ConfigFileToken.EndSection);
 			ReadAndAssertToken(reader, "ValueAfterLastScopeEnds", ConfigFileToken.Key);
 			ReadAndAssertToken(reader, "Blah blah", ConfigFileToken.Value);
