@@ -1,0 +1,908 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>ConfigTextFile</name>
+    </assembly>
+    <members>
+        <member name="T:ConfigTextFile.ConfigArrayElement">
+            <summary>
+            Represents an array of strings within the ConfigFile.
+            It has children but cannot have any Value set.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigArrayElement.#ctor(System.String,System.String)">
+            <summary>
+            Creates a new <see cref="T:ConfigTextFile.ConfigArrayElement"/>, with the provided <paramref name="key"/> and <paramref name="path"/>, and no comments.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigArrayElement.#ctor(System.String,System.String,System.String[])">
+            <summary>
+            Creates a new <see cref="T:ConfigTextFile.ConfigArrayElement"/>, with the provided <paramref name="key"/> and <paramref name="path"/>, with the provided <paramref name="comments"/>.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigArrayElement.#ctor(System.String,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Creates a new <see cref="T:ConfigTextFile.ConfigArrayElement"/>, with the provided <paramref name="key"/> and <paramref name="path"/>, with the provided <paramref name="comments"/>.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigArrayElement.Item(System.String)">
+            <summary>
+            Gets or sets a IConfigElement's value.
+            <paramref name="key"/> should refer to a ConfigStringElement.
+            </summary>
+            <param name="key">Gets an IConfigElement whose Key property matches this.</param>
+        </member>
+        <member name="P:ConfigTextFile.ConfigArrayElement.Key">
+            <summary>
+            The Key of this ConfigElement.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigArrayElement.Path">
+            <summary>
+            The full path to this ConfigElement.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigArrayElement.Value">
+            <summary>
+            Always returns an empty string. Setting this throws an InvalidOperationException.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigArrayElement.IsValid">
+            <summary>
+            Always true.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigArrayElement.Elements">
+            <summary>
+            All IConfigElements within this Array.
+            All of these are ConfigStringElements.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigArrayElement.Type">
+            <summary>
+            Returns ConfigElementType.Array.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigArrayElement.Comments">
+            <summary>
+            The comments that preceded this ConfigArrayElement.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigArrayElement.GetElement(System.String)">
+            <summary>
+            Tries to get the ConfigElement identified by <paramref name="key"/>.
+            If it does not exist, returns a <see cref="T:ConfigTextFile.ConfigInvalidElement"/>.
+            </summary>
+            <param name="key">The key of the element.</param>
+        </member>
+        <member name="M:ConfigTextFile.ConfigArrayElement.GetValues">
+            <summary>
+            A convenience method that loops over all strings in this array.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigArrayElement.ToString">
+            <summary>
+            Returns Path.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigArrayElement.ThrowIfInvalid">
+            <summary>
+            Never throws.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigArrayElement.AsArrayElement">
+            <summary>
+            Returns this.
+            </summary>
+            <returns>This.</returns>
+        </member>
+        <member name="M:ConfigTextFile.ConfigArrayElement.AsSectionElement">
+            <summary>
+            Throws an <see cref="T:System.InvalidCastException"/>.
+            </summary>
+            <returns>Always throws.</returns>
+        </member>
+        <member name="M:ConfigTextFile.ConfigArrayElement.AsStringElement">
+            <summary>
+            Throws an <see cref="T:System.InvalidCastException"/>.
+            </summary>
+            <returns>Always throws.</returns>
+        </member>
+        <member name="P:ConfigTextFile.ConfigFile.AllElements">
+            <summary>
+            All IConfigElements, keyed by section:name:arrayindex.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigFile.Root">
+            <summary>
+            The root-level ConfigSection. Its Key/Path are empty strings, and it is not included in AllElements.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigFile.CreateStringDictionary">
+            <summary>
+            Creates a Dictionary, with the same keys as <see cref="P:ConfigTextFile.ConfigFile.AllElements"/>, but the values are the string values of all ConfigElements.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigFile.FillStringDictionary(System.Collections.Generic.IDictionary{System.String,System.String},System.Boolean)">
+            <summary>
+            Fills the provided <paramref name="dict"/> with the same keys as <see cref="P:ConfigTextFile.ConfigFile.AllElements"/>, but the values are the string values of all ConfigElements.
+            If <paramref name="overwrite"/> is true, keys already present are overwritten. Otherwise, a <see cref="T:System.ArgumentException"/> is thrown.
+            </summary>
+            <param name="dict">The dictionary to fill.</param>
+            <param name="overwrite">If true, overwrites key/value pairs in the provided dict. Otherwise, throws an exception.</param>
+        </member>
+        <member name="P:ConfigTextFile.ConfigFile.Item(System.String)">
+            <summary>
+            Retrieves a string, given a key.
+            If the key does not exist, returns null.
+            </summary>
+            <param name="key">The key of the config value</param>
+        </member>
+        <member name="M:ConfigTextFile.ConfigFile.CreateStringDictionary(System.Boolean,ConfigTextFile.ConfigFile[])">
+            <summary>
+            Creates a Dictionary, with the same keys as all of the <see cref="P:ConfigTextFile.ConfigFile.AllElements"/> property of all <paramref name="configs"/>, but the values are the string values of all ConfigElements.
+            If <paramref name="overwrite"/> is true, keys already present are overwritten. Otherwise, a <see cref="T:System.ArgumentException"/> is thrown.
+            </summary>
+            <param name="overwrite">If true, overwrites key/value pairs in the provided dict. Otherwise, throws an exception.</param>
+            <param name="configs">The ConfigFiles from which to create a Dictionary.</param>
+        </member>
+        <member name="M:ConfigTextFile.ConfigFile.FillStringDictionary(System.Collections.Generic.IDictionary{System.String,System.String},System.Boolean,ConfigTextFile.ConfigFile[])">
+            <summary>
+            Fills the provided <paramref name="dict"/> with the same keys as all of the <see cref="P:ConfigTextFile.ConfigFile.AllElements"/> property of all <paramref name="configs"/>, but the values are the string values of all ConfigElements.
+            If <paramref name="overwrite"/> is true, keys already present are overwritten. Otherwise, a <see cref="T:System.ArgumentException"/> is thrown.
+            </summary>
+            <param name="dict">The dictionary to fill.</param>
+            <param name="overwrite">If true, overwrites key/value pairs in the provided dict. Otherwise, throws an exception.</param>
+            <param name="configs">The ConfigFiles to use to fill the dictionary.</param>
+        </member>
+        <member name="T:ConfigTextFile.ConfigInvalidElement">
+            <summary>
+            Represents that a requested element did not exist.
+            This is a singleton, and you can't do too much with this.
+            Check individual methods and properties to see what they will always do; either empty strings, empty arrays, or throw a ConfigInvalidElementException.
+            The singleton instance is ConfigInvalidElement.Inst, if you need it.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigInvalidElement.InvalidValue">
+            <summary>
+            This is the value that is returned whenever you try to get the Value of a ConfigInvalidElement.
+            You can set this to whatever you want.
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.ConfigInvalidElement.Inst">
+            <summary>
+            The singleton instance of ConfigInvalidElement.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigInvalidElement.Item(System.String)">
+            <summary>
+            Always throws an ConfigInvalidElementException.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigInvalidElement.Type">
+            <summary>
+            Returns ConfigElementType.Invalid.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigInvalidElement.Elements">
+            <summary>
+            Always throws a ConfigInvalidElementException.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigInvalidElement.Key">
+            <summary>
+            Always throws a ConfigInvalidElementException.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigInvalidElement.Path">
+            <summary>
+            Always throws a ConfigInvalidElementException.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigInvalidElement.Value">
+            <summary>
+            By default, always an empty string. Setting always throws a ConfigInvalidElementException.
+            You can change the value returned by setting ConfigInvalidElement.InvalidValue.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigInvalidElement.IsValid">
+            <summary>
+            Always false.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigInvalidElement.GetElement(System.String)">
+            <summary>
+            Always returns Inst.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigInvalidElement.ThrowIfInvalid">
+            <summary>
+            Always throws a ConfigInvalidElementException.
+            </summary>
+        </member>
+        <member name="T:ConfigTextFile.ConfigSectionElement">
+            <summary>
+            Represents a section within the ConfigFile.
+            It has children but cannot have any Value set.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigSectionElement.#ctor(System.String,System.String)">
+            <summary>
+            Creates a new <see cref="T:ConfigTextFile.ConfigSectionElement"/>, with the provided <paramref name="key"/> and <paramref name="path"/>, and no comments.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigSectionElement.#ctor(System.String,System.String,System.String[])">
+            <summary>
+            Creates a new <see cref="T:ConfigTextFile.ConfigSectionElement"/>, with the provided <paramref name="key"/> and <paramref name="path"/>, with the provided <paramref name="comments"/>.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigSectionElement.#ctor(System.String,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Creates a new <see cref="T:ConfigTextFile.ConfigSectionElement"/>, with the provided <paramref name="key"/> and <paramref name="path"/>, with the provided <paramref name="comments"/>.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigSectionElement.Item(System.String)">
+            <summary>
+            Gets or sets a IConfigElement's value.
+            <paramref name="key"/> should refer to a ConfigStringElement.
+            </summary>
+            <param name="key">Gets an IConfigElement whose Key property matches this.</param>
+        </member>
+        <member name="P:ConfigTextFile.ConfigSectionElement.Key">
+            <summary>
+            The Key of this ConfigElement.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigSectionElement.Path">
+            <summary>
+            The full path to this ConfigElement.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigSectionElement.Value">
+            <summary>
+            Always returns an empty string. Setting this throws an InvalidOperationException.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigSectionElement.IsValid">
+            <summary>
+            Always true.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigSectionElement.Elements">
+            <summary>
+            All IConfigElements within this Section.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigSectionElement.Type">
+            <summary>
+            Returns ConfigElementType.Section.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigSectionElement.Comments">
+            <summary>
+            The comments that preceded this ConfigSectionElement.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigSectionElement.GetElement(System.String)">
+            <summary>
+            Tries to get the ConfigElement identified by <paramref name="key"/>.
+            If it does not exist, returns a <see cref="T:ConfigTextFile.ConfigInvalidElement"/>.
+            </summary>
+            <param name="key">The key of the element.</param>
+        </member>
+        <member name="M:ConfigTextFile.ConfigSectionElement.ToString">
+            <summary>
+            Returns Path.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigSectionElement.ThrowIfInvalid">
+            <summary>
+            Never throws.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigSectionElement.AsArrayElement">
+            <summary>
+            Throws an <see cref="T:System.InvalidCastException"/>.
+            </summary>
+            <returns>Always throws.</returns>
+        </member>
+        <member name="M:ConfigTextFile.ConfigSectionElement.AsSectionElement">
+            <summary>
+            Returns this.
+            </summary>
+            <returns>This.</returns>
+        </member>
+        <member name="M:ConfigTextFile.ConfigSectionElement.AsStringElement">
+            <summary>
+            Throws an <see cref="T:System.InvalidCastException"/>.
+            </summary>
+            <returns>Always throws.</returns>
+        </member>
+        <member name="T:ConfigTextFile.ConfigStringElement">
+            <summary>
+            Represents a single string within the ConfigFile.
+            It does not have any children but it does have a Value.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigStringElement.#ctor(System.String,System.String,System.String)">
+            <summary>
+            Creates a new <see cref="T:ConfigTextFile.ConfigArrayElement"/>, with the provided <paramref name="key"/>, <paramref name="path"/>, <paramref name="value"/>, and no comments.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigStringElement.#ctor(System.String,System.String,System.String,System.String[])">
+            <summary>
+            Creates a new <see cref="T:ConfigTextFile.ConfigArrayElement"/>, with the provided <paramref name="key"/>, <paramref name="path"/>, <paramref name="value"/>, and <paramref name="comments"/>.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigStringElement.#ctor(System.String,System.String,System.String,System.Collections.Generic.IEnumerable{System.String})">
+            <summary>
+            Creates a new <see cref="T:ConfigTextFile.ConfigArrayElement"/>, with the provided <paramref name="key"/>, <paramref name="path"/>, <paramref name="value"/>, and <paramref name="comments"/>.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigStringElement.Item(System.String)">
+            <summary>
+            Always throws an InvalidOperationException, as strings don't have any children.
+            </summary>
+            <param name="key">Doesn't matter, always throws.</param>
+        </member>
+        <member name="P:ConfigTextFile.ConfigStringElement.Key">
+            <summary>
+            The Key of this ConfigElement.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigStringElement.Path">
+            <summary>
+            The full path to this ConfigElement.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigStringElement.Value">
+            <summary>
+            Gets or sets this ConfigElement's value.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigStringElement.IsValid">
+            <summary>
+            Always true.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigStringElement.Elements">
+            <summary>
+            Always throws an InvalidOperationException, as strings don't have any children.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigStringElement.Type">
+            <summary>
+            Returns ConfigElementType.String.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.ConfigStringElement.Comments">
+            <summary>
+            The comments that preceded this ConfigStringElement.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigStringElement.GetElement(System.String)">
+            <summary>
+            Returns the ConfigInvalidElement instance.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigStringElement.ToString">
+            <summary>
+            Returns Path=Value.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigStringElement.ThrowIfInvalid">
+            <summary>
+            Never throws.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.ConfigStringElement.AsArrayElement">
+            <summary>
+            Throws an <see cref="T:System.InvalidCastException"/>.
+            </summary>
+            <returns>Always throws.</returns>
+        </member>
+        <member name="M:ConfigTextFile.ConfigStringElement.AsSectionElement">
+            <summary>
+            Throws an <see cref="T:System.InvalidCastException"/>.
+            </summary>
+            <returns>Always throws.</returns>
+        </member>
+        <member name="M:ConfigTextFile.ConfigStringElement.AsStringElement">
+            <summary>
+            Returns this.
+            </summary>
+            <returns>This.</returns>
+        </member>
+        <member name="T:ConfigTextFile.IConfigElement">
+            <summary>
+            Represents a ConfigElement within a ConfigFile.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IConfigElement.Key">
+            <summary>
+            The Key of this ConfigElement.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IConfigElement.Path">
+            <summary>
+            The full path to this ConfigElement.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IConfigElement.Value">
+            <summary>
+            Gets or sets this ConfigElement's value.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IConfigElement.Type">
+            <summary>
+            The Type of this element.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IConfigElement.GetElement(System.String)">
+            <summary>
+            Tries to get the ConfigElement identified by <paramref name="key"/>.
+            If it does not exist, returns a <see cref="T:ConfigTextFile.ConfigInvalidElement"/>.
+            </summary>
+            <param name="key">The key of the element.</param>
+        </member>
+        <member name="P:ConfigTextFile.IConfigElement.Elements">
+            <summary>
+            Child elements, if the Element is a Section or Array. In other cases, throws an InvalidOperationException.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IConfigElement.ThrowIfInvalid">
+            <summary>
+            Throws if and only if this IConfigElement is a ConfigInvalidElement.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IConfigElement.IsValid">
+            <summary>
+            Returns false if this IConfigElement is a ConfigInvalidElement. Otherwise, returns true.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IConfigElement.AsArrayElement">
+            <summary>
+            Returns the IConfigElement as a ConfigArrayElement, if possible.
+            Throws an InvalidCastException if this is not a ConfigArrayElement.
+            (No cast actually takes place; simply returns this).
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IConfigElement.AsSectionElement">
+            <summary>
+            Returns the IConfigElement as a ConfigSectionElement, if possible.
+            Throws an InvalidCastException if this is not a ConfigSectionElement
+            (No cast actually takes place; simply returns this).
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IConfigElement.AsStringElement">
+            <summary>
+            Returns the IConfigElement as a ConfigStringElement, if possible.
+            Throws an InvalidCastException if this is not a ConfigStringElement
+            (No cast actually takes place; simply returns this).
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileFormatting.#ctor">
+            <summary>
+            Creates formatting with default values
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileFormatting.Indentation">
+            <summary>
+            The string to use for 1 level of indentation.
+            (Default: 1 tab per 1 level of indentation)
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileFormatting.ExtraBlankLines">
+            <summary>
+            Defines which elements have extra blank lines.
+            The Key is a single flag, it means what element should have blank lines written after it.
+            The Value is a set of flags, it defines which next elements trigger an extra blank line.
+            e.g. Key = ConfigFileToken.Value, Value = ConfigFileToken.EndSection | ConfigFileToken.Key. This means, after writing a Value, an extra blank line is appended if the next element is either EndSection or a Key.
+            By default, extra blank lines are written between these elements...
+            After Value, if next token is Key or Comment.
+            After EndArray, if the next token is Key or Comment.
+            After EndSection, if the next token is Key or Comment.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileFormatting.SectionBraceSameLine">
+            <summary>
+            If true, Section keys will be written on the same line as the opening section brace.
+            If false, Section keys will have a line break before the opening section brace.
+            (Default: true)
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileFormatting.WriteEqualsBeforeArray">
+            <summary>
+            If true, Arrays will be written like this: Key=[values].
+            If false, Arrays will be written like this: Key[values].
+            (Default: true)
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileFormatting.AlwaysQuoteKeys">
+            <summary>
+            If true, keys will always be quoted.
+            If false, keys will only be quoted if they span multiple lines, or start with characters which
+            would make them syntactically invalid if they were not quoted, or if they start with whitespace.
+            (Default: false)
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileFormatting.AlwaysQuoteValues">
+            <summary>
+            If true, single values and Array values will always be quoted.
+            If false, single values and Array values will only be quoted if they span multiple lines, or start with characters which
+            would make them syntactically invalid if they were not quoted, or if they start with whitespace.
+            (Default: false)
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileFormatting.QuotePreference">
+            <summary>
+            The order in which quotes are preferred when strings need to be quoted.
+            If strings contain quotes, will use the first preference it can.
+            (Default: Double_Single_Backtick)
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileFormatting.QuotesInOrderOfPreference">
+            <summary>
+            The quotes in order of preference. Set the property QuotePreference to change this.
+            You shouldn't need to use this yourself though.
+            </summary>
+        </member>
+        <member name="T:ConfigTextFile.IO.ConfigFileReader">
+            <summary>
+            A forward-only reader for a ConfigFile. Ensures that it is syntactically valid as it reads.
+            If it encounters something syntactically invalid, it will throw an exception when you attempt to read it.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileReader.#ctor(System.IO.StreamReader,System.Boolean)">
+            <summary>
+            Creates a new ConfigFileReader which reads from <paramref name="reader"/>.
+            </summary>
+            <param name="reader">The StreamReader to read from</param>
+            <param name="closeInput">If true, disposes of <paramref name="reader"/> when this object is disposed of</param>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileReader.Reader">
+            <summary>
+            The underlying Reader being used. Fiddling around with this is a great way to cause errors so you shouldn't do that
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileReader.CloseInput">
+            <summary>
+            If true, Reader will be closed when this is disposed. Otherwise, it will not.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileReader.MoreToRead">
+            <summary>
+            Returns true if the State is not EndOfFile (Not if Reader is at the end of stream)
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileReader.State">
+            <summary>
+            The current state of this reader. Indicates what it can currently read.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileReader.SectionLevel">
+            <summary>
+            The current nesting level of sections. Initially it is 0.
+            A ConfigFileFormatException is thrown if the end of the file is reached but there are still sections to close.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileReader.Read">
+            <summary>
+            Reads a single token, returning its value and the type.
+            Some tokens don't have values. These are: Start Array, End Array, Start Section, End Section, Finish
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileReader.IsQuote(System.Char)">
+            <summary>
+            Returns true if c is ", ', or `
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileReader.SkipWhiteSpaceAndGetNextChar(System.IO.StreamReader)">
+            <summary>
+            Skips all whitespace and returns the first non-whitespace character found.
+            </summary>
+            <returns>The first non-whitespace character, or null if end of file was found.</returns>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileReader.ReadQuotedString(System.IO.StreamReader,System.Char)">
+            <summary>
+            Reads a string until <paramref name="quoteChar"/> is encountered.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileReader.ReadStringUntil(System.IO.StreamReader,System.Char,System.Char[])">
+            <summary>
+            Reads a string until finding one of the characters in the array <paramref name="until"/>.
+            Prepends <paramref name="firstChar"/> to the returned string, and trims whitespace off the end of the returned string.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileReader.TrimEndStringBuilder(System.Text.StringBuilder)">
+            <summary>
+            Trims whitespace off the end of <paramref name="sb"/> and returns it.
+            </summary>
+        </member>
+        <member name="T:ConfigTextFile.IO.ConfigFileWriter">
+            <summary>
+            Writes a formatted ConfigFile to a StreamWriter
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileWriter.#ctor(System.IO.StreamWriter,System.Boolean)">
+            <summary>
+            Creates a new ConfigFileWriter which writes to <paramref name="writer"/>.
+            Uses default formatting.
+            </summary>
+            <param name="writer">The StreamWriter to write to</param>
+            <param name="closeOutput">If true, disposes of <paramref name="writer"/> when this object is disposed of</param>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileWriter.#ctor(System.IO.StreamWriter,ConfigTextFile.IO.ConfigFileFormatting,System.Boolean)">
+            <summary>
+            Creates a new ConfigFileWriter which writes to <paramref name="writer"/>.
+            </summary>
+            <param name="writer">The StreamWriter to write to</param>
+            <param name="closeOutput">If true, disposes of <paramref name="writer"/> when this object is disposed of</param>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileWriter.Writer">
+            <summary>
+            The underlying Writer being used. Fiddling around with this is a great way to create malformed files so you shouldn't do that
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileWriter.Formatting">
+            <summary>
+            The formatting to apply to the file. Can be changed at any time.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileWriter.CloseOutput">
+            <summary>
+            If true, Writer will be closed when this is disposed. Otherwise, it will not.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileWriter.ValidWrites">
+            <summary>
+            A set of flags indicating which tokens are currently syntactically valid to write.
+            If you try and write something that's not valid, a ConfigFileFormatException will be thrown.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ConfigFileWriter.SectionLevel">
+            <summary>
+            The current nesting level of sections. Initially it is 0.
+            A ConfigFileFormatException is thrown if Finished is called but there are still sections to close.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileWriter.WriteBlankLine">
+            <summary>
+            Just adds a blank line. Valid to call at any time.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileWriter.WriteKey(System.String)">
+            <summary>
+            Writes <paramref name="key"/> which can be used to identify a Value, Array or Section.
+            If <paramref name="key"/> requires it (or if Formatting specifies always quote) then it will be quoted.
+            </summary>
+            <param name="key">The key to write</param>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileWriter.WriteComment(System.String)">
+            <summary>
+            Writes a comment. If <paramref name="text"/> contains any newlines, the comment will be split over multiple lines,
+            and each line will be a comment.
+            </summary>
+            <param name="text">The text of the comment</param>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileWriter.WriteValue(System.String)">
+            <summary>
+            Writes a single Value into an Array or as the value of a Key.
+            If <paramref name="value"/> requires it (or if Formatting specifies always quote) then it will be quoted.
+            </summary>
+            <param name="value">The value to write</param>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileWriter.WriteStartSection">
+            <summary>
+            Opens a new Section
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileWriter.WriteEndSection">
+            <summary>
+            Closes a Section
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileWriter.WriteStartArray">
+            <summary>
+            Opens a new Array
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileWriter.WriteEndArray">
+            <summary>
+            Closes an Array
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileWriter.Finished">
+            <summary>
+            Calling this signals that you're done writing. You don't have to call this but it's recommended you do so; it's
+            a sanity check that you've ended the file correctly. If you have not, this will throw a ConfigFileFormatException.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ConfigFileWriter.WriteBlankLineIfNeeded(ConfigTextFile.IO.ConfigFileToken,ConfigTextFile.IO.ConfigFileToken)">
+            <summary>
+            If the last thing written was something that's configured to have an blank line after it, then write that line.
+            Returns true if a blank line was written, false otherwise
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.Extensions.IndexOfNotAny(System.String,System.Char[],System.Int32)">
+            <summary>
+            Returns the zero-based index of the first occurrence in this instance of a character NOT in <paramref name="chars"/>, starting from <paramref name="startIndex"/>.
+            </summary>
+            <param name="str"></param>
+            <param name="chars"></param>
+            <param name="startIndex"></param>
+        </member>
+        <member name="M:ConfigTextFile.IO.Extensions.ArrayContains(System.Char[],System.Char)">
+            <summary>
+            Returns true if the array contains <paramref name="c"/>
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.FluentConfigFileWriter.#ctor(ConfigTextFile.IO.ConfigFileWriter,System.Boolean)">
+            <summary>
+            Creates a new FluentConfigFileWriter which writes to <paramref name="writer"/>.
+            Uses default formatting.
+            </summary>
+            <param name="writer">The StreamWriter to write to</param>
+            <param name="closeOutput">If true, disposes of <paramref name="writer"/> when this object is disposed of</param>
+        </member>
+        <member name="M:ConfigTextFile.IO.FluentConfigFileWriter.#ctor(ConfigTextFile.IO.ConfigFileWriter,ConfigTextFile.IO.ConfigFileFormatting,System.Boolean)">
+            <summary>
+            Creates a new FluentConfigFileWriter which writes to <paramref name="writer"/>.
+            </summary>
+            <param name="writer">The ConfigFileWriter to write to</param>
+            <param name="closeOutput">If true, disposes of <paramref name="writer"/> when this object is disposed of</param>
+        </member>
+        <member name="T:ConfigTextFile.IO.QuotePreference">
+            <summary>
+            The order of preference for quoting strings
+            </summary>
+        </member>
+        <member name="T:ConfigTextFile.IO.ReadCfgToken">
+            <summary>
+            Represents a single token that was read.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ReadCfgToken.Value">
+            <summary>
+            The value of the token that was read.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.IO.ReadCfgToken.Type">
+            <summary>
+            The type of token that was read. This is never more than one flag.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ReadCfgToken.Equals(System.Object)">
+            <summary>
+            Returns true if Value and Type are the same.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ReadCfgToken.Equals(ConfigTextFile.IO.ReadCfgToken)">
+            <summary>
+            Returns true if Value and Type are the same.
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.IO.ReadCfgToken.GetHashCode">
+            <summary>
+            HashCode based on Value and Type.
+            </summary>
+            <returns>Returns a hashcode, calculated from Value and Type.</returns>
+        </member>
+        <member name="M:ConfigTextFile.IO.ReadCfgToken.ToString">
+            <summary>
+            Returns Value.
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.ReadState.Expecting_Key_Comment_EndSection_EndFile">
+            <summary>
+            Indicates the next thing we expect to find is a Key, a Comment, the end of a section, or the end of the file
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.ReadState.ReadingArray">
+            <summary>
+            Indicates we're reading elements of an array
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.ReadState.AtStartOfSection">
+            <summary>
+            Indicates we just read the start of a section
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.ReadState.AtStartOfArray">
+            <summary>
+            Indicates we just read the start of an array
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.ReadState.AtEndOfArray">
+            <summary>
+            Indicates we just read the end of an array
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.ReadState.AtStartOfArrayOrValue">
+            <summary>
+            Indicates we just read either the start of an array or value, but we're not sure which (yet)
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.ReadState.EndOfFile">
+            <summary>
+            Indicates we've reached the end of the file
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.SyntaxCharacters.ArrayElementDelimiter">
+            <summary>
+            Delimits individual elements in an array
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.SyntaxCharacters.ArrayStart">
+            <summary>
+            Denotes the start of an array
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.SyntaxCharacters.ArrayEnd">
+            <summary>
+            Denotes the end of an array
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.SyntaxCharacters.SectionStart">
+            <summary>
+            Denotes the start of a section
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.SyntaxCharacters.SectionEnd">
+            <summary>
+            Denotes the end of a section
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.SyntaxCharacters.ValueStart">
+            <summary>
+            Goes between a key/value, or key/array
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.SyntaxCharacters.CommentStart">
+            <summary>
+            Lines starting with this are a comment
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.SyntaxCharacters.SectionDelimiter">
+            <summary>
+            Delimits section names. e.g. Section1:Section2:Key
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.SyntaxCharacters.ArrayElementDelimiterAndEnd">
+            <summary>
+            ArrayElementDelimiter and ArrayEnd
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.SyntaxCharacters.EndOfKey">
+            <summary>
+            ValueStart, ArrayStart, ScopeStart, \r and \n
+            </summary>
+        </member>
+        <member name="F:ConfigTextFile.IO.SyntaxCharacters.EndOfLine">
+            <summary>
+            \r and \n
+            </summary>
+        </member>
+        <member name="M:ConfigTextFile.LoadResult.#ctor(System.Boolean,ConfigTextFile.ConfigFile,System.String)">
+            <summary>
+            Creates a new load result
+            </summary>
+            <param name="ctf">If success is false, this should be ConfigTextFile.Empty</param>
+        </member>
+        <member name="P:ConfigTextFile.LoadResult.Success">
+            <summary>
+            True if successful, false otherwise
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.LoadResult.ConfigTextFile">
+            <summary>
+            The loaded text file. Never null.
+            </summary>
+        </member>
+        <member name="P:ConfigTextFile.LoadResult.ErrMsg">
+            <summary>
+            If Success is false, an error message. Otherwise, an empty string.
+            </summary>
+        </member>
+    </members>
+</doc>

@@ -11,13 +11,20 @@
     <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
     <Description>A .NET library which allows you to read and write plain-text configuration files</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- When trying to get a string value by using array indexers e.g. ConfigSectionElement["key"], this now throws an exception rather than returning null, if the key does not resolve to a ConfigStringElement. Prefer array indexers if you want exceptions, prefer methods if you don't.
-- Setting ConfigInvalidElement.Value throws an exception. Use ConfigInvalidElement.InvalidValue to set the default value which gets returned (Which is empty string by default)</PackageReleaseNotes>
+    <PackageReleaseNotes>- Added the XML documentation (sorry)</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.6.0</Version>
+    <Version>1.6.1</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.6.0.0</AssemblyVersion>
-    <FileVersion>1.6.0.0</FileVersion>
+    <AssemblyVersion>1.6.1.0</AssemblyVersion>
+    <FileVersion>1.6.1.0</FileVersion>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DocumentationFile>C:\global\repos\ConfigTextFile\src\ConfigTextFile\ConfigTextFile.xml</DocumentationFile>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DocumentationFile>C:\global\repos\ConfigTextFile\src\ConfigTextFile\ConfigTextFile.xml</DocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>

@@ -6,6 +6,18 @@
 	using System.Linq;
 	using System.Text;
 
+	/*
+
+https://github.com/dotnet/extensions/blob/master/src/Configuration/Config.NewtonsoftJson/src/NewtonsoftJsonConfigurationSource.cs
+https://github.com/dotnet/extensions/blob/master/src/Configuration/Config.NewtonsoftJson/src/NewtonsoftJsonConfigurationProvider.cs
+https://github.com/dotnet/extensions/blob/master/src/Configuration/Config.NewtonsoftJson/src/NewtonsoftJsonConfigurationExtensions.cs
+
+In source, all you should do is EnsureDefaults(builder); and return new ConfigTextFileConfigurationProvider(this, FileProvider);
+In Provider, it's just ConfigFile file = ConfigFile.LoadFile(new StreamReader(stream)); and file.FillStringDictionary(Data);
+
+For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProvider, Path, Optional, and ReloadOnChange set. Then call ResolveFileProvider() on it, add it to builder, and done.
+
+*/
 	public sealed class ConfigFile
 	{
 		private static readonly ConfigFile Empty = new ConfigFile(null, null);
