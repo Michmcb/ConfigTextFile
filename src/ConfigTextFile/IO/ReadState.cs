@@ -1,5 +1,8 @@
 ﻿namespace ConfigTextFile.IO
 {
+	/// <summary>
+	/// Describes the current state of a <see cref="ConfigFileReader"/>. Each enum value dictates the things it can currently read.
+	/// </summary>
 	public enum ReadState
 	{
 		/// <summary>

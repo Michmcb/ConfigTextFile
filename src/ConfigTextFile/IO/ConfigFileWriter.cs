@@ -5,30 +5,31 @@
 	using System.Linq;
 
 	/// <summary>
-	/// Writes a formatted ConfigFile to a StreamWriter
+	/// Writes a formatted <see cref="ConfigFile"/> to a <see cref="StreamWriter"/>.
 	/// </summary>
 	public sealed class ConfigFileWriter : IDisposable
 	{
 		private string currentIndentation = string.Empty;
 		private ConfigFileToken previousWrite = 0;
 		/// <summary>
-		/// Creates a new ConfigFileWriter which writes to <paramref name="writer"/>.
-		/// Uses default formatting.
+		/// Creates a new <see cref="ConfigFileWriter"/> which writes to <paramref name="writer"/>.
+		/// Uses default formatting (<see cref="ConfigFileFormatting.Default"/>).
 		/// </summary>
-		/// <param name="writer">The StreamWriter to write to</param>
+		/// <param name="writer">The stream to write to</param>
 		/// <param name="closeOutput">If true, disposes of <paramref name="writer"/> when this object is disposed of</param>
 		public ConfigFileWriter(StreamWriter writer, bool closeOutput = true)
 		{
 			Writer = writer;
-			Formatting = new ConfigFileFormatting();
+			Formatting = ConfigFileFormatting.Default;
 			CloseOutput = closeOutput;
 			SectionLevel = 0;
 			ValidWrites = ConfigFileToken.Key | ConfigFileToken.Comment | ConfigFileToken.Finish;
 		}
 		/// <summary>
-		/// Creates a new ConfigFileWriter which writes to <paramref name="writer"/>.
+		/// Creates a new <see cref="ConfigFileWriter"/> which writes to <paramref name="writer"/>.
 		/// </summary>
-		/// <param name="writer">The StreamWriter to write to</param>
+		/// <param name="writer">The stram to write to</param>
+		/// <param name="formatting">The formatting to use</param>
 		/// <param name="closeOutput">If true, disposes of <paramref name="writer"/> when this object is disposed of</param>
 		public ConfigFileWriter(StreamWriter writer, ConfigFileFormatting formatting, bool closeOutput = true)
 		{
@@ -74,6 +75,8 @@
 		/// <param name="key">The key to write</param>
 		public void WriteKey(string key)
 		{
+			if (key == null) throw new ArgumentNullException(nameof(key));
+			if (key.Length == 0) throw new ArgumentException(nameof(key) + " cannot be an emppty string", nameof(key));
 			if (CanWrite(ConfigFileToken.Key))
 			{
 				WriteBlankLineIfNeeded(previousWrite, ConfigFileToken.Key);
@@ -94,6 +97,7 @@
 		/// <param name="text">The text of the comment</param>
 		public void WriteComment(string text)
 		{
+			text ??= string.Empty;
 			if (CanWrite(ConfigFileToken.Comment))
 			{
 				WriteBlankLineIfNeeded(previousWrite, ConfigFileToken.Comment);
@@ -145,6 +149,7 @@
 		/// <param name="value">The value to write</param>
 		public void WriteValue(string value)
 		{
+			value ??= string.Empty;
 			if (CanWrite(ConfigFileToken.Value))
 			{
 				Writer.Write(SyntaxCharacters.ValueStart);
@@ -306,21 +311,30 @@
 				}
 				else
 				{
-					throw new ConfigFileFormatException("ConfigFileWriter cannot currently finish. You need to close " + SectionLevel.ToString() + " sections");
+					throw new ConfigFileFormatException(nameof(ConfigFileWriter) + " cannot currently finish. You need to close " + SectionLevel.ToString() + " sections");
 				}
 			}
 			else
 			{
-				throw new ConfigFileFormatException("ConfigFileWriter cannot currently finish. It must currently write: " + ValidWrites);
+				throw new ConfigFileFormatException(nameof(ConfigFileWriter) + " cannot currently finish. It must currently write: " + ValidWrites);
 			}
 		}
 		private void WriteString(string str, bool isKey, bool isArrayMember)
 		{
 			if (str.Length == 0)
 			{
+				// Even if it's an empty string we have to write quotes if they always want them
+				// null/empty keys are not valid
+				if (Formatting.AlwaysQuoteValues)
+				{
+					char q = Formatting.QuotesInOrderOfPreference[0];
+					Writer.Write(q);
+					Writer.Write(q);
+				}
 				return;
 			}
 
+			// TODO quoting rules are a bit strict, they could be loosened up a bit. For example, for single values, only starting with a syntax character is bad; containing them partway through is perfectly fine.
 			bool needsQuoting;
 			if (isKey)
 			{
@@ -332,7 +346,6 @@
 			}
 			else
 			{
-
 				needsQuoting = Formatting.AlwaysQuoteValues
 					// We need to quote the string regardless if it starts with quote character or whitespace char...
 					|| str[0] == '"' || str[0] == '\'' || str[0] == '`' || str[0] == SyntaxCharacters.CommentStart || char.IsWhiteSpace(str[0])
@@ -367,6 +380,15 @@
 			}
 		}
 		/// <summary>
+		/// Returns true if this writer is in a state such that it can write <paramref name="token"/>, which should be a single flag.
+		/// </summary>
+		/// <param name="token">Checks to see if the writer can write this token in its current state</param>
+		/// <returns>true if a <paramref name="token"/> can be written, false if not.</returns>
+		public bool CanWrite(ConfigFileToken token)
+		{
+			return (ValidWrites & token) == token;
+		}
+		/// <summary>
 		/// If the last thing written was something that's configured to have an blank line after it, then write that line.
 		/// Returns true if a blank line was written, false otherwise
 		/// </summary>
@@ -381,14 +403,13 @@
 		}
 		internal ConfigFileFormatException CannotWrite(ConfigFileToken token)
 		{
-			return new ConfigFileFormatException("ConfigFileWriter cannot currently write a " + token.ToString() + ". It can currently write: " + ValidWrites);
-		}
-		public bool CanWrite(ConfigFileToken flag)
-		{
-			return (ValidWrites & flag) == flag;
+			return new ConfigFileFormatException(string.Concat(nameof(ConfigFileWriter), " cannot currently write a ", token.ToString(), ". It can currently write: ", ValidWrites.ToString()));
 		}
 		#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
+		/// <summary>
+		/// Disposes of <see cref="Writer"/> if <see cref="CloseOutput"/> is true. Otherwise does nothing.
+		/// </summary>
 		public void Dispose()
 		{
 			if (!disposedValue)

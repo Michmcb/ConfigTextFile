@@ -4,13 +4,13 @@
 	using System.Collections.Generic;
 
 	/// <summary>
-	/// Represents a single string within the ConfigFile.
+	/// Represents a single string within the <see cref="ConfigFile"/>.
 	/// It does not have any children but it does have a Value.
 	/// </summary>
 	public class ConfigStringElement : IConfigElement
 	{
 		/// <summary>
-		/// Creates a new <see cref="ConfigArrayElement"/>, with the provided <paramref name="key"/>, <paramref name="path"/>, <paramref name="value"/>, and no comments.
+		/// Creates a new <see cref="ConfigStringElement"/>, no comments.
 		/// </summary>
 		public ConfigStringElement(string key, string path, string value)
 		{
@@ -20,7 +20,7 @@
 			Comments = new List<string>();
 		}
 		/// <summary>
-		/// Creates a new <see cref="ConfigArrayElement"/>, with the provided <paramref name="key"/>, <paramref name="path"/>, <paramref name="value"/>, and <paramref name="comments"/>.
+		/// Creates a new <see cref="ConfigStringElement"/>, with <paramref name="comments"/>.
 		/// </summary>
 		public ConfigStringElement(string key, string path, string value, params string[] comments)
 		{
@@ -30,7 +30,7 @@
 			Comments = new List<string>(comments);
 		}
 		/// <summary>
-		/// Creates a new <see cref="ConfigArrayElement"/>, with the provided <paramref name="key"/>, <paramref name="path"/>, <paramref name="value"/>, and <paramref name="comments"/>.
+		/// Creates a new <see cref="ConfigStringElement"/>, with <paramref name="comments"/>.
 		/// </summary>
 		public ConfigStringElement(string key, string path, string value, IEnumerable<string> comments)
 		{
@@ -40,30 +40,24 @@
 			Comments = new List<string>(comments);
 		}
 		/// <summary>
-		/// Always throws an InvalidOperationException, as strings don't have any children.
+		/// Always throws an <see cref="InvalidOperationException"/>, as strings don't have any children.
 		/// </summary>
-		/// <param name="key">Doesn't matter, always throws.</param>
+		/// <param name="key">Always throws whatever the value of this is.</param>
 		public string this[string key]
 		{
-			get
-			{
-				throw new InvalidOperationException("This is a ConfigStringElement; it has no children to get");
-			}
-			set
-			{
-				throw new InvalidOperationException("This is a ConfigStringElement; it has no children to set");
-			}
+			get => throw new InvalidOperationException("This is a " + nameof(ConfigStringElement) + ", it has no children to get");
+			set => throw new InvalidOperationException("This is a " + nameof(ConfigStringElement) + ", it has no children to set");
 		}
 		/// <summary>
-		/// The Key of this ConfigElement.
+		/// The Key of this <see cref="ConfigStringElement"/>.
 		/// </summary>
 		public string Key { get; }
 		/// <summary>
-		/// The full path to this ConfigElement.
+		/// The full path to this <see cref="ConfigStringElement"/>.
 		/// </summary>
 		public string Path { get; }
 		/// <summary>
-		/// Gets or sets this ConfigElement's value.
+		/// Gets or sets this <see cref="ConfigStringElement"/>'s value.
 		/// </summary>
 		public string Value { get; set; }
 		/// <summary>
@@ -71,30 +65,26 @@
 		/// </summary>
 		public bool IsValid => true;
 		/// <summary>
-		/// Always throws an InvalidOperationException, as strings don't have any children.
-		/// </summary>
-		public IDictionary<string, IConfigElement> Elements => throw new InvalidOperationException("This is a ConfigStringElement; it has no children to get");
-		/// <summary>
-		/// Returns ConfigElementType.String.
+		/// Returns <see cref="ConfigElementType.String"/>.
 		/// </summary>
 		public ConfigElementType Type => ConfigElementType.String;
 		/// <summary>
-		/// The comments that preceded this ConfigStringElement.
+		/// The comments that preceded this <see cref="ConfigStringElement"/>.
 		/// </summary>
 		public ICollection<string> Comments { get; set; }
 		/// <summary>
-		/// Returns the ConfigInvalidElement instance.
+		/// Always returns <see cref="ConfigInvalidElement.Inst"/>.
 		/// </summary>
 		public IConfigElement GetElement(string key)
 		{
 			return ConfigInvalidElement.Inst;
 		}
 		/// <summary>
-		/// Returns Path=Value.
+		/// Returns <see cref="Path"/>=<see cref="Value"/>. If <see cref="Value"/> is null, it's treated as <see cref="string.Empty"/>.
 		/// </summary>
 		public override string ToString()
 		{
-			return string.Concat(Path, "=", Value ?? "(null)");
+			return string.Concat(Path, "=", Value);
 		}
 		/// <summary>
 		/// Never throws.
@@ -106,7 +96,7 @@
 		/// <returns>Always throws.</returns>
 		public ConfigArrayElement AsArrayElement()
 		{
-			throw new InvalidCastException("This is not a ConfigArrayElement; it is a ConfigStringElement");
+			throw new InvalidCastException("This is not a " + nameof(ConfigArrayElement) + "; it is a " + nameof(ConfigStringElement));
 		}
 		/// <summary>
 		/// Throws an <see cref="InvalidCastException"/>.
@@ -114,7 +104,7 @@
 		/// <returns>Always throws.</returns>
 		public ConfigSectionElement AsSectionElement()
 		{
-			throw new InvalidCastException("This is not a ConfigSectionElement; it is a ConfigStringElement");
+			throw new InvalidCastException("This is not a " + nameof(ConfigSectionElement) + "; it is a " + nameof(ConfigStringElement));
 		}
 		/// <summary>
 		/// Returns this.
@@ -123,6 +113,15 @@
 		public ConfigStringElement AsStringElement()
 		{
 			return this;
+		}
+		/// <summary>
+		/// If <see cref="Value"/> is null or empty, returns <paramref name="alternate"/>. Otherwise, returns <see cref="Value"/>.
+		/// </summary>
+		/// <param name="alternate">The alternate value to return.</param>
+		/// <returns><see cref="Value"/> if it's not null/empty, or <paramref name="alternate"/> if it is.</returns>
+		public string ValueOr(string alternate)
+		{
+			return string.IsNullOrEmpty(Value) ? alternate : Value;
 		}
 	}
 }

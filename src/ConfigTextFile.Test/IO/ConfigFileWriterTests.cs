@@ -97,7 +97,7 @@ namespace ConfigTextFile.Test.IO
 That spans many lines
 Look at me go!");
 				cfg.WriteKey("Key");
-				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteKey(""));
+				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteKey("key"));
 				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteComment(""));
 				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteEndArray());
 				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteEndSection());
@@ -144,7 +144,7 @@ So Stupid");
 					cfg.WriteKey("Array");
 					cfg.WriteStartArray();
 
-					Assert.Throws<ConfigFileFormatException>(() => cfg.WriteKey(""));
+					Assert.Throws<ConfigFileFormatException>(() => cfg.WriteKey("key"));
 					Assert.Throws<ConfigFileFormatException>(() => cfg.WriteComment(""));
 					Assert.Throws<ConfigFileFormatException>(() => cfg.WriteStartArray());
 					Assert.Throws<ConfigFileFormatException>(() => cfg.WriteStartSection());
@@ -167,7 +167,7 @@ So Stupid");
 				cfg.WriteValue("Value5");
 				cfg.Finished();
 
-				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteKey(""));
+				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteKey("key"));
 				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteComment(""));
 				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteStartArray());
 				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteEndArray());

@@ -13,7 +13,7 @@
 		/// <summary>
 		/// Creates a new ConfigFileReader which reads from <paramref name="reader"/>.
 		/// </summary>
-		/// <param name="reader">The StreamReader to read from</param>
+		/// <param name="reader">The StreamReader to read from. Does not have to be seekable.</param>
 		/// <param name="closeInput">If true, disposes of <paramref name="reader"/> when this object is disposed of</param>
 		public ConfigFileReader(StreamReader reader, bool closeInput = true)
 		{
@@ -23,15 +23,15 @@
 			SectionLevel = 0;
 		}
 		/// <summary>
-		/// The underlying Reader being used. Fiddling around with this is a great way to cause errors so you shouldn't do that
+		/// The underlying Reader being used. Fiddling around with this is a great way to cause errors so you shouldn't do that.
 		/// </summary>
 		public StreamReader Reader { get; }
 		/// <summary>
-		/// If true, Reader will be closed when this is disposed. Otherwise, it will not.
+		/// If true, <see cref="Reader"/> will be closed when this is disposed. Otherwise, it will not.
 		/// </summary>
 		public bool CloseInput { get; set; }
 		/// <summary>
-		/// Returns true if the State is not EndOfFile (Not if Reader is at the end of stream)
+		/// Returns true if the <see cref="State"/> is not <see cref="ReadState.EndOfFile"/> (Not if <see cref="Reader"/> is at the end of stream)
 		/// </summary>
 		public bool MoreToRead => State != ReadState.EndOfFile;
 		/// <summary>
@@ -40,12 +40,12 @@
 		public ReadState State { get; private set; }
 		/// <summary>
 		/// The current nesting level of sections. Initially it is 0.
-		/// A ConfigFileFormatException is thrown if the end of the file is reached but there are still sections to close.
+		/// A <see cref="ConfigFileFormatException"/> is thrown if the end of the file is reached but there are still sections to close.
 		/// </summary>
 		public int SectionLevel { get; private set; }
 		/// <summary>
 		/// Reads a single token, returning its value and the type.
-		/// Some tokens don't have values. These are: Start Array, End Array, Start Section, End Section, Finish
+		/// Some tokens don't have values. These are: <see cref="ConfigFileToken.StartArray"/>, <see cref="ConfigFileToken.EndArray"/>, <see cref="ConfigFileToken.StartSection"/>, <see cref="ConfigFileToken.EndSection"/>, <see cref="ConfigFileToken.Finish"/>
 		/// </summary>
 		public ReadCfgToken Read()
 		{
@@ -105,6 +105,11 @@
 							if (char.IsWhiteSpace(nextChar.Value))
 							{
 								nextChar = SkipWhiteSpaceAndGetNextChar(Reader);
+							}
+							// Might hit the end of the file again after skipping whitespace
+							if (!nextChar.HasValue)
+							{
+								throw new ConfigFileFormatException("Encountered end of file after reading the key " + str);
 							}
 							CheckCharAndUpdateStateAfterKey(nextChar.Value);
 							return new ReadCfgToken(str, ConfigFileToken.Key);
@@ -325,6 +330,9 @@
 		}
 		#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
+		/// <summary>
+		/// If <see cref="CloseInput"/> is true, disposes of <see cref="Reader"/>. Otherwise, does not.
+		/// </summary>
 		public void Dispose()
 		{
 			if (!disposedValue)

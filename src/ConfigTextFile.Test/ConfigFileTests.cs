@@ -11,8 +11,9 @@ namespace ConfigTextFile.Test
 		public void WellFormedTest()
 		{
 			LoadResult loaded = ConfigFile.TryLoadFile("WellFormedConfigTextFile.cfg", Encoding.UTF8);
-			ConfigFile ctf = loaded.ConfigTextFile;
+			ConfigFile? ctf = loaded.ConfigTextFile;
 			Assert.True(loaded.Success);
+			Assert.NotNull(loaded.ConfigTextFile);
 
 			ConfigSectionElement root = ctf.Root;
 			ConfigStringElement val = (ConfigStringElement)root.Elements["First KEy"];
@@ -50,11 +51,11 @@ that spans many lines", val.Value);
 				Assert.Equal("Last value", array["4"]);
 			}
 			Assert.Contains("AnArray", global.Elements);
-			Assert.Equal(1, global.Elements["AnArray"].Elements.Count);
+			Assert.Equal(1, global.Elements["AnArray"].AsArrayElement().Elements.Count);
 			Assert.Equal("[String]", global["NotArray"]);
 
 			IConfigElement emptyArray = Assert.Contains("EmptyArray", global.Elements);
-			Assert.Empty(emptyArray.Elements);
+			Assert.Empty(emptyArray.AsArrayElement().Elements);
 
 			ConfigSectionElement myscope = (ConfigSectionElement)ctf.AllElements["global:myscope"];
 			Assert.Equal(2, myscope.Elements.Count);
@@ -80,14 +81,19 @@ that spans many lines", val.Value);
 		{
 			LoadResult lr = ConfigFile.TryLoadFile("KeyWithoutValue.cfg", Encoding.UTF8);
 			Assert.False(lr.Success);
+			Assert.Null(lr.ConfigTextFile);
 			lr = ConfigFile.TryLoadFile("LoneKey.cfg", Encoding.UTF8);
 			Assert.False(lr.Success);
+			Assert.Null(lr.ConfigTextFile);
 			lr = ConfigFile.TryLoadFile("TooManyScopeTerminators.cfg", Encoding.UTF8);
 			Assert.False(lr.Success);
+			Assert.Null(lr.ConfigTextFile);
 			lr = ConfigFile.TryLoadFile("UnterminatedArray.cfg", Encoding.UTF8);
 			Assert.False(lr.Success);
+			Assert.Null(lr.ConfigTextFile);
 			lr = ConfigFile.TryLoadFile("UnterminatedScope.cfg", Encoding.UTF8);
 			Assert.False(lr.Success);
+			Assert.Null(lr.ConfigTextFile);
 		}
 		[Fact]
 		public void Reader()

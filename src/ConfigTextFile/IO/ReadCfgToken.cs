@@ -7,6 +7,11 @@
 	/// </summary>
 	public readonly struct ReadCfgToken : IEquatable<ReadCfgToken>
 	{
+		/// <summary>
+		/// Creates a new instance.
+		/// </summary>
+		/// <param name="value">The value of the token that was read.</param>
+		/// <param name="type">The type of token that was read.</param>
 		public ReadCfgToken(string value, ConfigFileToken type)
 		{
 			Value = value;
@@ -53,10 +58,16 @@
 		{
 			return Value;
 		}
+		/// <summary>
+		/// Returns true if Value and Type are the same.
+		/// </summary>
 		public static bool operator ==(ReadCfgToken left, ReadCfgToken right)
 		{
 			return left.Equals(right);
 		}
+		/// <summary>
+		/// Returns true if Value or Type are the different.
+		/// </summary>
 		public static bool operator !=(ReadCfgToken left, ReadCfgToken right)
 		{
 			return !(left == right);

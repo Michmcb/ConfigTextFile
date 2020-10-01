@@ -1,13 +1,13 @@
 ﻿namespace ConfigTextFile
 {
 	using ConfigTextFile.IO;
+	using System;
 	using System.Collections.Generic;
 	using System.IO;
 	using System.Linq;
 	using System.Text;
 
 	/*
-
 https://github.com/dotnet/extensions/blob/master/src/Configuration/Config.NewtonsoftJson/src/NewtonsoftJsonConfigurationSource.cs
 https://github.com/dotnet/extensions/blob/master/src/Configuration/Config.NewtonsoftJson/src/NewtonsoftJsonConfigurationProvider.cs
 https://github.com/dotnet/extensions/blob/master/src/Configuration/Config.NewtonsoftJson/src/NewtonsoftJsonConfigurationExtensions.cs
@@ -16,18 +16,29 @@ In source, all you should do is EnsureDefaults(builder); and return new ConfigTe
 In Provider, it's just ConfigFile file = ConfigFile.LoadFile(new StreamReader(stream)); and file.FillStringDictionary(Data);
 
 For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProvider, Path, Optional, and ReloadOnChange set. Then call ResolveFileProvider() on it, add it to builder, and done.
-
 */
+	/// <summary>
+	/// A single config text file
+	/// </summary>
 	public sealed class ConfigFile
 	{
-		private static readonly ConfigFile Empty = new ConfigFile(null, null);
+		/// <summary>
+		/// Creates a new instance with <see cref="AllElements"/> being a new empty dictionary and
+		/// <see cref="Root"/> being a new instance with its Key/Path set to <see cref="string.Empty"/>.
+		/// </summary>
 		public ConfigFile()
 		{
 			AllElements = new Dictionary<string, IConfigElement>();
+			Root = new ConfigSectionElement(string.Empty, string.Empty);
 		}
-		public ConfigFile(IDictionary<string, IConfigElement> tokens, ConfigSectionElement root)
+		/// <summary>
+		/// Creates a new instance
+		/// </summary>
+		/// <param name="allElements"></param>
+		/// <param name="root"></param>
+		public ConfigFile(IDictionary<string, IConfigElement> allElements, ConfigSectionElement root)
 		{
-			AllElements = tokens;
+			AllElements = allElements;
 			Root = root;
 		}
 		/// <summary>
@@ -71,30 +82,39 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 				}
 			}
 		}
+		/// <summary>
+		/// Tries to get the <see cref="IConfigElement"/> identified by <paramref name="key"/>.
+		/// If it does not exist, returns a <see cref="ConfigInvalidElement"/>.
+		/// </summary>
+		/// <param name="key">The key of the element.</param>
 		public IConfigElement GetElement(string key)
 		{
 			return AllElements.TryGetValue(key, out IConfigElement section) ? section : ConfigInvalidElement.Inst;
 		}
 		/// <summary>
-		/// Retrieves a string, given a key.
-		/// If the key does not exist, returns null.
+		/// Gets or sets a child element's value.
+		/// <paramref name="key"/> should refer to a <see cref="ConfigStringElement"/>.
+		/// If the key was not found, throws a <see cref="KeyNotFoundException"/>.
+		/// If the key was found but it wasn't a <see cref="ConfigStringElement"/>, throws an <see cref="InvalidOperationException"/>.
 		/// </summary>
-		/// <param name="key">The key of the config value</param>
+		/// <param name="key">Gets or sets an <see cref="IConfigElement"/>'s Value whose Key property matches this.</param>
 		public string this[string key]
 		{
 			get
 			{
-				return AllElements.TryGetValue(key, out IConfigElement section) ? section.Value : null;
+				return AllElements.TryGetValue(key, out IConfigElement elem)
+					? elem.Value
+					: throw new KeyNotFoundException("There is no " + nameof(ConfigStringElement) + " with the key " + key);
 			}
 			set
 			{
-				if (AllElements.TryGetValue(key, out IConfigElement section))
+				if (AllElements.TryGetValue(key, out IConfigElement elem))
 				{
-					section.Value = value;
+					elem.Value = value;
 				}
 				else
 				{
-					throw new KeyNotFoundException("There is no TextConfigSection with the key " + key);
+					throw new KeyNotFoundException("There is no " + nameof(ConfigStringElement) + " with the key " + key);
 				}
 			}
 		}
@@ -124,6 +144,13 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 				config.FillStringDictionary(dict, overwrite);
 			}
 		}
+		/// <summary>
+		/// Attempts to load the file located at <paramref name="path"/>, interpreted using <paramref name="encoding"/>.
+		/// If it cannot be loaded, throws a <see cref="ConfigFileFormatException"/>.
+		/// </summary>
+		/// <param name="path">Path of the file to load.</param>
+		/// <param name="encoding">Encoding to use.</param>
+		/// <returns>The loaded <see cref="ConfigFile"/></returns>
 		public static ConfigFile LoadFile(string path, Encoding encoding)
 		{
 			using (StreamReader sin = new StreamReader(path, encoding))
@@ -131,19 +158,37 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 				return LoadFile(sin);
 			}
 		}
-		public static ConfigFile LoadFile(StreamReader reader)
+		/// <summary>
+		/// Attempts to load a file from <paramref name="stream"/>.
+		/// If it cannot be loaded, throws a <see cref="ConfigFileFormatException"/>.
+		/// </summary>
+		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
+		/// <returns>The loaded <see cref="ConfigFile"/></returns>
+		public static ConfigFile LoadFile(StreamReader stream)
 		{
-			return LoadFile(new ConfigFileReader(reader, false));
+			return LoadFile(new ConfigFileReader(stream, false));
 		}
-		private static ConfigFile LoadFile(ConfigFileReader configFileReader)
+		/// <summary>
+		/// Attempts to load a file from <paramref name="stream"/>.
+		/// If it cannot be loaded, throws a <see cref="ConfigFileFormatException"/>.
+		/// </summary>
+		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
+		/// <returns>The loaded <see cref="ConfigFile"/></returns>
+		public static ConfigFile LoadFile(ConfigFileReader stream)
 		{
-			LoadResult result = TryLoadFile(configFileReader);
-			if (!result.Success)
+			LoadResult result = TryLoadFile(stream);
+			if (result.ConfigTextFile == null)
 			{
 				throw new ConfigFileFormatException(result.ErrMsg);
 			}
 			return result.ConfigTextFile;
 		}
+		/// <summary>
+		/// Attempts to load the file located at <paramref name="path"/>, interpreted using <paramref name="encoding"/>.
+		/// </summary>
+		/// <param name="path">Path of the file to load.</param>
+		/// <param name="encoding">Encoding to use.</param>
+		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
 		public static LoadResult TryLoadFile(string path, Encoding encoding)
 		{
 			using (StreamReader sin = new StreamReader(path, encoding))
@@ -151,11 +196,21 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 				return TryLoadFile(sin);
 			}
 		}
-		public static LoadResult TryLoadFile(StreamReader reader)
+		/// <summary>
+		/// Attempts to load a file from <paramref name="stream"/>.
+		/// </summary>
+		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
+		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
+		public static LoadResult TryLoadFile(StreamReader stream)
 		{
-			return TryLoadFile(new ConfigFileReader(reader, false));
+			return TryLoadFile(new ConfigFileReader(stream, false));
 		}
-		public static LoadResult TryLoadFile(ConfigFileReader reader)
+		/// <summary>
+		/// Attempts to load a file from <paramref name="stream"/>.
+		/// </summary>
+		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
+		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
+		public static LoadResult TryLoadFile(ConfigFileReader stream)
 		{
 			List<string> comments = new List<string>();
 			Stack<ConfigSectionElement> parentSections = new Stack<ConfigSectionElement>();
@@ -166,9 +221,9 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 			string key = string.Empty;
 			try
 			{
-				while (reader.MoreToRead)
+				while (stream.MoreToRead)
 				{
-					ReadCfgToken fRead = reader.Read();
+					ReadCfgToken fRead = stream.Read();
 					switch (fRead.Type)
 					{
 						case ConfigFileToken.Key:
@@ -184,9 +239,9 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 							}
 							else
 							{
-								return new LoadResult(false, Empty, string.Concat("Duplicate key \"", path, "\" was found"));
+								return new LoadResult(string.Concat("Duplicate key \"", path, "\" was found"));
 							}
-							currentSection?.Elements.Add(key, singleString);
+							currentSection.Elements.Add(key, singleString);
 							break;
 						case ConfigFileToken.StartArray:
 							string arrayPath = currentSectionPath + key;
@@ -198,13 +253,13 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 							}
 							else
 							{
-								return new LoadResult(false, Empty, string.Concat("Duplicate key \"", arrayPath, "\" was found "));
+								return new LoadResult(string.Concat("Duplicate key \"", arrayPath, "\" was found "));
 							}
-							currentSection?.Elements.Add(key, array);
+							currentSection.Elements.Add(key, array);
 							int index = 0;
 							while (true)
 							{
-								fRead = reader.Read();
+								fRead = stream.Read();
 								if (fRead.Type == ConfigFileToken.ArrayValue)
 								{
 									string arrayIndex = index.ToString();
@@ -216,9 +271,9 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 									}
 									else
 									{
-										return new LoadResult(false, Empty, string.Concat("Duplicate key \"", arrayElementPath, "\" was found"));
+										return new LoadResult(string.Concat("Duplicate key \"", arrayElementPath, "\" was found"));
 									}
-									array.Elements.Add(arrayIndex, arrayElement);
+									array.Elements.Add(arrayElement);
 									++index;
 								}
 								else
@@ -234,14 +289,14 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 							{
 								ConfigSectionElement newSection = new ConfigSectionElement(key, currentSectionPath, comments);
 								comments.Clear();
-								currentSection?.Elements.Add(key, newSection);
+								currentSection.Elements.Add(key, newSection);
 								currentSection = newSection;
 								allElements.Add(currentSectionPath, currentSection);
 								currentSectionPath += SyntaxCharacters.SectionDelimiter;
 							}
 							else
 							{
-								return new LoadResult(false, Empty, string.Concat("Duplicate key \"", currentSectionPath, "\" was found"));
+								return new LoadResult(string.Concat("Duplicate key \"", currentSectionPath, "\" was found"));
 							}
 							break;
 						case ConfigFileToken.EndSection:
@@ -258,11 +313,11 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 							break;
 					}
 				}
-				return new LoadResult(true, new ConfigFile(allElements, root), string.Empty);
+				return new LoadResult(new ConfigFile(allElements, root));
 			}
 			catch (ConfigFileFormatException ex)
 			{
-				return new LoadResult(false, Empty, ex.Message);
+				return new LoadResult(ex.Message);
 			}
 		}
 	}

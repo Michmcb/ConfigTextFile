@@ -2,12 +2,19 @@
 {
 	using System.Collections.Generic;
 
+	/// <summary>
+	/// Describes how to format a <see cref="ConfigFile"/> when writing it as text.
+	/// </summary>
 	public sealed class ConfigFileFormatting
 	{
+		/// <summary>
+		/// Default formatting. Same as using the parameterless constuctor.
+		/// </summary>
+		public static readonly ConfigFileFormatting Default = new ConfigFileFormatting();
 		private readonly char[] quotesInOrderOfPreference;
 		private QuotePreference quotePreference;
 		/// <summary>
-		/// Creates formatting with default values
+		/// Creates a new instance with default values
 		/// </summary>
 		public ConfigFileFormatting()
 		{
@@ -117,6 +124,6 @@
 		/// The quotes in order of preference. Set the property QuotePreference to change this.
 		/// You shouldn't need to use this yourself though.
 		/// </summary>
-		public IReadOnlyCollection<char> QuotesInOrderOfPreference => quotesInOrderOfPreference;
+		public IReadOnlyList<char> QuotesInOrderOfPreference => quotesInOrderOfPreference;
 	}
 }
