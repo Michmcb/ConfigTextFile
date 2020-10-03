@@ -75,11 +75,11 @@
 		/// </summary>
 		public string Path { get; }
 		/// <summary>
-		/// Always throws <see cref="InvalidOperationException"/>
+		/// Always throws <see cref="InvalidOperationException"/> on setting. Always returns <see cref="string.Empty"/>.
 		/// </summary>
 		public string Value
 		{
-			get => throw new InvalidOperationException("You cannot get the value of a " + nameof(ConfigSectionElement));
+			get => string.Empty;
 			set => throw new InvalidOperationException("You cannot set the value of a " + nameof(ConfigSectionElement));
 		}
 		/// <summary>
@@ -100,10 +100,19 @@
 		public ICollection<string> Comments { get; set; }
 		/// <summary>
 		/// Tries to get the <see cref="IConfigElement"/> identified by <paramref name="key"/>.
-		/// If it does not exist, returns <see cref="ConfigInvalidElement.Inst"/>.
+		/// If it does not exist, throws a <see cref="KeyNotFoundException"/>.
 		/// </summary>
 		/// <param name="key">The key of the element.</param>
 		public IConfigElement GetElement(string key)
+		{
+			return Elements.TryGetValue(key, out IConfigElement section) ? section : throw new KeyNotFoundException("There is no " + nameof(IConfigElement) + " with the key " + key);
+		}
+		/// <summary>
+		/// Tries to get the <see cref="IConfigElement"/> identified by <paramref name="key"/>.
+		/// If it does not exist, returns <see cref="ConfigInvalidElement.Inst"/>.
+		/// </summary>
+		/// <param name="key">The key of the element.</param>
+		public IConfigElement TryGetElement(string key)
 		{
 			return Elements.TryGetValue(key, out IConfigElement section) ? section : ConfigInvalidElement.Inst;
 		}

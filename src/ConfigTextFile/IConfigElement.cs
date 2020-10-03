@@ -26,8 +26,8 @@
 		string Path { get; }
 		/// <summary>
 		/// Gets or sets this <see cref="IConfigElement"/>'s value.
-		/// If this is not a <see cref="ConfigStringElement"/>, throws an <see cref="InvalidOperationException"/>.
-		/// If this is a <see cref="ConfigInvalidElement"/>, throws a <see cref="ConfigInvalidElementException"/>.
+		/// If this is not a <see cref="ConfigStringElement"/>, the getter always returns <see cref="string.Empty"/>,
+		/// and the setter throws either a <see cref="ConfigInvalidElementException"/> when it is a <see cref="ConfigInvalidElement"/>, or an <see cref="InvalidOperationException"/> when it isn't.
 		/// </summary>
 		string Value { get; set; }
 		/// <summary>
@@ -36,10 +36,16 @@
 		ConfigElementType Type { get; }
 		/// <summary>
 		/// Tries to get the <see cref="IConfigElement"/> identified by <paramref name="key"/>.
-		/// If it does not exist, returns a <see cref="ConfigInvalidElement"/>.
+		/// If it does not exist, throws a <see cref="KeyNotFoundException"/>.
 		/// </summary>
 		/// <param name="key">The key of the element.</param>
 		IConfigElement GetElement(string key);
+		/// <summary>
+		/// Tries to get the <see cref="IConfigElement"/> identified by <paramref name="key"/>.
+		/// If it does not exist, returns a <see cref="ConfigInvalidElement"/>.
+		/// </summary>
+		/// <param name="key">The key of the element.</param>
+		IConfigElement TryGetElement(string key);
 		/// <summary>
 		/// Throws if and only if this <see cref="IConfigElement"/> is a <see cref="ConfigInvalidElement"/>.
 		/// </summary>

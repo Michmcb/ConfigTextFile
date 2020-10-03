@@ -90,11 +90,11 @@
 		/// </summary>
 		public string Path { get; }
 		/// <summary>
-		/// Always throws <see cref="InvalidOperationException"/>
+		/// Always throws <see cref="InvalidOperationException"/> on setting. Always returns <see cref="string.Empty"/>.
 		/// </summary>
 		public string Value
 		{
-			get => throw new InvalidOperationException("You cannot get the value of a " + nameof(ConfigArrayElement));
+			get => string.Empty;
 			set => throw new InvalidOperationException("You cannot set the value of a " + nameof(ConfigArrayElement));
 		}
 		/// <summary>
@@ -115,10 +115,26 @@
 		public ICollection<string> Comments { get; set; }
 		/// <summary>
 		/// Tries to get the <see cref="IConfigElement"/> identified by <paramref name="key"/>, which must be able to be parsed as an int.
-		/// If it does not exist, or <paramref name="key"/> parses to an int which is outside the range of <see cref="Elements"/>, returns <see cref="ConfigInvalidElement.Inst"/>.
+		/// If it does not exist, or <paramref name="key"/> parses to an int which is outside the range of <see cref="Elements"/>, throws a <see cref="KeyNotFoundException"/>.
 		/// </summary>
 		/// <param name="key">The key of the element.</param>
 		public IConfigElement GetElement(string key)
+		{
+			if (int.TryParse(key, out int index) && index >= 0 && Elements.Count > index)
+			{
+				return Elements[index];
+			}
+			else
+			{
+				throw new KeyNotFoundException(string.Concat("There is no ConfigElement with a key of ", key, " or the key cannot be parsed as an int as this is a ", nameof(ConfigArrayElement)));
+			}
+		}
+		/// <summary>
+		/// Tries to get the <see cref="IConfigElement"/> identified by <paramref name="key"/>, which must be able to be parsed as an int.
+		/// If it does not exist, or <paramref name="key"/> parses to an int which is outside the range of <see cref="Elements"/>, returns <see cref="ConfigInvalidElement.Inst"/>.
+		/// </summary>
+		/// <param name="key">The key of the element.</param>
+		public IConfigElement TryGetElement(string key)
 		{
 			if (int.TryParse(key, out int index) && index >= 0 && Elements.Count > index)
 			{

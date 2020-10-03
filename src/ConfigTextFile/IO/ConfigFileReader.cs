@@ -49,6 +49,7 @@
 		/// </summary>
 		public ReadCfgToken Read()
 		{
+			// TODO when we are reading strings and whatnot, we need to make sure that we use the correct newline character. Currently, they just get replaced to whatever the current platform's newline handling is.
 			switch (State)
 			{
 				case ReadState.Expecting_Key_Comment_EndSection_EndFile:

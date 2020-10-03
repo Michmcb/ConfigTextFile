@@ -7,7 +7,7 @@
 	/// Represents a single string within the <see cref="ConfigFile"/>.
 	/// It does not have any children but it does have a Value.
 	/// </summary>
-	public class ConfigStringElement : IConfigElement
+	public partial class ConfigStringElement : IConfigElement
 	{
 		/// <summary>
 		/// Creates a new <see cref="ConfigStringElement"/>, no comments.
@@ -73,9 +73,16 @@
 		/// </summary>
 		public ICollection<string> Comments { get; set; }
 		/// <summary>
-		/// Always returns <see cref="ConfigInvalidElement.Inst"/>.
+		/// Always throws an <see cref="InvalidOperationException"/>.
 		/// </summary>
 		public IConfigElement GetElement(string key)
+		{
+			throw new InvalidOperationException("This is a " + nameof(ConfigStringElement) + ", it has no children to get");
+		}
+		/// <summary>
+		/// Always returns <see cref="ConfigInvalidElement.Inst"/>.
+		/// </summary>
+		public IConfigElement TryGetElement(string key)
 		{
 			return ConfigInvalidElement.Inst;
 		}

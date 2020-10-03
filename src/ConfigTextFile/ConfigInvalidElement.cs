@@ -1,7 +1,7 @@
-﻿namespace ConfigTextFile
-{
-	using System.Collections.Generic;
+﻿using System;
 
+namespace ConfigTextFile
+{
 	/// <summary>
 	/// Represents that a requested element did not exist.
 	/// This is a singleton, and you can't do too much with this.
@@ -36,17 +36,24 @@
 		/// </summary>
 		public string Path => throw new ConfigInvalidElementException();
 		/// <summary>
-		/// Always throws a <see cref="ConfigInvalidElementException"/>.
+		/// Always throws <see cref="ConfigInvalidElementException"/> on setting. Always returns <see cref="string.Empty"/>.
 		/// </summary>
-		public string Value { get => throw new ConfigInvalidElementException(); set => throw new ConfigInvalidElementException(); }
+		public string Value { get => string.Empty; set => throw new ConfigInvalidElementException(); }
 		/// <summary>
 		/// Always false.
 		/// </summary>
 		public bool IsValid => false;
 		/// <summary>
-		/// Always returns <see cref="Inst"/>.
+		/// Always throws a <see cref="ConfigInvalidElementException"/>.
 		/// </summary>
 		public IConfigElement GetElement(string key)
+		{
+			throw new ConfigInvalidElementException();
+		}
+		/// <summary>
+		/// Always returns <see cref="Inst"/>.
+		/// </summary>
+		public IConfigElement TryGetElement(string key)
 		{
 			return Inst;
 		}

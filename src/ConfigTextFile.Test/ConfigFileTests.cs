@@ -33,9 +33,7 @@ namespace ConfigTextFile.Test
 			Assert.Equal("true", global["Value"]);
 			Assert.Equal("12345", global["Value Two"]);
 			val = (ConfigStringElement)global.Elements["Multiline'd Value"];
-			Assert.Equal(@"Hello,
-This is a long string
-that spans many lines", val.Value);
+			Assert.Equal("Hello,\r\nThis is a long string\r\nthat spans many lines", val.Value);
 			Assert.Equal(2, val.Comments.Count);
 			Assert.Contains(" This has got lots of text here", val.Comments);
 			Assert.Contains(" Make sure you keep it in quotes!", val.Comments);

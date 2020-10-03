@@ -14,7 +14,7 @@ namespace ConfigTextFile.Test.ConfigInvalidElementTests
 			Assert.Throws<ConfigInvalidElementException>(() => e.Key);
 			Assert.Throws<ConfigInvalidElementException>(() => e.Path);
 			Assert.Throws<ConfigInvalidElementException>(() => e.Value = "");
-			Assert.Throws<ConfigInvalidElementException>(() => e.Value);
+			Assert.Throws<ConfigInvalidElementException>(() => e.GetElement(""));
 			Assert.Throws<ConfigInvalidElementException>(e.ThrowIfInvalid);
 			Assert.Throws<ConfigInvalidElementException>(e.AsArrayElement);
 			Assert.Throws<ConfigInvalidElementException>(e.AsSectionElement);
@@ -22,8 +22,9 @@ namespace ConfigTextFile.Test.ConfigInvalidElementTests
 
 			Assert.Equal(ConfigElementType.Invalid, e.Type);
 			Assert.False(e.IsValid);
+			Assert.Equal(string.Empty, e.Value);
 
-			Assert.Equal(e, e.GetElement(""));
+			Assert.Equal(e, e.TryGetElement(""));
 		}
 	}
 }

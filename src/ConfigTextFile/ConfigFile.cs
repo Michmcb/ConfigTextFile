@@ -150,12 +150,13 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 		/// </summary>
 		/// <param name="path">Path of the file to load.</param>
 		/// <param name="encoding">Encoding to use.</param>
+		/// <param name="ignoreComments">If true, comments are not loaded.</param>
 		/// <returns>The loaded <see cref="ConfigFile"/></returns>
-		public static ConfigFile LoadFile(string path, Encoding encoding)
+		public static ConfigFile LoadFile(string path, Encoding encoding, bool ignoreComments = false)
 		{
 			using (StreamReader sin = new StreamReader(path, encoding))
 			{
-				return LoadFile(sin);
+				return LoadFile(sin, ignoreComments);
 			}
 		}
 		/// <summary>
@@ -163,20 +164,22 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 		/// If it cannot be loaded, throws a <see cref="ConfigFileFormatException"/>.
 		/// </summary>
 		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
+		/// <param name="ignoreComments">If true, comments are not loaded.</param>
 		/// <returns>The loaded <see cref="ConfigFile"/></returns>
-		public static ConfigFile LoadFile(StreamReader stream)
+		public static ConfigFile LoadFile(StreamReader stream, bool ignoreComments = false)
 		{
-			return LoadFile(new ConfigFileReader(stream, false));
+			return LoadFile(new ConfigFileReader(stream, false), ignoreComments);
 		}
 		/// <summary>
 		/// Attempts to load a file from <paramref name="stream"/>.
 		/// If it cannot be loaded, throws a <see cref="ConfigFileFormatException"/>.
 		/// </summary>
 		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
+		/// <param name="ignoreComments">If true, comments are not loaded.</param>
 		/// <returns>The loaded <see cref="ConfigFile"/></returns>
-		public static ConfigFile LoadFile(ConfigFileReader stream)
+		public static ConfigFile LoadFile(ConfigFileReader stream, bool ignoreComments = false)
 		{
-			LoadResult result = TryLoadFile(stream);
+			LoadResult result = TryLoadFile(stream, ignoreComments);
 			if (result.ConfigTextFile == null)
 			{
 				throw new ConfigFileFormatException(result.ErrMsg);
@@ -188,29 +191,32 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 		/// </summary>
 		/// <param name="path">Path of the file to load.</param>
 		/// <param name="encoding">Encoding to use.</param>
+		/// <param name="ignoreComments">If true, comments are not loaded.</param>
 		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
-		public static LoadResult TryLoadFile(string path, Encoding encoding)
+		public static LoadResult TryLoadFile(string path, Encoding encoding, bool ignoreComments = false)
 		{
 			using (StreamReader sin = new StreamReader(path, encoding))
 			{
-				return TryLoadFile(sin);
+				return TryLoadFile(sin, ignoreComments);
 			}
 		}
 		/// <summary>
 		/// Attempts to load a file from <paramref name="stream"/>.
 		/// </summary>
 		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
+		/// <param name="ignoreComments">If true, comments are not loaded.</param>
 		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
-		public static LoadResult TryLoadFile(StreamReader stream)
+		public static LoadResult TryLoadFile(StreamReader stream, bool ignoreComments = false)
 		{
-			return TryLoadFile(new ConfigFileReader(stream, false));
+			return TryLoadFile(new ConfigFileReader(stream, false), ignoreComments);
 		}
 		/// <summary>
 		/// Attempts to load a file from <paramref name="stream"/>.
 		/// </summary>
 		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
+		/// <param name="ignoreComments">If true, comments are not loaded.</param>
 		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
-		public static LoadResult TryLoadFile(ConfigFileReader stream)
+		public static LoadResult TryLoadFile(ConfigFileReader stream, bool ignoreComments = false)
 		{
 			List<string> comments = new List<string>();
 			Stack<ConfigSectionElement> parentSections = new Stack<ConfigSectionElement>();
@@ -305,7 +311,10 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 							currentSectionPath = currentSection.Path.Length > 0 ? currentSection.Path + SyntaxCharacters.SectionDelimiter : string.Empty;
 							break;
 						case ConfigFileToken.Comment:
-							comments.Add(fRead.Value);
+							if (!ignoreComments)
+							{
+								comments.Add(fRead.Value);
+							}
 							break;
 						case ConfigFileToken.Finish:
 						case ConfigFileToken.EndArray:
