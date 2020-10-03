@@ -13,21 +13,14 @@
     <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
     <Description>A .NET library which allows you to read and write plain-text minimal syntax configuration files</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- Improved XML Documentation
-- Consistency for exceptions when using index operators and the Value property
-- ConfigArrayElements can be indexed using integers like a normal list instead of having to use a string key. When indexing using a string key, the string is parsed as an integer and then used to index into the list.
-- getting Value always throws an InvalidOperationException or a ConfigInvalidElementException rather than returning string.Empty
-- ConfigStringElement now has a convenience method to return an alternate value if its Value is null/empty
-- Indexing operator pulled up to IConfigElement for convenience (but it'll throw exceptions if the actual type is not ConfigArrayElement or ConfigSectionElement)
-- Multitargets .netstandard 2.0 and 2.1
-- Fixed a NullReferenceException if a key and = [ { \r \n was read, and then the end of file was encountered before finding the next non-whitespace character
-- Empty strings now respect the AlwaysQuoteValues formatting option (they'll be written as "")
-- Exception is thrown on trying to write a null/empty string as a key</PackageReleaseNotes>
+    <PackageReleaseNotes>- Value property doesn't throw exceptions anymore, it is back to returning string.Empty
+
+- Added ability to ignore comments when loading files</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.7</Version>
+    <Version>1.7.1</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.7.0.0</AssemblyVersion>
-    <FileVersion>1.7.0.0</FileVersion>
+    <AssemblyVersion>1.7.1.0</AssemblyVersion>
+    <FileVersion>1.7.1.0</FileVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
