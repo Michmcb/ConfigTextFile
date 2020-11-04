@@ -10,7 +10,7 @@
 	public class ConfigArrayElement : IConfigElement
 	{
 		/// <summary>
-		/// Creates a new <see cref="ConfigArrayElement"/>, with no comments.
+		/// Creates a new <see cref="ConfigArrayElement"/>, with an empty list of comments.
 		/// </summary>
 		public ConfigArrayElement(string key, string path)
 		{
@@ -20,7 +20,7 @@
 			Comments = new List<string>();
 		}
 		/// <summary>
-		/// Creates a new <see cref="ConfigArrayElement"/>, with <paramref name="comments"/>.
+		/// Creates a new <see cref="ConfigArrayElement"/>, with <paramref name="comments"/>, with a new list of comments created from <paramref name="comments"/>.
 		/// </summary>
 		public ConfigArrayElement(string key, string path, params string[] comments)
 		{
@@ -30,14 +30,14 @@
 			Comments = new List<string>(comments);
 		}
 		/// <summary>
-		/// Creates a new <see cref="ConfigArrayElement"/>, with <paramref name="comments"/>.
+		/// Creates a new <see cref="ConfigArrayElement"/>, with <paramref name="comments"/> used directly (it is not copied).
 		/// </summary>
-		public ConfigArrayElement(string key, string path, IEnumerable<string> comments)
+		public ConfigArrayElement(string key, string path, ICollection<string> comments)
 		{
 			Key = key;
 			Path = path;
 			Elements = new List<ConfigStringElement>();
-			Comments = new List<string>(comments);
+			Comments = comments;
 		}
 		/// <summary>
 		/// Gets or sets a child element's value.

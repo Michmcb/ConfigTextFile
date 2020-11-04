@@ -1,7 +1,6 @@
-﻿using System;
-
-namespace ConfigTextFile
+﻿namespace ConfigTextFile
 {
+	using System.Collections.Generic;
 	/// <summary>
 	/// Represents that a requested element did not exist.
 	/// This is a singleton, and you can't do too much with this.
@@ -43,6 +42,10 @@ namespace ConfigTextFile
 		/// Always false.
 		/// </summary>
 		public bool IsValid => false;
+		/// <summary>
+		/// Always throws <see cref="ConfigInvalidElementException"/>.
+		/// </summary>
+		public ICollection<string> Comments { get => throw new ConfigInvalidElementException(); set => throw new ConfigInvalidElementException(); }
 		/// <summary>
 		/// Always throws a <see cref="ConfigInvalidElementException"/>.
 		/// </summary>

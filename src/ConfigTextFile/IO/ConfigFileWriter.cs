@@ -351,8 +351,8 @@
 					|| str[0] == '"' || str[0] == '\'' || str[0] == '`' || str[0] == SyntaxCharacters.CommentStart || char.IsWhiteSpace(str[0])
 					// Or if it contains a newline...
 					|| str.IndexOfAny(SyntaxCharacters.EndOfLine) != -1
-					// Or if it's an array, it starts with array end or array element delimiter (Containing them is perfectly fine)
-					|| (isArrayMember && (str[0] == SyntaxCharacters.ArrayEnd || str[0] == SyntaxCharacters.ArrayElementDelimiter));
+					// Or if it's an array, it contains an array end or array element delimiter
+					|| (isArrayMember && (str.IndexOfAny(SyntaxCharacters.ArrayElementDelimiterAndEnd) != -1));
 			}
 
 			if (needsQuoting)

@@ -3,10 +3,9 @@
 	using ConfigTextFile.IO;
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics;
 	using System.IO;
-	using System.Linq;
 	using System.Text;
-
 	/*
 https://github.com/dotnet/extensions/blob/master/src/Configuration/Config.NewtonsoftJson/src/NewtonsoftJsonConfigurationSource.cs
 https://github.com/dotnet/extensions/blob/master/src/Configuration/Config.NewtonsoftJson/src/NewtonsoftJsonConfigurationProvider.cs
@@ -23,34 +22,26 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 	public sealed class ConfigFile
 	{
 		/// <summary>
-		/// Creates a new instance with <see cref="AllElements"/> being a new empty dictionary and
-		/// <see cref="Root"/> being a new instance with its Key/Path set to <see cref="string.Empty"/>.
+		/// Creates a new instance with <see cref="Root"/> being a new instance with its Key/Path set to <see cref="string.Empty"/>.
 		/// </summary>
 		public ConfigFile()
 		{
-			AllElements = new Dictionary<string, IConfigElement>();
-			Root = new ConfigSectionElement(string.Empty, string.Empty);
+			Root = new ConfigSectionElement(string.Empty, string.Empty, (ICollection<string>)Array.Empty<string>());
 		}
 		/// <summary>
-		/// Creates a new instance
+		/// Creates a new instance.
 		/// </summary>
-		/// <param name="allElements"></param>
-		/// <param name="root"></param>
-		public ConfigFile(IDictionary<string, IConfigElement> allElements, ConfigSectionElement root)
+		public ConfigFile(ConfigSectionElement root)
 		{
-			AllElements = allElements;
 			Root = root;
 		}
 		/// <summary>
-		/// All IConfigElements, keyed by section:name:arrayindex.
-		/// </summary>
-		public IDictionary<string, IConfigElement> AllElements { get; }
-		/// <summary>
 		/// The root-level ConfigSection. Its Key/Path are empty strings, and it is not included in AllElements.
+		/// Note that because this represents the highest level it cannot have comments preceding it (those would be applied to the first element in the file instead)
 		/// </summary>
 		public ConfigSectionElement Root { get; }
 		/// <summary>
-		/// Creates a Dictionary, with the same keys as <see cref="AllElements"/>, but the values are the string values of all ConfigElements.
+		/// Creates a new Dictionary filled with the paths and values of every <see cref="ConfigStringElement"/> and <see cref="ConfigArrayElement"/>.
 		/// </summary>
 		public Dictionary<string, string> CreateStringDictionary()
 		{
@@ -59,68 +50,57 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 			return dict;
 		}
 		/// <summary>
-		/// Fills the provided <paramref name="dict"/> with the same keys as <see cref="AllElements"/>, but the values are the string values of all ConfigElements.
+		/// Fills <paramref name="dict"/> with the paths and values of every <see cref="ConfigStringElement"/> and <see cref="ConfigArrayElement"/>.
 		/// If <paramref name="overwrite"/> is true, keys already present are overwritten. Otherwise, a <see cref="ArgumentException"/> is thrown.
 		/// </summary>
 		/// <param name="dict">The dictionary to fill.</param>
-		/// <param name="overwrite">If true, overwrites key/value pairs in the provided dict. Otherwise, throws an exception.</param>
+		/// <param name="overwrite">If true, overwrites key/value pairs in the provided <paramref name="dict"/>. Otherwise, throws an exception.</param>
 		public void FillStringDictionary(IDictionary<string, string> dict, bool overwrite = true)
 		{
-			IEnumerable<IConfigElement> strings = AllElements.Values.Where(x => x.Type == ConfigElementType.String);
-			if (overwrite)
+			Stack<ConfigSectionElement> sections = new Stack<ConfigSectionElement>();
+			sections.Push(Root);
+			while (sections.Count > 0)
 			{
-				foreach (IConfigElement sv in strings)
+				ConfigSectionElement s = sections.Pop();
+				foreach (IConfigElement item in s.Elements.Values)
 				{
-					dict[sv.Path] = sv.Value;
-				}
-			}
-			else
-			{
-				foreach (IConfigElement sv in strings)
-				{
-					dict.Add(sv.Path, sv.Value);
-				}
-			}
-		}
-		/// <summary>
-		/// Tries to get the <see cref="IConfigElement"/> identified by <paramref name="key"/>.
-		/// If it does not exist, returns a <see cref="ConfigInvalidElement"/>.
-		/// </summary>
-		/// <param name="key">The key of the element.</param>
-		public IConfigElement GetElement(string key)
-		{
-			return AllElements.TryGetValue(key, out IConfigElement section) ? section : ConfigInvalidElement.Inst;
-		}
-		/// <summary>
-		/// Gets or sets a child element's value.
-		/// <paramref name="key"/> should refer to a <see cref="ConfigStringElement"/>.
-		/// If the key was not found, throws a <see cref="KeyNotFoundException"/>.
-		/// If the key was found but it wasn't a <see cref="ConfigStringElement"/>, throws an <see cref="InvalidOperationException"/>.
-		/// </summary>
-		/// <param name="key">Gets or sets an <see cref="IConfigElement"/>'s Value whose Key property matches this.</param>
-		public string this[string key]
-		{
-			get
-			{
-				return AllElements.TryGetValue(key, out IConfigElement elem)
-					? elem.Value
-					: throw new KeyNotFoundException("There is no " + nameof(ConfigStringElement) + " with the key " + key);
-			}
-			set
-			{
-				if (AllElements.TryGetValue(key, out IConfigElement elem))
-				{
-					elem.Value = value;
-				}
-				else
-				{
-					throw new KeyNotFoundException("There is no " + nameof(ConfigStringElement) + " with the key " + key);
+					string str = item.Value;
+					Debug.Assert(item.Type != ConfigElementType.Invalid, "Should never get an invalid element when iterating elements");
+					switch (item.Type)
+					{
+						case ConfigElementType.String:
+							if (overwrite)
+							{
+								dict[item.Path] = item.Value;
+							}
+							else
+							{
+								dict.Add(item.Path, item.Value);
+							}
+							break;
+						case ConfigElementType.Array:
+							foreach (ConfigStringElement arrayItem in item.AsArrayElement().Elements)
+							{
+								if (overwrite)
+								{
+									dict[arrayItem.Path] = arrayItem.Value;
+								}
+								else
+								{
+									dict.Add(arrayItem.Path, arrayItem.Value);
+								}
+							}
+							break;
+						case ConfigElementType.Section:
+							sections.Push(item.AsSectionElement());
+							break;
+					}
 				}
 			}
 		}
 		/// <summary>
-		/// Creates a Dictionary, with the same keys as all of the <see cref="AllElements"/> property of all <paramref name="configs"/>, but the values are the string values of all ConfigElements.
-		/// If <paramref name="overwrite"/> is true, keys already present are overwritten. Otherwise, a <see cref="System.ArgumentException"/> is thrown.
+		/// Creates a new Dictionary filled with the paths and values of every <see cref="ConfigStringElement"/> and <see cref="ConfigArrayElement"/>, from all <paramref name="configs"/>.
+		/// If <paramref name="overwrite"/> is true, keys already present are overwritten. Otherwise, a <see cref="ArgumentException"/> is thrown.
 		/// </summary>
 		/// <param name="overwrite">If true, overwrites key/value pairs in the provided dict. Otherwise, throws an exception.</param>
 		/// <param name="configs">The ConfigFiles from which to create a Dictionary.</param>
@@ -131,7 +111,7 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 			return dict;
 		}
 		/// <summary>
-		/// Fills the provided <paramref name="dict"/> with the same keys as all of the <see cref="AllElements"/> property of all <paramref name="configs"/>, but the values are the string values of all ConfigElements.
+		/// Fills <paramref name="dict"/> with the paths and values of every <see cref="ConfigStringElement"/> and <see cref="ConfigArrayElement"/>, from all <paramref name="configs"/>.
 		/// If <paramref name="overwrite"/> is true, keys already present are overwritten. Otherwise, a <see cref="System.ArgumentException"/> is thrown.
 		/// </summary>
 		/// <param name="dict">The dictionary to fill.</param>
@@ -150,34 +130,34 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 		/// </summary>
 		/// <param name="path">Path of the file to load.</param>
 		/// <param name="encoding">Encoding to use.</param>
-		/// <param name="ignoreComments">If true, comments are not loaded.</param>
+		/// <param name="commentLoading">Defines how to load comments.</param>
 		/// <returns>The loaded <see cref="ConfigFile"/></returns>
-		public static ConfigFile LoadFile(string path, Encoding encoding, bool ignoreComments = false)
+		public static ConfigFile LoadFile(string path, Encoding encoding, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load)
 		{
 			using StreamReader sin = new StreamReader(path, encoding);
-			return LoadFile(sin, ignoreComments);
+			return LoadFile(sin, commentLoading);
 		}
 		/// <summary>
 		/// Attempts to load a file from <paramref name="stream"/>.
 		/// If it cannot be loaded, throws a <see cref="ConfigFileFormatException"/>.
 		/// </summary>
 		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
-		/// <param name="ignoreComments">If true, comments are not loaded.</param>
+		/// <param name="commentLoading">Defines how to load comments.</param>
 		/// <returns>The loaded <see cref="ConfigFile"/></returns>
-		public static ConfigFile LoadFile(StreamReader stream, bool ignoreComments = false)
+		public static ConfigFile LoadFile(StreamReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load)
 		{
-			return LoadFile(new ConfigFileReader(stream, false), ignoreComments);
+			return LoadFile(new ConfigFileReader(stream, false), commentLoading);
 		}
 		/// <summary>
 		/// Attempts to load a file from <paramref name="stream"/>.
 		/// If it cannot be loaded, throws a <see cref="ConfigFileFormatException"/>.
 		/// </summary>
 		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
-		/// <param name="ignoreComments">If true, comments are not loaded.</param>
+		/// <param name="commentLoading">Defines how to load comments.</param>
 		/// <returns>The loaded <see cref="ConfigFile"/></returns>
-		public static ConfigFile LoadFile(ConfigFileReader stream, bool ignoreComments = false)
+		public static ConfigFile LoadFile(ConfigFileReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load)
 		{
-			LoadResult result = TryLoadFile(stream, ignoreComments);
+			LoadResult result = TryLoadFile(stream, commentLoading);
 			if (result.ConfigTextFile == null)
 			{
 				throw new ConfigFileFormatException(result.ErrMsg);
@@ -189,37 +169,38 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 		/// </summary>
 		/// <param name="path">Path of the file to load.</param>
 		/// <param name="encoding">Encoding to use.</param>
-		/// <param name="ignoreComments">If true, comments are not loaded.</param>
+		/// <param name="commentLoading">Defines how to load comments.</param>
 		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
-		public static LoadResult TryLoadFile(string path, Encoding encoding, bool ignoreComments = false)
+		public static LoadResult TryLoadFile(string path, Encoding encoding, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load)
 		{
 			using StreamReader sin = new StreamReader(path, encoding);
-			return TryLoadFile(sin, ignoreComments);
+			return TryLoadFile(sin, commentLoading);
 		}
 		/// <summary>
 		/// Attempts to load a file from <paramref name="stream"/>.
 		/// </summary>
 		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
-		/// <param name="ignoreComments">If true, comments are not loaded.</param>
+		/// <param name="commentLoading">Defines how to load comments.</param>
 		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
-		public static LoadResult TryLoadFile(StreamReader stream, bool ignoreComments = false)
+		public static LoadResult TryLoadFile(StreamReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load)
 		{
-			return TryLoadFile(new ConfigFileReader(stream, false), ignoreComments);
+			return TryLoadFile(new ConfigFileReader(stream, false), commentLoading);
 		}
 		/// <summary>
 		/// Attempts to load a file from <paramref name="stream"/>.
 		/// </summary>
 		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
-		/// <param name="ignoreComments">If true, comments are not loaded.</param>
+		/// <param name="commentLoading">Defines how to load comments.</param>
 		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
-		public static LoadResult TryLoadFile(ConfigFileReader stream, bool ignoreComments = false)
+		public static LoadResult TryLoadFile(ConfigFileReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load)
 		{
-			List<string> comments = new List<string>();
+			ICollection<string> comments = commentLoading == LoadCommentsPreference.Load ? new List<string>() : (ICollection<string>)Array.Empty<string>();
 			Stack<ConfigSectionElement> parentSections = new Stack<ConfigSectionElement>();
 			string currentSectionPath = string.Empty;
-			ConfigSectionElement root = new ConfigSectionElement(string.Empty, string.Empty);
+			// Root can never have comments
+			ConfigSectionElement root = new ConfigSectionElement(string.Empty, string.Empty, (ICollection<string>)Array.Empty<string>());
 			ConfigSectionElement currentSection = root;
-			Dictionary<string, IConfigElement> allElements = new Dictionary<string, IConfigElement>();
+			HashSet<string> allPaths = new HashSet<string>();
 			string key = string.Empty;
 			try
 			{
@@ -234,10 +215,13 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 						case ConfigFileToken.Value:
 							string path = currentSectionPath + key;
 							ConfigStringElement singleString = new ConfigStringElement(key, path, fRead.Value, comments);
-							comments.Clear();
-							if (!allElements.ContainsKey(path))
+							if (commentLoading == LoadCommentsPreference.Load)
 							{
-								allElements.Add(path, singleString);
+								comments = new List<string>();
+							}
+							if (!allPaths.Contains(path))
+							{
+								allPaths.Add(path);
 							}
 							else
 							{
@@ -248,10 +232,13 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 						case ConfigFileToken.StartArray:
 							string arrayPath = currentSectionPath + key;
 							ConfigArrayElement array = new ConfigArrayElement(key, arrayPath, comments);
-							comments.Clear();
-							if (!allElements.ContainsKey(arrayPath))
+							if (commentLoading == LoadCommentsPreference.Load)
 							{
-								allElements.Add(arrayPath, array);
+								comments = new List<string>();
+							}
+							if (!allPaths.Contains(arrayPath))
+							{
+								allPaths.Add(arrayPath);
 							}
 							else
 							{
@@ -266,10 +253,11 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 								{
 									string arrayIndex = index.ToString();
 									string arrayElementPath = string.Concat(arrayPath, SyntaxCharacters.SectionDelimiter, arrayIndex);
-									ConfigStringElement arrayElement = new ConfigStringElement(arrayIndex, arrayElementPath, fRead.Value);
-									if (!allElements.ContainsKey(arrayElementPath))
+									// TODO it would be nice to allow comments inside arrays
+									ConfigStringElement arrayElement = new ConfigStringElement(arrayIndex, arrayElementPath, fRead.Value, (ICollection<string>)Array.Empty<string>());
+									if (!allPaths.Contains(arrayElementPath))
 									{
-										allElements.Add(arrayElementPath, arrayElement);
+										allPaths.Add(arrayElementPath);
 									}
 									else
 									{
@@ -287,13 +275,16 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 						case ConfigFileToken.StartSection:
 							parentSections.Push(currentSection);
 							currentSectionPath += key;
-							if (!allElements.ContainsKey(currentSectionPath))
+							if (!allPaths.Contains(currentSectionPath))
 							{
 								ConfigSectionElement newSection = new ConfigSectionElement(key, currentSectionPath, comments);
-								comments.Clear();
+								if (commentLoading == LoadCommentsPreference.Load)
+								{
+									comments = new List<string>();
+								}
 								currentSection.Elements.Add(key, newSection);
 								currentSection = newSection;
-								allElements.Add(currentSectionPath, currentSection);
+								allPaths.Add(currentSectionPath);
 								currentSectionPath += SyntaxCharacters.SectionDelimiter;
 							}
 							else
@@ -307,7 +298,7 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 							currentSectionPath = currentSection.Path.Length > 0 ? currentSection.Path + SyntaxCharacters.SectionDelimiter : string.Empty;
 							break;
 						case ConfigFileToken.Comment:
-							if (!ignoreComments)
+							if (commentLoading == LoadCommentsPreference.Load)
 							{
 								comments.Add(fRead.Value);
 							}
@@ -318,7 +309,7 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 							break;
 					}
 				}
-				return new LoadResult(new ConfigFile(allElements, root));
+				return new LoadResult(new ConfigFile(root));
 			}
 			catch (ConfigFileFormatException ex)
 			{

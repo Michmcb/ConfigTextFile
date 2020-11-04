@@ -10,7 +10,7 @@
 	public partial class ConfigStringElement : IConfigElement
 	{
 		/// <summary>
-		/// Creates a new <see cref="ConfigStringElement"/>, no comments.
+		/// Creates a new <see cref="ConfigStringElement"/>, with an empty list of comments.
 		/// </summary>
 		public ConfigStringElement(string key, string path, string value)
 		{
@@ -20,7 +20,7 @@
 			Comments = new List<string>();
 		}
 		/// <summary>
-		/// Creates a new <see cref="ConfigStringElement"/>, with <paramref name="comments"/>.
+		/// Creates a new <see cref="ConfigStringElement"/>, with a new list of comments created from <paramref name="comments"/>.
 		/// </summary>
 		public ConfigStringElement(string key, string path, string value, params string[] comments)
 		{
@@ -30,14 +30,14 @@
 			Comments = new List<string>(comments);
 		}
 		/// <summary>
-		/// Creates a new <see cref="ConfigStringElement"/>, with <paramref name="comments"/>.
+		/// Creates a new <see cref="ConfigStringElement"/>, with <paramref name="comments"/> used directly (it is not copied).
 		/// </summary>
-		public ConfigStringElement(string key, string path, string value, IEnumerable<string> comments)
+		public ConfigStringElement(string key, string path, string value, ICollection<string> comments)
 		{
 			Key = key;
 			Path = path;
 			Value = value;
-			Comments = new List<string>(comments);
+			Comments = comments;
 		}
 		/// <summary>
 		/// Always throws an <see cref="InvalidOperationException"/>, as strings don't have any children.
