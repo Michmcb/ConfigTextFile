@@ -60,7 +60,7 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 		}
 		/// <summary>
 		/// Fills the provided <paramref name="dict"/> with the same keys as <see cref="AllElements"/>, but the values are the string values of all ConfigElements.
-		/// If <paramref name="overwrite"/> is true, keys already present are overwritten. Otherwise, a <see cref="System.ArgumentException"/> is thrown.
+		/// If <paramref name="overwrite"/> is true, keys already present are overwritten. Otherwise, a <see cref="ArgumentException"/> is thrown.
 		/// </summary>
 		/// <param name="dict">The dictionary to fill.</param>
 		/// <param name="overwrite">If true, overwrites key/value pairs in the provided dict. Otherwise, throws an exception.</param>
@@ -154,10 +154,8 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 		/// <returns>The loaded <see cref="ConfigFile"/></returns>
 		public static ConfigFile LoadFile(string path, Encoding encoding, bool ignoreComments = false)
 		{
-			using (StreamReader sin = new StreamReader(path, encoding))
-			{
-				return LoadFile(sin, ignoreComments);
-			}
+			using StreamReader sin = new StreamReader(path, encoding);
+			return LoadFile(sin, ignoreComments);
 		}
 		/// <summary>
 		/// Attempts to load a file from <paramref name="stream"/>.
@@ -195,10 +193,8 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
 		public static LoadResult TryLoadFile(string path, Encoding encoding, bool ignoreComments = false)
 		{
-			using (StreamReader sin = new StreamReader(path, encoding))
-			{
-				return TryLoadFile(sin, ignoreComments);
-			}
+			using StreamReader sin = new StreamReader(path, encoding);
+			return TryLoadFile(sin, ignoreComments);
 		}
 		/// <summary>
 		/// Attempts to load a file from <paramref name="stream"/>.

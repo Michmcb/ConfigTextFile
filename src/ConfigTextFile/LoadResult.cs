@@ -37,7 +37,7 @@ namespace ConfigTextFile
 		/// </summary>
 		public ConfigFile? ConfigTextFile { get; }
 		/// <summary>
-		/// If Success is false, an error message. Otherwise, an empty string.
+		/// If ConfigTextFile is null, an error message. Otherwise, an empty string.
 		/// </summary>
 		public string ErrMsg { get; }
 	}
