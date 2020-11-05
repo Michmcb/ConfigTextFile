@@ -17,20 +17,23 @@ LoadResult result = ConfigFile.TryLoadFile("MyFile.cfg", Encoding.UTF8);
 if(result.Success)
 {
 	ConfigFile file = result.ConfigTextFile;
+	ConfigSectionElement root = file.Root;
 
-	// We can just directly get the string this way. This is less verbose, but throws exceptions when keys are not found or are not a single string
-	myString = file["SomeSection:SomeKey"];
-
-	// This lets us use the IConfigElement interface
-	IConfigElement singleString = file.GetElement("SomeSection:SomeKey");
-
-	// Throws an exception if the above key was not found
-	singleString.ThrowIfInvalid();
+	// We can directly get the string this way. This is less verbose, but FindElement throws exceptions when keys are not found
+	IConfigElement foundElement = root.FindElement("SomeSection:SomeKey").Value;
 
 	// This returns an empty string if it's not a single string
-	myString = singleString.Value;
+	string myString = foundElement.Value;
 
-	IConfigElement array = file.Elements["SomeArray"];
+	// We can use Try methods to prefer returning ConfigInvalidElement instead of throwing exceptions
+	foundElement = root.TryFindElement("SomeSection:SomeKey");
+
+	// And if we want an exception, we can do this
+	foundElement.ThrowIfInvalid();
+
+	// We can directly use the Elements dictionary too
+	IConfigElement array = root.Elements["SomeArray"];
+
 	// We can iterate over each string in the array by doing this
 	foreach(IConfigElement elem = array.Elements.Values)
 	{
@@ -55,9 +58,6 @@ if(result.Success)
 				break;
 		}
 	}
-
-	// If we need to get at the root section, we can do that too
-	ConfigSectionElement root = file.Root;
 }
 else
 {
