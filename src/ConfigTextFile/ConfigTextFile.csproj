@@ -13,12 +13,15 @@
     <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
     <Description>A .NET library which allows you to read and write plain-text minimal syntax configuration files</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes></PackageReleaseNotes>
+    <PackageReleaseNotes>- Dictionary for all element has been removed
+- FindElement and TryFindElement added, which searches downward the hierarchy for a match
+- Comments property has been pulled to up IConfigElement
+- Bug fixed where array elements containing ] or , were not quoted properly</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.7.2</Version>
+    <Version>1.8.0</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.7.2.0</AssemblyVersion>
-    <FileVersion>1.7.2.0</FileVersion>
+    <AssemblyVersion>1.8.0.0</AssemblyVersion>
+    <FileVersion>1.8.0.0</FileVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

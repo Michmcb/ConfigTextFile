@@ -87,6 +87,20 @@
 			return ConfigInvalidElement.Inst;
 		}
 		/// <summary>
+		/// Always throws <see cref="InvalidOperationException"/>.
+		/// </summary>
+		public IConfigElement FindElement(string path)
+		{
+			throw new InvalidOperationException("This is a " + nameof(ConfigStringElement) + ", it has no children to get");
+		}
+		/// <summary>	
+		/// Always returns <see cref="ConfigInvalidElement.Inst"/>.
+		/// </summary>
+		public IConfigElement TryFindElement(string path)
+		{
+			return ConfigInvalidElement.Inst;
+		}
+		/// <summary>
 		/// Returns <see cref="Path"/>=<see cref="Value"/>. If <see cref="Value"/> is null, it's treated as <see cref="string.Empty"/>.
 		/// </summary>
 		public override string ToString()

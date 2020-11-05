@@ -48,26 +48,26 @@
 		{
 			get
 			{
-				IConfigElement e = GetElement(key);
+				IConfigElement e = TryGetElement(key);
 				if (e.IsValid)
 				{
 					return e.Value;
 				}
 				else
 				{
-					throw new KeyNotFoundException("There is no " + nameof(ConfigStringElement) + " with the key " + key);
+					throw new KeyNotFoundException(string.Concat("There is no ", nameof(ConfigStringElement), " with a key of ", key, " or the key cannot be parsed as an int as this is a ", nameof(ConfigArrayElement)));
 				}
 			}
 			set
 			{
-				IConfigElement e = GetElement(key);
+				IConfigElement e = TryGetElement(key);
 				if (e.IsValid)
 				{
 					e.Value = value;
 				}
 				else
 				{
-					throw new KeyNotFoundException("There is no " + nameof(ConfigStringElement) + " with the key " + key);
+					throw new KeyNotFoundException(string.Concat("There is no ", nameof(ConfigStringElement), " with a key of ", key, " or the key cannot be parsed as an int as this is a ", nameof(ConfigArrayElement)));
 				}
 			}
 		}
@@ -126,7 +126,7 @@
 			}
 			else
 			{
-				throw new KeyNotFoundException(string.Concat("There is no ConfigElement with a key of ", key, " or the key cannot be parsed as an int as this is a ", nameof(ConfigArrayElement)));
+				throw new KeyNotFoundException(string.Concat("There is no ", nameof(ConfigStringElement), " with a key of ", key, " or the key cannot be parsed as an int as this is a ", nameof(ConfigArrayElement)));
 			}
 		}
 		/// <summary>
@@ -144,6 +144,24 @@
 			{
 				return ConfigInvalidElement.Inst;
 			}
+		}
+		/// <summary>
+		/// Attempts to find an <see cref="IConfigElement"/> which has the path <paramref name="path"/>. Goes as deep as it needs to to find one.
+		/// If none is found, throws a <see cref="KeyNotFoundException"/>.
+		/// </summary>
+		/// <param name="path">The path of the element to search for.</param>
+		public IConfigElement FindElement(string path)
+		{
+			return GetElement(path);
+		}
+		/// <summary>
+		/// Attempts to find an <see cref="IConfigElement"/> which has the path <paramref name="path"/>. Goes as deep as it needs to to find one.
+		/// If none is found, returns a <see cref="ConfigInvalidElement"/>.
+		/// </summary>
+		/// <param name="path">The path of the element to search for.</param>
+		public IConfigElement TryFindElement(string path)
+		{
+			return TryGetElement(path);
 		}
 		/// <summary>
 		/// A convenience method that loops over all strings in this array.

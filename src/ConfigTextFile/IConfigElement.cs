@@ -47,6 +47,18 @@
 		/// <param name="key">The key of the element.</param>
 		IConfigElement TryGetElement(string key);
 		/// <summary>
+		/// Attempts to find an <see cref="IConfigElement"/> which has the path <paramref name="path"/>. Goes as deep as it needs to to find one.
+		/// If none is found, throws an exception.
+		/// </summary>
+		/// <param name="path">The path of the element to search for.</param>
+		IConfigElement FindElement(string path);
+		/// <summary>
+		/// Attempts to find an <see cref="IConfigElement"/> which has the path <paramref name="path"/>. Goes as deep as it needs to to find one.
+		/// If none is found, returns a <see cref="ConfigInvalidElement"/>.
+		/// </summary>
+		/// <param name="path">The path of the element to search for.</param>
+		IConfigElement TryFindElement(string path);
+		/// <summary>
 		/// Throws if and only if this <see cref="IConfigElement"/> is a <see cref="ConfigInvalidElement"/>.
 		/// </summary>
 		void ThrowIfInvalid();

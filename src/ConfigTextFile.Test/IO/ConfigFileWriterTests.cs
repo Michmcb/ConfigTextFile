@@ -64,20 +64,21 @@ namespace ConfigTextFile.Test.IO
 			}
 			File.WriteAllBytes("WriteTestFile.cfg", ms.ToArray());
 			ConfigFile x = ConfigFile.LoadFile("WriteTestFile.cfg", Encoding.Unicode);
-			Assert.Equal("Value1", x["Key1"]);
-			Assert.Equal("Value2", x["Key2"]);
-			Assert.Equal("Value3", x["Key3"]);
+			var root = x.Root;
+			Assert.Equal("Value1", root["Key1"]);
+			Assert.Equal("Value2", root["Key2"]);
+			Assert.Equal("Value3", root["Key3"]);
 
-			Assert.Equal("Value4", x["Section:Key1"]);
-			Assert.Equal("Value5", x["Section:Key2"]);
-			Assert.Equal("aValue1", x["Section:Array:0"]);
-			Assert.Equal("aValue2", x["Section:Array:1"]);
-			Assert.Equal("aValue3", x["Section:Array:2"]);
-			Assert.Equal("Value6", x["Section:Section:Key3"]);
+			Assert.Equal("Value4",  root.FindElement("Section:Key1").Value);
+			Assert.Equal("Value5",  root.FindElement("Section:Key2").Value);
+			Assert.Equal("aValue1", root.FindElement("Section:Array:0").Value);
+			Assert.Equal("aValue2", root.FindElement("Section:Array:1").Value);
+			Assert.Equal("aValue3", root.FindElement("Section:Array:2").Value);
+			Assert.Equal("Value6",  root.FindElement("Section:Section:Key3").Value);
 
-			ConfigStringElement key1 = x.GetElement("Key1").AsStringElement();
+			ConfigStringElement key1 = root.GetElement("Key1").AsStringElement();
 			Assert.Equal(3, key1.Comments.Count);
-			key1 = x.GetElement("Section:Key1").AsStringElement();
+			key1 = root.FindElement("Section:Key1").AsStringElement();
 			Assert.Equal(2, key1.Comments.Count);
 		}
 		[Fact]

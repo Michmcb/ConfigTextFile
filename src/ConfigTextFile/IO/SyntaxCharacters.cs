@@ -33,7 +33,7 @@
 		/// <summary>
 		/// Delimits section names. e.g. Section1:Section2:Key
 		/// </summary>
-		public const string SectionDelimiter = ":";
+		public const char SectionDelimiter = ':';
 
 		/// <summary>
 		/// ArrayElementDelimiter and ArrayEnd

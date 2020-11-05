@@ -1,5 +1,6 @@
 ﻿namespace ConfigTextFile
 {
+	using ConfigTextFile.IO;
 	using System;
 	using System.Collections.Generic;
 
@@ -114,7 +115,42 @@
 		/// <param name="key">The key of the element.</param>
 		public IConfigElement TryGetElement(string key)
 		{
-			return Elements.TryGetValue(key, out IConfigElement section) ? section : ConfigInvalidElement.Inst;
+			return Elements.TryGetValue(key, out IConfigElement element) ? element : ConfigInvalidElement.Inst;
+		}
+		/// <summary>
+		/// Attempts to find an <see cref="IConfigElement"/> which has the path <paramref name="path"/>. Goes as deep as it needs to to find one.
+		/// If none is found, throws a <see cref="KeyNotFoundException"/>.
+		/// </summary>
+		/// <param name="path">The path of the element to search for.</param>
+		public IConfigElement FindElement(string path)
+		{
+			IConfigElement e = TryFindElement(path);
+			return e.IsValid
+					 ? e
+					 : throw new KeyNotFoundException(string.Concat("Could not find any ", nameof(IConfigElement), " with the path ", path));
+		}
+		/// <summary>
+		/// Attempts to find an <see cref="IConfigElement"/> which has the path <paramref name="path"/>. Goes as deep as it needs to to find one.
+		/// If none is found, returns a <see cref="ConfigInvalidElement"/>.
+		/// </summary>
+		/// <param name="path">The path of the element to search for.</param>
+		public IConfigElement TryFindElement(string path)
+		{
+			// Find the delimiter first
+			int i = path.IndexOf(SyntaxCharacters.SectionDelimiter);
+			if (i == -1)
+			{
+				// If none is found, it is probably the end of the path, so just return that
+				return Elements.TryGetValue(path, out IConfigElement element) ? element : ConfigInvalidElement.Inst;
+			}
+			// If there IS a delimiter, we'll take a substring and keep trying to find the element
+			// But if the string happens to end with a delimiter e.g. "section:", then that's wrong and would also make our next substring fail.
+			// So check that before we make a substring
+			else if (path.Length != i + 1 && Elements.TryGetValue(path.Substring(0, i), out IConfigElement? element))
+			{
+				return element.TryFindElement(path.Substring(i + 1));
+			}
+			return ConfigInvalidElement.Inst;
 		}
 		/// <summary>
 		/// Returns <see cref="Path"/>.

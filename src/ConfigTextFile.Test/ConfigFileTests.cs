@@ -1,4 +1,5 @@
 using ConfigTextFile.IO;
+using System.Collections.Generic;
 using System.Text;
 using Xunit;
 
@@ -23,12 +24,12 @@ namespace ConfigTextFile.Test
 			ConfigSectionElement global = (ConfigSectionElement)root.Elements["global"];
 			Assert.Equal(9, global.Elements.Count);
 
-			val = (ConfigStringElement)ctf.AllElements["First KEy"];
+			val = (ConfigStringElement)root.GetElement("First KEy");
 			Assert.Equal("blah blah", val.Value);
-			val = (ConfigStringElement)ctf.AllElements["ValueAfterLastScopeEnds"];
+			val = (ConfigStringElement)root.GetElement("ValueAfterLastScopeEnds");
 			Assert.Equal("Blah blah", val.Value);
 
-			global = (ConfigSectionElement)ctf.AllElements["global"];
+			global = (ConfigSectionElement)root.GetElement("global");
 			Assert.Equal(9, global.Elements.Count);
 			Assert.Equal("true", global["Value"]);
 			Assert.Equal("12345", global["Value Two"]);
@@ -55,24 +56,27 @@ namespace ConfigTextFile.Test
 			IConfigElement emptyArray = Assert.Contains("EmptyArray", global.Elements);
 			Assert.Empty(emptyArray.AsArrayElement().Elements);
 
-			ConfigSectionElement myscope = (ConfigSectionElement)ctf.AllElements["global:myscope"];
+			ConfigSectionElement myscope = (ConfigSectionElement)root.FindElement("global:myscope");
 			Assert.Equal(2, myscope.Elements.Count);
 			Assert.Equal("12345", myscope["Quoted Value"]);
 			Assert.Contains("nested scope", myscope.Elements);
 
-			ConfigSectionElement nested_scope = (ConfigSectionElement)ctf.AllElements["global:myscope:nested scope"];
+			ConfigSectionElement nested_scope = (ConfigSectionElement)root.FindElement("global:myscope:nested scope");
 			Assert.Equal(1, nested_scope.Elements.Count);
 			Assert.Equal("=Yes", nested_scope["Value with Equals Sign"]);
 
-			Assert.Same(global, ctf.GetElement("global"));
-			Assert.Same(myscope, ctf.GetElement("global:myscope"));
+			Assert.Same(global, root.GetElement("global"));
+			Assert.Same(myscope, root.FindElement("global:myscope"));
 			Assert.Same(myscope, global.Elements["myscope"]);
 			Assert.Same(myscope, global.GetElement("myscope"));
-			Assert.Same(nested_scope, ctf.GetElement("global:myscope:nested scope"));
+			Assert.Same(nested_scope, root.FindElement("global:myscope:nested scope"));
 			Assert.Same(nested_scope, myscope.Elements["nested scope"]);
 			Assert.Same(nested_scope, myscope.GetElement("nested scope"));
-			Assert.Same(array, ctf.AllElements["global:ArrayValue"]);
-			Assert.Same(array, ctf.GetElement("global:ArrayValue"));
+			Assert.Same(array, root.FindElement("global:ArrayValue"));
+			Assert.Same(array, root.FindElement("global:ArrayValue"));
+
+			Assert.Throws<KeyNotFoundException>(() => root.FindElement("global:"));
+			Assert.Same(ConfigInvalidElement.Inst, root.TryFindElement("global:"));
 		}
 		[Fact]
 		public void MalformedFiles()

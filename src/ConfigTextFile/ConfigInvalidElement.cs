@@ -61,6 +61,20 @@
 			return Inst;
 		}
 		/// <summary>
+		/// Always throws <see cref="ConfigInvalidElementException"/>.
+		/// </summary>
+		public IConfigElement FindElement(string path)
+		{
+			throw new ConfigInvalidElementException();
+		}
+		/// <summary>
+		/// Always returns <see cref="Inst"/>.
+		/// </summary>
+		public IConfigElement TryFindElement(string path)
+		{
+			return Inst;
+		}
+		/// <summary>
 		/// Always throws a <see cref="ConfigInvalidElementException"/>.
 		/// </summary>
 		public void ThrowIfInvalid()
