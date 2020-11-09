@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFrameworks>netstandard2.1;netstandard2.0</TargetFrameworks>
     <LangVersion>latest</LangVersion>
     <Nullable>enable</Nullable>
     <Company />
@@ -13,15 +13,12 @@
     <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
     <Description>A .NET library which allows you to read and write plain-text minimal syntax configuration files</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- Dictionary for all element has been removed
-- FindElement and TryFindElement added, which searches downward the hierarchy for a match
-- Comments property has been pulled to up IConfigElement
-- Bug fixed where array elements containing ] or , were not quoted properly</PackageReleaseNotes>
+    <PackageReleaseNotes>- Multitargets .netstandard2.0 and .netstandard2.1 again; accidentally made it only target .netstandard2.1</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.8.0</Version>
+    <Version>1.8.1</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.8.0.0</AssemblyVersion>
-    <FileVersion>1.8.0.0</FileVersion>
+    <AssemblyVersion>1.8.1.0</AssemblyVersion>
+    <FileVersion>1.8.1.0</FileVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
