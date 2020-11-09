@@ -219,7 +219,7 @@
 
 				currentIndentation = string.IsNullOrEmpty(Formatting.Indentation) ? string.Empty : string.Concat(Enumerable.Repeat(Formatting.Indentation, ++SectionLevel));
 				// Not allowed to finish until all sections are closed
-				ValidWrites = ConfigFileToken.Key | ConfigFileToken.Comment;
+				ValidWrites = ConfigFileToken.Key | ConfigFileToken.Comment | ConfigFileToken.EndSection;
 				previousWrite = ConfigFileToken.StartSection;
 			}
 			else
@@ -286,7 +286,7 @@
 				}
 				Writer.WriteLine(SyntaxCharacters.ArrayEnd);
 				ValidWrites = SectionLevel > 0
-					? ConfigFileToken.Key | ConfigFileToken.Comment | ConfigFileToken.Finish | ConfigFileToken.EndSection
+					? ConfigFileToken.Key | ConfigFileToken.Comment | ConfigFileToken.EndSection
 					: ConfigFileToken.Key | ConfigFileToken.Comment | ConfigFileToken.Finish;
 				previousWrite = ConfigFileToken.EndArray;
 			}
