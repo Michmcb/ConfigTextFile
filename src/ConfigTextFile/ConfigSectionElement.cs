@@ -51,13 +51,13 @@
 		{
 			get
 			{
-				return Elements.TryGetValue(key, out IConfigElement elem)
+				return Elements.TryGetValue(key, out IConfigElement? elem)
 					? elem.Value
 					: throw new KeyNotFoundException("There is no " + nameof(ConfigStringElement) + " with the key " + key);
 			}
 			set
 			{
-				if (Elements.TryGetValue(key, out IConfigElement elem))
+				if (Elements.TryGetValue(key, out IConfigElement? elem))
 				{
 					elem.Value = value;
 				}
@@ -106,7 +106,7 @@
 		/// <param name="key">The key of the element.</param>
 		public IConfigElement GetElement(string key)
 		{
-			return Elements.TryGetValue(key, out IConfigElement section) ? section : throw new KeyNotFoundException("There is no " + nameof(IConfigElement) + " with the key " + key);
+			return Elements.TryGetValue(key, out IConfigElement? section) ? section : throw new KeyNotFoundException("There is no " + nameof(IConfigElement) + " with the key " + key);
 		}
 		/// <summary>
 		/// Tries to get the <see cref="IConfigElement"/> identified by <paramref name="key"/>.
@@ -115,7 +115,7 @@
 		/// <param name="key">The key of the element.</param>
 		public IConfigElement TryGetElement(string key)
 		{
-			return Elements.TryGetValue(key, out IConfigElement element) ? element : ConfigInvalidElement.Inst;
+			return Elements.TryGetValue(key, out IConfigElement? element) ? element : ConfigInvalidElement.Inst;
 		}
 		/// <summary>
 		/// Attempts to find an <see cref="IConfigElement"/> which has the path <paramref name="path"/>. Goes as deep as it needs to to find one.
@@ -141,7 +141,7 @@
 			if (i == -1)
 			{
 				// If none is found, it is probably the end of the path, so just return that
-				return Elements.TryGetValue(path, out IConfigElement element) ? element : ConfigInvalidElement.Inst;
+				return Elements.TryGetValue(path, out IConfigElement? element) ? element : ConfigInvalidElement.Inst;
 			}
 			// If there IS a delimiter, we'll take a substring and keep trying to find the element
 			// But if the string happens to end with a delimiter e.g. "section:", then that's wrong and would also make our next substring fail.

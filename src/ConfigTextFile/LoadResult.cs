@@ -1,13 +1,11 @@
-﻿using System;
-
-namespace ConfigTextFile
+﻿namespace ConfigTextFile
 {
-#pragma warning disable CA1815 // Override equals and operator equals on value types
+	using System;
+
 	/// <summary>
 	/// Result of loading a <see cref="ConfigFile"/>
 	/// </summary>
 	public readonly struct LoadResult
-#pragma warning restore CA1815 // Override equals and operator equals on value types
 	{
 		/// <summary>
 		/// Creates an instance with <see cref="ErrMsg"/> set to <see cref="string.Empty"/>
@@ -28,7 +26,7 @@ namespace ConfigTextFile
 			ErrMsg = errMsg;
 		}
 		/// <summary>
-		/// True if successful, false otherwise
+		/// True if <see cref="ConfigTextFile"/> is not null, false otherwise
 		/// </summary>
 		[Obsolete("Prefer checking to see if ConfigTextFile is null.")]
 		public bool Success => ConfigTextFile != null;
@@ -37,7 +35,7 @@ namespace ConfigTextFile
 		/// </summary>
 		public ConfigFile? ConfigTextFile { get; }
 		/// <summary>
-		/// If ConfigTextFile is null, an error message. Otherwise, an empty string.
+		/// If <see cref="ConfigTextFile"/> is null, an error message. Otherwise, an empty string.
 		/// </summary>
 		public string ErrMsg { get; }
 	}

@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.IO;
+	using System.Linq;
 	using System.Text;
 
 	/// <summary>
@@ -67,7 +68,8 @@
 						if (c == SyntaxCharacters.CommentStart)
 						{
 							State = ReadState.Expecting_Key_Comment_EndSection_EndFile;
-							return new ReadCfgToken(Reader.ReadLine().TrimEnd(), ConfigFileToken.Comment);
+							// ReadLine returns null if it's at the end of the file. If it is, just return an empty string as the comment, since that is essentially what it is.
+							return new ReadCfgToken(Reader.ReadLine()?.TrimEnd() ?? string.Empty, ConfigFileToken.Comment);
 						}
 						if (c == SyntaxCharacters.SectionEnd)
 						{
@@ -271,7 +273,7 @@
 				if (r != -1)
 				{
 					char c = (char)r;
-					if (!until.ArrayContains(c))
+					if (!until.Contains(c))
 					{
 						sb.Append((char)r);
 					}

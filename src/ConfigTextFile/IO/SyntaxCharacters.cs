@@ -1,5 +1,8 @@
 ﻿namespace ConfigTextFile.IO
 {
+	/// <summary>
+	/// These are the syntax characters used in config text files.
+	/// </summary>
 	public static class SyntaxCharacters
 	{
 		/// <summary>

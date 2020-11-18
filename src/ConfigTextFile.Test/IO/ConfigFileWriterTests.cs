@@ -1,11 +1,11 @@
-﻿using ConfigTextFile.IO;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using Xunit;
-
-namespace ConfigTextFile.Test.IO
+﻿namespace ConfigTextFile.Test.IO
 {
+	using ConfigTextFile.IO;
+	using System.Collections.Generic;
+	using System.IO;
+	using System.Text;
+	using Xunit;
+
 	public sealed class ConfigFileWriterTests
 	{
 		[Fact]

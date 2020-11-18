@@ -360,7 +360,7 @@
 				char quote = '\0';
 				foreach (char q in Formatting.QuotesInOrderOfPreference)
 				{
-					if (str.IndexOf(q) == -1)
+					if (!str.Contains(q))
 					{
 						quote = q;
 						break;

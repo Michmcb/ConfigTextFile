@@ -1,10 +1,10 @@
-using ConfigTextFile.IO;
-using System.Collections.Generic;
-using System.Text;
-using Xunit;
-
 namespace ConfigTextFile.Test
 {
+	using ConfigTextFile.IO;
+	using System.Collections.Generic;
+	using System.Text;
+	using Xunit;
+
 	public class ConfigFileTests
 	{
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
@@ -34,7 +34,7 @@ namespace ConfigTextFile.Test
 			Assert.Equal("true", global["Value"]);
 			Assert.Equal("12345", global["Value Two"]);
 			val = (ConfigStringElement)global.Elements["Multiline'd Value"];
-			Assert.Equal("Hello,\r\nThis is a long string\r\nthat spans many lines", val.Value);
+			Assert.Equal("Hello,\r\nThis is a long string\nthat spans many lines", val.Value);
 			Assert.Equal(2, val.Comments.Count);
 			Assert.Contains(" This has got lots of text here", val.Comments);
 			Assert.Contains(" Make sure you keep it in quotes!", val.Comments);
@@ -112,7 +112,7 @@ namespace ConfigTextFile.Test
 			ReadAndAssertToken(reader, " This has got lots of text here", ConfigFileToken.Comment);
 			ReadAndAssertToken(reader, " Make sure you keep it in quotes!", ConfigFileToken.Comment);
 			ReadAndAssertToken(reader, "Multiline'd Value", ConfigFileToken.Key);
-			ReadAndAssertToken(reader, "Hello,\r\nThis is a long string\r\nthat spans many lines", ConfigFileToken.Value);
+			ReadAndAssertToken(reader, "Hello,\r\nThis is a long string\nthat spans many lines", ConfigFileToken.Value);
 			ReadAndAssertToken(reader, "myscope", ConfigFileToken.Key);
 			ReadAndAssertToken(reader, "", ConfigFileToken.StartSection);
 			ReadAndAssertToken(reader, "Quoted Value", ConfigFileToken.Key);

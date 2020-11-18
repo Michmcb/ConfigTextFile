@@ -1,7 +1,7 @@
-﻿using Xunit;
-
-namespace ConfigTextFile.Test.ConfigInvalidElementTests
+﻿namespace ConfigTextFile.Test.ConfigInvalidElementTests
 {
+	using Xunit;
+
 	public sealed class Other
 	{
 		[Fact]

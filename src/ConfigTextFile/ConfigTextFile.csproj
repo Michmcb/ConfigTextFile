@@ -13,13 +13,12 @@
     <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
     <Description>A .NET library which allows you to read and write plain-text minimal syntax configuration files</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- Fixed a bug which disallowed writing an empty section
-- Fixed a bug which erroneously allowed you to finish a file after writing the end of an array regardless of the section nesting level</PackageReleaseNotes>
+    <PackageReleaseNotes>- Fixed a bug which may threw a NullReferenceException when a comment char (#) occurred at the end of a text file with no text following it.</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.8.2</Version>
+    <Version>1.8.3</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.8.2.0</AssemblyVersion>
-    <FileVersion>1.8.2.0</FileVersion>
+    <AssemblyVersion>1.8.3.0</AssemblyVersion>
+    <FileVersion>1.8.3.0</FileVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

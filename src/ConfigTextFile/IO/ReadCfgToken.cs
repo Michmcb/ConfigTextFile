@@ -28,7 +28,7 @@
 		/// <summary>
 		/// Returns true if Value and Type are the same.
 		/// </summary>
-		public override bool Equals(object obj)
+		public override bool Equals(object? obj)
 		{
 			return obj is ReadCfgToken token && Equals(token);
 		}
@@ -61,16 +61,10 @@
 		/// <summary>
 		/// Returns true if Value and Type are the same.
 		/// </summary>
-		public static bool operator ==(ReadCfgToken left, ReadCfgToken right)
-		{
-			return left.Equals(right);
-		}
+		public static bool operator ==(ReadCfgToken left, ReadCfgToken right) => left.Equals(right);
 		/// <summary>
 		/// Returns true if Value or Type are the different.
 		/// </summary>
-		public static bool operator !=(ReadCfgToken left, ReadCfgToken right)
-		{
-			return !(left == right);
-		}
+		public static bool operator !=(ReadCfgToken left, ReadCfgToken right) => !(left == right);
 	}
 }

@@ -1,5 +1,9 @@
 ﻿namespace ConfigTextFile.IO
 {
+	using System.Linq;
+	/// <summary>
+	/// Some helper methods
+	/// </summary>
 	public static class Extensions
 	{
 		/// <summary>
@@ -13,26 +17,12 @@
 			int i = startIndex;
 			for (; i < str.Length; i++)
 			{
-				if (!chars.ArrayContains(str[i]))
+				if (!chars.Contains(str[i]))
 				{
 					return i;
 				}
 			}
 			return -1;
-		}
-		/// <summary>
-		/// Returns true if the array contains <paramref name="c"/>
-		/// </summary>
-		public static bool ArrayContains(this char[] array, char c)
-		{
-			foreach (char ac in array)
-			{
-				if (ac == c)
-				{
-					return true;
-				}
-			}
-			return false;
 		}
 	}
 }

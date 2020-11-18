@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigTextFile", "ConfigTex
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigTextFile.Test", "ConfigTextFile.Test\ConfigTextFile.Test.csproj", "{673CC4C8-5659-44FD-8B4C-672835236B0D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigTextFile.ConfigurationSource", "ConfigTextFile.ConfigurationSource\ConfigTextFile.ConfigurationSource.csproj", "{1DE907F9-8A3A-4E84-AAED-915164B6C6B6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{673CC4C8-5659-44FD-8B4C-672835236B0D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{673CC4C8-5659-44FD-8B4C-672835236B0D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{673CC4C8-5659-44FD-8B4C-672835236B0D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1DE907F9-8A3A-4E84-AAED-915164B6C6B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1DE907F9-8A3A-4E84-AAED-915164B6C6B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1DE907F9-8A3A-4E84-AAED-915164B6C6B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1DE907F9-8A3A-4E84-AAED-915164B6C6B6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

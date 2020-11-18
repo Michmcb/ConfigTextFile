@@ -6,16 +6,6 @@
 	using System.Diagnostics;
 	using System.IO;
 	using System.Text;
-	/*
-https://github.com/dotnet/extensions/blob/master/src/Configuration/Config.NewtonsoftJson/src/NewtonsoftJsonConfigurationSource.cs
-https://github.com/dotnet/extensions/blob/master/src/Configuration/Config.NewtonsoftJson/src/NewtonsoftJsonConfigurationProvider.cs
-https://github.com/dotnet/extensions/blob/master/src/Configuration/Config.NewtonsoftJson/src/NewtonsoftJsonConfigurationExtensions.cs
-
-In source, all you should do is EnsureDefaults(builder); and return new ConfigTextFileConfigurationProvider(this, FileProvider);
-In Provider, it's just ConfigFile file = ConfigFile.LoadFile(new StreamReader(stream)); and file.FillStringDictionary(Data);
-
-For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProvider, Path, Optional, and ReloadOnChange set. Then call ResolveFileProvider() on it, add it to builder, and done.
-*/
 	/// <summary>
 	/// A single config text file
 	/// </summary>
@@ -158,11 +148,7 @@ For Extensions, make a new ConfigTextFileConfigurationSource, just with FileProv
 		public static ConfigFile LoadFile(ConfigFileReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load)
 		{
 			LoadResult result = TryLoadFile(stream, commentLoading);
-			if (result.ConfigTextFile == null)
-			{
-				throw new ConfigFileFormatException(result.ErrMsg);
-			}
-			return result.ConfigTextFile;
+			return result.ConfigTextFile ?? throw new ConfigFileFormatException(result.ErrMsg);
 		}
 		/// <summary>
 		/// Attempts to load the file located at <paramref name="path"/>, interpreted using <paramref name="encoding"/>.
