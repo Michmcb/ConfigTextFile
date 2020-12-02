@@ -9,8 +9,6 @@ Key/Value pairs are delimited with the equals sign, and Values can either be a s
 
 ## Usage
 The ConfigFile class represents a single loaded file. To load one, use the static method TryLoadFile. It accepts either a stream, or string and Encoding.
-Once it's loaded, you can either use ConfigFile.GetElement("key") to retrieve parts of the file, or use the IConfiguration interface i.e. ConfigFile.GetSection("key")
-You can also use the ConfigFile.Elements Dictionary, but it's inconvenient for reading arrays.
 
 ```csharp
 LoadResult result = ConfigFile.TryLoadFile("MyFile.cfg", Encoding.UTF8);
