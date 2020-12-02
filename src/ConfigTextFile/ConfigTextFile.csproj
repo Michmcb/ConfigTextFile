@@ -13,12 +13,15 @@
     <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
     <Description>A .NET library which allows you to read and write plain-text minimal syntax configuration files</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- Fixed a bug which may threw a NullReferenceException when a comment char (#) occurred at the end of a text file with no text following it.</PackageReleaseNotes>
+    <PackageReleaseNotes>- Changed how creating new elements and adding them works, so it's actually usable now
+- ConfigPath class to help construct paths
+- Save method on ConfigFile
+- Removed Obsolete members</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.8.3</Version>
+    <Version>1.9</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.8.3.0</AssemblyVersion>
-    <FileVersion>1.8.3.0</FileVersion>
+    <AssemblyVersion>1.9.0.0</AssemblyVersion>
+    <FileVersion>1.9.0.0</FileVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

@@ -863,7 +863,7 @@
             Lines starting with this are a comment
             </summary>
         </member>
-        <member name="F:ConfigTextFile.IO.SyntaxCharacters.SectionDelimiter">
+        <member name="F:ConfigTextFile.IO.ConfigPath.Separator">
             <summary>
             Delimits section names. e.g. Section1:Section2:Key
             </summary>

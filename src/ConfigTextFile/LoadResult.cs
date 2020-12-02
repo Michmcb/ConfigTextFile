@@ -26,11 +26,6 @@
 			ErrMsg = errMsg;
 		}
 		/// <summary>
-		/// True if <see cref="ConfigTextFile"/> is not null, false otherwise
-		/// </summary>
-		[Obsolete("Prefer checking to see if ConfigTextFile is null.")]
-		public bool Success => ConfigTextFile != null;
-		/// <summary>
 		/// The loaded text file. Null on failure.
 		/// </summary>
 		public ConfigFile? ConfigTextFile { get; }

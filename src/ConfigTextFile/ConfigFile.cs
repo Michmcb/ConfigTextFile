@@ -12,24 +12,40 @@
 	public sealed class ConfigFile
 	{
 		/// <summary>
-		/// Creates a new instance with <see cref="Root"/> being a new instance with its Key/Path set to <see cref="string.Empty"/>.
+		/// Creates a new instance with <see cref="Root"/>
 		/// </summary>
 		public ConfigFile()
 		{
-			Root = new ConfigSectionElement(string.Empty, string.Empty, (ICollection<string>)Array.Empty<string>());
+			Root = new ConfigSectionElement();
 		}
 		/// <summary>
-		/// Creates a new instance.
+		/// Creates a new instance. <paramref name="root"/> must be created by using the parameterless constructor of <see cref="ConfigSectionElement"/>.
 		/// </summary>
 		public ConfigFile(ConfigSectionElement root)
 		{
+			if (root.Key?.Length != 0)
+			{
+				throw new ArgumentException("The Key of root must be an empty string to use it as the root section", nameof(root));
+			}
+			if (root.Path?.Length != 0)
+			{
+				throw new ArgumentException("The Path of root must be an empty string to use it as the root section", nameof(root));
+			}
 			Root = root;
 		}
 		/// <summary>
-		/// The root-level ConfigSection. Its Key/Path are empty strings, and it is not included in AllElements.
+		/// The root-level <see cref="ConfigSectionElement"/>. Its Key/Path are empty strings.
 		/// Note that because this represents the highest level it cannot have comments preceding it (those would be applied to the first element in the file instead)
 		/// </summary>
 		public ConfigSectionElement Root { get; }
+		/// <summary>
+		/// Calls <see cref="ConfigFileWriter.WriteSection(ConfigSectionElement)"/>, passing <see cref="Root"/>.
+		/// </summary>
+		/// <param name="stream">The stream to save the file to.</param>
+		public void Save(ConfigFileWriter stream)
+		{
+			stream.WriteSection(Root);
+		}
 		/// <summary>
 		/// Creates a new Dictionary filled with the paths and values of every <see cref="ConfigStringElement"/> and <see cref="ConfigArrayElement"/>.
 		/// </summary>
@@ -182,11 +198,9 @@
 		{
 			ICollection<string> comments = commentLoading == LoadCommentsPreference.Load ? new List<string>() : (ICollection<string>)Array.Empty<string>();
 			Stack<ConfigSectionElement> parentSections = new Stack<ConfigSectionElement>();
-			string currentSectionPath = string.Empty;
 			// Root can never have comments
-			ConfigSectionElement root = new ConfigSectionElement(string.Empty, string.Empty, (ICollection<string>)Array.Empty<string>());
+			ConfigSectionElement root = new ConfigSectionElement();
 			ConfigSectionElement currentSection = root;
-			HashSet<string> allPaths = new HashSet<string>();
 			string key = string.Empty;
 			try
 			{
@@ -199,58 +213,33 @@
 							key = fRead.Value;
 							break;
 						case ConfigFileToken.Value:
-							string path = currentSectionPath + key;
-							ConfigStringElement singleString = new ConfigStringElement(key, path, fRead.Value, comments);
+							ConfigStringElement singleString = new ConfigStringElement(key, fRead.Value, comments, copyComments: false);
+							if (!currentSection.TryAddElement(singleString))
+							{
+								return new LoadResult(string.Concat("Duplicate key \"", ConfigPath.Join(currentSection.Path, key), "\" was found"));
+							}
 							if (commentLoading == LoadCommentsPreference.Load)
 							{
 								comments = new List<string>();
 							}
-							if (!allPaths.Contains(path))
-							{
-								allPaths.Add(path);
-							}
-							else
-							{
-								return new LoadResult(string.Concat("Duplicate key \"", path, "\" was found"));
-							}
-							currentSection.Elements.Add(key, singleString);
 							break;
 						case ConfigFileToken.StartArray:
-							string arrayPath = currentSectionPath + key;
-							ConfigArrayElement array = new ConfigArrayElement(key, arrayPath, comments);
+							ConfigArrayElement array = new ConfigArrayElement(key, Array.Empty<string>(), comments, copyComments: false);
+							if (!currentSection.TryAddElement(array))
+							{
+								return new LoadResult(string.Concat("Duplicate key \"", ConfigPath.Join(currentSection.Path, key), "\" was found"));
+							}
 							if (commentLoading == LoadCommentsPreference.Load)
 							{
 								comments = new List<string>();
 							}
-							if (!allPaths.Contains(arrayPath))
-							{
-								allPaths.Add(arrayPath);
-							}
-							else
-							{
-								return new LoadResult(string.Concat("Duplicate key \"", arrayPath, "\" was found "));
-							}
-							currentSection.Elements.Add(key, array);
-							int index = 0;
 							while (true)
 							{
 								fRead = stream.Read();
 								if (fRead.Type == ConfigFileToken.ArrayValue)
 								{
-									string arrayIndex = index.ToString();
-									string arrayElementPath = string.Concat(arrayPath, SyntaxCharacters.SectionDelimiter, arrayIndex);
-									// TODO it would be nice to allow comments inside arrays
-									ConfigStringElement arrayElement = new ConfigStringElement(arrayIndex, arrayElementPath, fRead.Value, (ICollection<string>)Array.Empty<string>());
-									if (!allPaths.Contains(arrayElementPath))
-									{
-										allPaths.Add(arrayElementPath);
-									}
-									else
-									{
-										return new LoadResult(string.Concat("Duplicate key \"", arrayElementPath, "\" was found"));
-									}
-									array.Elements.Add(arrayElement);
-									++index;
+									// TODO it would be nice to allow comments inside arrays, though this does present some awkwardness.
+									array.AddNewString(fRead.Value);
 								}
 								else
 								{
@@ -260,28 +249,20 @@
 							break;
 						case ConfigFileToken.StartSection:
 							parentSections.Push(currentSection);
-							currentSectionPath += key;
-							if (!allPaths.Contains(currentSectionPath))
+							ConfigSectionElement newSection = new ConfigSectionElement(key, comments, copyComments: false);
+							if (!currentSection.TryAddElement(newSection))
 							{
-								ConfigSectionElement newSection = new ConfigSectionElement(key, currentSectionPath, comments);
-								if (commentLoading == LoadCommentsPreference.Load)
-								{
-									comments = new List<string>();
-								}
-								currentSection.Elements.Add(key, newSection);
-								currentSection = newSection;
-								allPaths.Add(currentSectionPath);
-								currentSectionPath += SyntaxCharacters.SectionDelimiter;
+								return new LoadResult(string.Concat("Duplicate key \"", ConfigPath.Join(currentSection.Path, key), "\" was found"));
 							}
-							else
+							if (commentLoading == LoadCommentsPreference.Load)
 							{
-								return new LoadResult(string.Concat("Duplicate key \"", currentSectionPath, "\" was found"));
+								comments = new List<string>();
 							}
+							currentSection = newSection;
 							break;
 						case ConfigFileToken.EndSection:
 							// Section end, pop back to the upper scope
 							currentSection = parentSections.Pop();
-							currentSectionPath = currentSection.Path.Length > 0 ? currentSection.Path + SyntaxCharacters.SectionDelimiter : string.Empty;
 							break;
 						case ConfigFileToken.Comment:
 							if (commentLoading == LoadCommentsPreference.Load)

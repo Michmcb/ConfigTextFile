@@ -1,6 +1,5 @@
 ﻿namespace ConfigTextFile
 {
-	using ConfigTextFile.IO;
 	using System;
 	using System.Collections.Generic;
 
@@ -10,35 +9,44 @@
 	/// </summary>
 	public class ConfigSectionElement : IConfigElement
 	{
+		internal readonly Dictionary<string, IConfigElement> _elements;
 		/// <summary>
-		/// Creates a new <see cref="ConfigSectionElement"/>, with an empty list of comments.
+		/// Creates a new instance, whose key/path are <see cref="string.Empty"/>, and comments are <see cref="Array.Empty{T}"/>.
+		/// This can be used as an argument to create a new <see cref="ConfigFile"/>, if needed.
 		/// </summary>
-		public ConfigSectionElement(string key, string path)
+		/// <returns>A <see cref="ConfigSectionElement"/> which can be used as a root.</returns>
+		public ConfigSectionElement()
 		{
+			Path = string.Empty;
+			Key = string.Empty;
+			_elements = new Dictionary<string, IConfigElement>();
+			Comments = Array.Empty<string>();
+		}
+		/// <summary>
+		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/>.
+		/// Comments are set to a new empty list. Value is set to <see cref="string.Empty"/>.
+		/// </summary>
+		/// <param name="key">This element's key</param>
+		public ConfigSectionElement(string key)
+		{
+			Path = string.Empty;
 			Key = key;
-			Path = path;
-			Elements = new Dictionary<string, IConfigElement>();
+			_elements = new Dictionary<string, IConfigElement>();
 			Comments = new List<string>();
 		}
 		/// <summary>
-		/// Creates a new <see cref="ConfigSectionElement"/>, with a new list of comments created from <paramref name="comments"/>.
+		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/>.
+		/// Comments are set to . Value is set to <see cref="string.Empty"/>.
 		/// </summary>
-		public ConfigSectionElement(string key, string path, params string[] comments)
+		/// <param name="key">This element's key</param>
+		/// <param name="comments">The comments to use. If <paramref name="copyComments"/> is true they are copied, otherwise they are used directly.</param>
+		/// <param name="copyComments">If true, copies <paramref name="comments"/> into a new list. Otherwise, assigns directly.</param>
+		public ConfigSectionElement(string key, ICollection<string> comments, bool copyComments = true)
 		{
+			Path = string.Empty;
 			Key = key;
-			Path = path;
-			Elements = new Dictionary<string, IConfigElement>();
-			Comments = new List<string>(comments);
-		}
-		/// <summary>
-		/// Creates a new <see cref="ConfigSectionElement"/>, with <paramref name="comments"/> used directly (it is not copied).
-		/// </summary>
-		public ConfigSectionElement(string key, string path, ICollection<string> comments)
-		{
-			Key = key;
-			Path = path;
-			Elements = new Dictionary<string, IConfigElement>();
-			Comments = comments;
+			_elements = new Dictionary<string, IConfigElement>();
+			Comments = copyComments ? new List<string>(comments) : comments;
 		}
 		/// <summary>
 		/// Gets or sets a child element's value.
@@ -74,7 +82,7 @@
 		/// <summary>
 		/// The full path to this <see cref="ConfigSectionElement"/>.
 		/// </summary>
-		public string Path { get; }
+		public string Path { get; internal set; }
 		/// <summary>
 		/// Always throws <see cref="InvalidOperationException"/> on setting. Always returns <see cref="string.Empty"/>.
 		/// </summary>
@@ -90,7 +98,7 @@
 		/// <summary>
 		/// All <see cref="IConfigElement"/> within this Section.
 		/// </summary>
-		public IDictionary<string, IConfigElement> Elements { get; }
+		public IReadOnlyDictionary<string, IConfigElement> Elements => _elements;
 		/// <summary>
 		/// Returns <see cref="ConfigElementType.Section"/>.
 		/// </summary>
@@ -99,6 +107,111 @@
 		/// The comments that preceded this <see cref="ConfigSectionElement"/>.
 		/// </summary>
 		public ICollection<string> Comments { get; set; }
+		/// <summary>
+		/// Adds <paramref name="element"/> to <see cref="Elements"/>. Sets the Path of <paramref name="element"/> if successful.
+		/// If <paramref name="element"/> has already been added to something else, or the Key is already taken, throws a <see cref="ArgumentException"/>.
+		/// </summary>
+		/// <param name="element">The element to add</param>
+		public void AddElement(ConfigStringElement element)
+		{
+			if (element.Path.Length == 0)
+			{
+				if (!_elements.ContainsKey(element.Key))
+				{
+					_elements.Add(element.Key, element);
+					element.Path = ConfigPath.Join(Path, element.Key);
+					return;
+				}
+				throw new ArgumentException("An element with the same key has already been added", nameof(element));
+			}
+			throw new ArgumentException("The provided element has already been added to something else; its path is " + element.Path, nameof(element));
+		}
+		/// <summary>
+		/// Adds <paramref name="element"/> to <see cref="Elements"/>. Sets the Path of <paramref name="element"/> if successful.
+		/// If <paramref name="element"/> has already been added to something else, or the Key is already taken, returns false.
+		/// </summary>
+		/// <param name="element">The element to add</param>
+		/// <returns>true if <paramref name="element"/> was added, false otherwise.</returns>
+		public bool TryAddElement(ConfigStringElement element)
+		{
+			if (element.Path.Length == 0 && !_elements.ContainsKey(element.Key))
+			{
+				_elements.Add(element.Key, element);
+				element.Path = ConfigPath.Join(Path, element.Key);
+				return true;
+			}
+			return false;
+		}
+		/// <summary>
+		/// Adds <paramref name="element"/> to <see cref="Elements"/>. Sets the Path of <paramref name="element"/> if successful.
+		/// If <paramref name="element"/> has already been added to something else, or the Key is already taken, throws a <see cref="ArgumentException"/>.
+		/// </summary>
+		/// <param name="element">The element to add</param>
+		public void AddElement(ConfigArrayElement element)
+		{
+			if (element.Path.Length == 0)
+			{
+				if (!_elements.ContainsKey(element.Key))
+				{
+					_elements.Add(element.Key, element);
+					element.Path = ConfigPath.Join(Path, element.Key);
+					return;
+				}
+				throw new ArgumentException("An element with the same key has already been added", nameof(element));
+			}
+			throw new ArgumentException("The provided element has already been added to something else; its path is " + element.Path, nameof(element));
+		}
+		/// <summary>
+		/// Adds <paramref name="element"/> to <see cref="Elements"/>. Sets the Path of <paramref name="element"/> if successful.
+		/// If <paramref name="element"/> has already been added to something else, or the Key is already taken, returns false.
+		/// </summary>
+		/// <param name="element">The element to add</param>
+		/// <returns>true if <paramref name="element"/> was added, false otherwise.</returns>
+		public bool TryAddElement(ConfigArrayElement element)
+		{
+			if (element.Path.Length == 0 && !_elements.ContainsKey(element.Key))
+			{
+				_elements.Add(element.Key, element);
+				element.Path = ConfigPath.Join(Path, element.Key);
+				return true;
+			}
+			return false;
+		}
+		/// <summary>
+		/// Adds <paramref name="element"/> to <see cref="Elements"/>. Sets the Path of <paramref name="element"/> if successful.
+		/// If <paramref name="element"/> has already been added to something else, or the Key is already taken, throws a <see cref="ArgumentException"/>.
+		/// </summary>
+		/// <param name="element">The element to add</param>
+		public void AddElement(ConfigSectionElement element)
+		{
+			if (element.Path.Length == 0)
+			{
+				if (!_elements.ContainsKey(element.Key))
+				{
+					_elements.Add(element.Key, element);
+					element.Path = ConfigPath.Join(Path, element.Key);
+					return;
+				}
+				throw new ArgumentException("An element with the same key has already been added", nameof(element));
+			}
+			throw new ArgumentException("The provided element has already been added to something else; its path is " + element.Path, nameof(element));
+		}
+		/// <summary>
+		/// Adds <paramref name="element"/> to <see cref="Elements"/>. Sets the Path of <paramref name="element"/> if successful.
+		/// If <paramref name="element"/> has already been added to something else, or the Key is already taken, returns false.
+		/// </summary>
+		/// <param name="element">The element to add</param>
+		/// <returns>true if <paramref name="element"/> was added, false otherwise.</returns>
+		public bool TryAddElement(ConfigSectionElement element)
+		{
+			if (element.Path.Length == 0 && !_elements.ContainsKey(element.Key))
+			{
+				_elements.Add(element.Key, element);
+				element.Path = ConfigPath.Join(Path, element.Key);
+				return true;
+			}
+			return false;
+		}
 		/// <summary>
 		/// Tries to get the <see cref="IConfigElement"/> identified by <paramref name="key"/>.
 		/// If it does not exist, throws a <see cref="KeyNotFoundException"/>.
@@ -137,7 +250,7 @@
 		public IConfigElement TryFindElement(string path)
 		{
 			// Find the delimiter first
-			int i = path.IndexOf(SyntaxCharacters.SectionDelimiter);
+			int i = path.IndexOf(ConfigPath.Separator);
 			if (i == -1)
 			{
 				// If none is found, it is probably the end of the path, so just return that

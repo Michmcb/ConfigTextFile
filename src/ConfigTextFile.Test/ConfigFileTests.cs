@@ -1,11 +1,13 @@
 namespace ConfigTextFile.Test
 {
 	using ConfigTextFile.IO;
+	using System;
 	using System.Collections.Generic;
+	using System.IO;
 	using System.Text;
 	using Xunit;
 
-	public class ConfigFileTests
+	public sealed class ConfigFileTests
 	{
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
 		[Fact]
@@ -13,7 +15,6 @@ namespace ConfigTextFile.Test
 		{
 			LoadResult loaded = ConfigFile.TryLoadFile("WellFormedConfigTextFile.cfg", Encoding.UTF8);
 			ConfigFile? ctf = loaded.ConfigTextFile;
-			Assert.True(loaded.Success);
 			Assert.NotNull(loaded.ConfigTextFile);
 
 			ConfigSectionElement root = ctf.Root;
@@ -82,19 +83,14 @@ namespace ConfigTextFile.Test
 		public void MalformedFiles()
 		{
 			LoadResult lr = ConfigFile.TryLoadFile("KeyWithoutValue.cfg", Encoding.UTF8);
-			Assert.False(lr.Success);
 			Assert.Null(lr.ConfigTextFile);
 			lr = ConfigFile.TryLoadFile("LoneKey.cfg", Encoding.UTF8);
-			Assert.False(lr.Success);
 			Assert.Null(lr.ConfigTextFile);
 			lr = ConfigFile.TryLoadFile("TooManyScopeTerminators.cfg", Encoding.UTF8);
-			Assert.False(lr.Success);
 			Assert.Null(lr.ConfigTextFile);
 			lr = ConfigFile.TryLoadFile("UnterminatedArray.cfg", Encoding.UTF8);
-			Assert.False(lr.Success);
 			Assert.Null(lr.ConfigTextFile);
 			lr = ConfigFile.TryLoadFile("UnterminatedScope.cfg", Encoding.UTF8);
-			Assert.False(lr.Success);
 			Assert.Null(lr.ConfigTextFile);
 		}
 		[Fact]
@@ -158,6 +154,82 @@ namespace ConfigTextFile.Test
 				Assert.Equal(expectedValue, token.Value);
 				Assert.Equal(expectedToken, token.Type);
 			}
+		}
+		[Fact]
+		public void Save()
+		{
+			ConfigFile file = new();
+			ConfigSectionElement root = file.Root;
+			root.AddElement(new ConfigStringElement("Key1", "value1"));
+			root.AddElement(new ConfigStringElement("Key2", "value  2"));
+			root.AddElement(new ConfigStringElement("Key3", "value~3"));
+			root.AddElement(new ConfigArrayElement("ArrayKey", "Value 1", "Valu,e 2", "Va]lue 3!"));
+			ConfigSectionElement subSection = new ConfigSectionElement("Subsection");
+			root.AddElement(subSection);
+
+			subSection.AddElement(new ConfigStringElement("Key1", "'value1", new string[] { "My comments", "hehey!" }, false));
+			subSection.AddElement(new ConfigStringElement("Key2", "\"value  2"));
+			subSection.AddElement(new ConfigStringElement("Key3", "`value3"));
+
+			using (ConfigFileWriter w = new ConfigFileWriter(new StreamWriter(new FileStream("test.cfg", FileMode.Create, FileAccess.Write), Encoding.UTF8, leaveOpen: false), closeOutput: true))
+			{
+				file.Save(w);
+			}
+
+			file = ConfigFile.LoadFile("test.cfg", Encoding.UTF8, LoadCommentsPreference.Load);
+			root = file.Root;
+			ConfigStringElement str = Assert.IsType<ConfigStringElement>(root.Elements["Key1"]);
+			Assert.Equal("value1", str.Value);
+			str = Assert.IsType<ConfigStringElement>(root.Elements["Key2"]);
+			Assert.Equal("value  2", str.Value);
+			str = Assert.IsType<ConfigStringElement>(root.Elements["Key3"]);
+			Assert.Equal("value~3", str.Value);
+
+			ConfigArrayElement arr = Assert.IsType<ConfigArrayElement>(root.Elements["ArrayKey"]);
+			Assert.Collection(arr.GetValues(), x => Assert.Equal("Value 1", x), x => Assert.Equal("Valu,e 2", x), x => Assert.Equal("Va]lue 3!", x));
+
+			subSection = Assert.IsType<ConfigSectionElement>(root.Elements["Subsection"]);
+			Assert.Equal(3, subSection.Elements.Count);
+
+			Assert.Collection(subSection.Elements.Values,
+				x =>
+				{
+					str = Assert.IsType<ConfigStringElement>(x);
+					Assert.Equal("Key1", str.Key);
+					Assert.Equal("'value1", str.Value);
+					Assert.Collection(x.Comments, y => Assert.Equal("My comments", y), y => Assert.Equal("hehey!", y));
+				},
+				x =>
+				{
+					str = Assert.IsType<ConfigStringElement>(x);
+					Assert.Equal("Key2", str.Key);
+					Assert.Equal("\"value  2", str.Value);
+				},
+				x =>
+				{
+					str = Assert.IsType<ConfigStringElement>(x);
+					Assert.Equal("Key3", str.Key);
+					Assert.Equal("`value3", str.Value);
+				});
+		}
+		[Fact]
+		public void AddingBadStuffSaysNo()
+		{
+			ConfigSectionElement section = new();
+			ConfigStringElement str = new ConfigStringElement("Key", "value");
+			section.AddElement(str);
+			Assert.Throws<ArgumentException>(() => section.AddElement(new ConfigStringElement("Key", "value")));
+			Assert.Throws<ArgumentException>(() => section.AddElement(str));
+			Assert.Throws<ArgumentException>(() => section.AddElement(new ConfigArrayElement("Key", "value")));
+			Assert.Throws<ArgumentException>(() => section.AddElement(new ConfigSectionElement("Key")));
+
+			ConfigArrayElement array = new ConfigArrayElement("Key1");
+			section.AddElement(array);
+			Assert.Throws<ArgumentException>(() => section.AddElement(array));
+
+			ConfigSectionElement sect = new ConfigSectionElement("Key2");
+			section.AddElement(sect);
+			Assert.Throws<ArgumentException>(() => section.AddElement(sect));
 		}
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
 	}

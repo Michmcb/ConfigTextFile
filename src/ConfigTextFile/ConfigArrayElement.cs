@@ -9,35 +9,59 @@
 	/// </summary>
 	public class ConfigArrayElement : IConfigElement
 	{
+		private readonly List<ConfigStringElement> _elements;
 		/// <summary>
-		/// Creates a new <see cref="ConfigArrayElement"/>, with an empty list of comments.
+		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/>.
+		/// Comments are set to a new empty list. Value is set to <see cref="string.Empty"/>.
 		/// </summary>
-		public ConfigArrayElement(string key, string path)
+		/// <param name="key">This element's key</param>
+		/// <param name="values">The values; creates a new <see cref="ConfigStringElement"/> for every string in this collection.</param>
+		public ConfigArrayElement(string key, IEnumerable<string> values)
 		{
+			Path = string.Empty;
 			Key = key;
-			Path = path;
-			Elements = new List<ConfigStringElement>();
+			_elements = new List<ConfigStringElement>();
+			foreach (string val in values)
+			{
+				AddNewString(val);
+			}
 			Comments = new List<string>();
 		}
 		/// <summary>
-		/// Creates a new <see cref="ConfigArrayElement"/>, with <paramref name="comments"/>, with a new list of comments created from <paramref name="comments"/>.
+		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/>.
+		/// Comments are set to a new empty list. Value is set to <see cref="string.Empty"/>.
 		/// </summary>
-		public ConfigArrayElement(string key, string path, params string[] comments)
+		/// <param name="key">This element's key</param>
+		/// <param name="values">The values; creates a new <see cref="ConfigStringElement"/> for every string in this collection.</param>
+		public ConfigArrayElement(string key, params string[] values)
 		{
+			Path = string.Empty;
 			Key = key;
-			Path = path;
-			Elements = new List<ConfigStringElement>();
-			Comments = new List<string>(comments);
+			_elements = new List<ConfigStringElement>();
+			foreach (string val in values)
+			{
+				AddNewString(val);
+			}
+			Comments = new List<string>();
 		}
 		/// <summary>
-		/// Creates a new <see cref="ConfigArrayElement"/>, with <paramref name="comments"/> used directly (it is not copied).
+		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/>.
+		/// Comments are set to . Value is set to <see cref="string.Empty"/>.
 		/// </summary>
-		public ConfigArrayElement(string key, string path, ICollection<string> comments)
+		/// <param name="key">This element's key</param>
+		/// <param name="values">The values; creates a new <see cref="ConfigStringElement"/> for every string in this collection.</param>
+		/// <param name="comments">The comments to use. If <paramref name="copyComments"/> is true they are copied, otherwise they are used directly.</param>
+		/// <param name="copyComments">If true, copies <paramref name="comments"/> into a new list. Otherwise, assigns directly.</param>
+		public ConfigArrayElement(string key, IEnumerable<string> values, ICollection<string> comments, bool copyComments = true)
 		{
+			Path = string.Empty;
 			Key = key;
-			Path = path;
-			Elements = new List<ConfigStringElement>();
-			Comments = comments;
+			_elements = new List<ConfigStringElement>();
+			foreach (string val in values)
+			{
+				AddNewString(val);
+			}
+			Comments = copyComments ? new List<string>(comments) : comments;
 		}
 		/// <summary>
 		/// Gets or sets a child element's value.
@@ -49,26 +73,16 @@
 			get
 			{
 				IConfigElement e = TryGetElement(key);
-				if (e.IsValid)
-				{
-					return e.Value;
-				}
-				else
-				{
-					throw new KeyNotFoundException(string.Concat("There is no ", nameof(ConfigStringElement), " with a key of ", key, " or the key cannot be parsed as an int as this is a ", nameof(ConfigArrayElement)));
-				}
+				return e.IsValid
+					? e.Value
+					: throw new KeyNotFoundException(string.Concat("There is no ", nameof(ConfigStringElement), " with a key of ", key, " or the key cannot be parsed as an int as this is a ", nameof(ConfigArrayElement)));
 			}
 			set
 			{
 				IConfigElement e = TryGetElement(key);
-				if (e.IsValid)
-				{
-					e.Value = value;
-				}
-				else
-				{
-					throw new KeyNotFoundException(string.Concat("There is no ", nameof(ConfigStringElement), " with a key of ", key, " or the key cannot be parsed as an int as this is a ", nameof(ConfigArrayElement)));
-				}
+				e.Value = e.IsValid
+					? value
+					: throw new KeyNotFoundException(string.Concat("There is no ", nameof(ConfigStringElement), " with a key of ", key, " or the key cannot be parsed as an int as this is a ", nameof(ConfigArrayElement)));
 			}
 		}
 		/// <summary>
@@ -88,7 +102,7 @@
 		/// <summary>
 		/// The full path to this <see cref="ConfigArrayElement"/>.
 		/// </summary>
-		public string Path { get; }
+		public string Path { get; internal set; }
 		/// <summary>
 		/// Always throws <see cref="InvalidOperationException"/> on setting. Always returns <see cref="string.Empty"/>.
 		/// </summary>
@@ -104,7 +118,7 @@
 		/// <summary>
 		/// All <see cref="ConfigStringElement"/>s within this Array.
 		/// </summary>
-		public IList<ConfigStringElement> Elements { get; }
+		public IReadOnlyList<ConfigStringElement> Elements => _elements;
 		/// <summary>
 		/// Returns <see cref="ConfigElementType.Array"/>.
 		/// </summary>
@@ -114,20 +128,27 @@
 		/// </summary>
 		public ICollection<string> Comments { get; set; }
 		/// <summary>
+		/// Creates a new <see cref="ConfigStringElement"/>, and adds it to <see cref="Elements"/>.
+		/// </summary>
+		/// <param name="value">The value. If null, will be set to <see cref="string.Empty"/> instead.</param>
+		/// <returns>A new <see cref="ConfigStringElement"/></returns>
+		public ConfigStringElement AddNewString(string value)
+		{
+			ConfigStringElement e = new ConfigStringElement(_elements.Count.ToString(), value ?? string.Empty, Array.Empty<string>(), copyComments: false);
+			e.Path = ConfigPath.Join(Path, e.Key);
+			_elements.Add(e);
+			return e;
+		}
+		/// <summary>
 		/// Tries to get the <see cref="IConfigElement"/> identified by <paramref name="key"/>, which must be able to be parsed as an int.
 		/// If it does not exist, or <paramref name="key"/> parses to an int which is outside the range of <see cref="Elements"/>, throws a <see cref="KeyNotFoundException"/>.
 		/// </summary>
 		/// <param name="key">The key of the element.</param>
 		public IConfigElement GetElement(string key)
 		{
-			if (int.TryParse(key, out int index) && index >= 0 && Elements.Count > index)
-			{
-				return Elements[index];
-			}
-			else
-			{
-				throw new KeyNotFoundException(string.Concat("There is no ", nameof(ConfigStringElement), " with a key of ", key, " or the key cannot be parsed as an int as this is a ", nameof(ConfigArrayElement)));
-			}
+			return int.TryParse(key, out int index) && index >= 0 && Elements.Count > index
+				? Elements[index]
+				: throw new KeyNotFoundException(string.Concat("There is no ", nameof(ConfigStringElement), " with a key of ", key, " or the key cannot be parsed as an int as this is a ", nameof(ConfigArrayElement)));
 		}
 		/// <summary>
 		/// Tries to get the <see cref="IConfigElement"/> identified by <paramref name="key"/>, which must be able to be parsed as an int.
@@ -136,14 +157,9 @@
 		/// <param name="key">The key of the element.</param>
 		public IConfigElement TryGetElement(string key)
 		{
-			if (int.TryParse(key, out int index) && index >= 0 && Elements.Count > index)
-			{
-				return Elements[index];
-			}
-			else
-			{
-				return ConfigInvalidElement.Inst;
-			}
+			return int.TryParse(key, out int index) && index >= 0 && Elements.Count > index
+				? Elements[index]
+				: (IConfigElement)ConfigInvalidElement.Inst;
 		}
 		/// <summary>
 		/// Attempts to find an <see cref="IConfigElement"/> which has the path <paramref name="path"/>. Goes as deep as it needs to to find one.
@@ -207,6 +223,10 @@
 		public ConfigStringElement AsStringElement()
 		{
 			throw new InvalidCastException("This is not a " + nameof(ConfigStringElement) + "; it is a " + nameof(ConfigArrayElement));
+		}
+		internal void AddWithoutCheck(ConfigStringElement element)
+		{
+			_elements.Add(element);
 		}
 	}
 }

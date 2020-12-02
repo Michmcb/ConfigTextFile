@@ -1,6 +1,5 @@
 ﻿namespace ConfigTextFile.IO
 {
-	using ConfigTextFile.IO.Fluent;
 	using System;
 
 	/// <summary>

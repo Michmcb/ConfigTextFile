@@ -1,4 +1,4 @@
-﻿namespace ConfigTextFile.IO.Fluent
+﻿namespace ConfigTextFile.IO
 {
 	using System;
 	using System.Collections.Generic;

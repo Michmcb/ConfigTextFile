@@ -12,6 +12,7 @@
 		{
 			Encoding = src.Encoding;
 		}
+		public new ConfigFile Data { get; set; }
 		/// <summary>
 		/// The encoding to use.
 		/// </summary>
@@ -24,7 +25,8 @@
 		public override void Load(Stream stream)
 		{
 			ConfigFile cf = ConfigFile.LoadFile(new StreamReader(stream, Encoding), LoadCommentsPreference.Ignore);
-			cf.FillStringDictionary(Data, overwrite: true);
+			Data = cf;
+			cf.FillStringDictionary(base.Data, overwrite: true);
 		}
 	}
 }

@@ -7,37 +7,34 @@
 	/// Represents a single string within the <see cref="ConfigFile"/>.
 	/// It does not have any children but it does have a Value.
 	/// </summary>
-	public partial class ConfigStringElement : IConfigElement
+	public class ConfigStringElement : IConfigElement
 	{
 		/// <summary>
-		/// Creates a new <see cref="ConfigStringElement"/>, with an empty list of comments.
+		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/> or a <see cref="ConfigArrayElement"/>.
+		/// Comments are set to a new empty list.
 		/// </summary>
-		public ConfigStringElement(string key, string path, string value)
+		/// <param name="key">This element's key</param>
+		/// <param name="value">The value. If null, will be set to <see cref="string.Empty"/> instead.</param>
+		public ConfigStringElement(string key, string value)
 		{
+			Path = string.Empty;
 			Key = key;
-			Path = path;
-			Value = value;
+			Value = value ?? string.Empty;
 			Comments = new List<string>();
 		}
 		/// <summary>
-		/// Creates a new <see cref="ConfigStringElement"/>, with a new list of comments created from <paramref name="comments"/>.
+		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/> or a <see cref="ConfigArrayElement"/>.
 		/// </summary>
-		public ConfigStringElement(string key, string path, string value, params string[] comments)
+		/// <param name="key">This element's key</param>
+		/// <param name="value">The value. If null, will be set to <see cref="string.Empty"/> instead.</param>
+		/// <param name="comments">The comments to use. If <paramref name="copyComments"/> is true they are copied, otherwise they are used directly.</param>
+		/// <param name="copyComments">If true, copies <paramref name="comments"/> into a new list. Otherwise, assigns directly.</param>
+		public ConfigStringElement(string key, string value, ICollection<string> comments, bool copyComments = true)
 		{
+			Path = string.Empty;
 			Key = key;
-			Path = path;
-			Value = value;
-			Comments = new List<string>(comments);
-		}
-		/// <summary>
-		/// Creates a new <see cref="ConfigStringElement"/>, with <paramref name="comments"/> used directly (it is not copied).
-		/// </summary>
-		public ConfigStringElement(string key, string path, string value, ICollection<string> comments)
-		{
-			Key = key;
-			Path = path;
-			Value = value;
-			Comments = comments;
+			Value = value ?? string.Empty;
+			Comments = copyComments ? new List<string>(comments) : comments;
 		}
 		/// <summary>
 		/// Always throws an <see cref="InvalidOperationException"/>, as strings don't have any children.
@@ -54,8 +51,9 @@
 		public string Key { get; }
 		/// <summary>
 		/// The full path to this <see cref="ConfigStringElement"/>.
+		/// This is set once this element is added as a child to another element.
 		/// </summary>
-		public string Path { get; }
+		public string Path { get; internal set; }
 		/// <summary>
 		/// Gets or sets this <see cref="ConfigStringElement"/>'s value.
 		/// </summary>

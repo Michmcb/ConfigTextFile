@@ -1,4 +1,4 @@
-﻿namespace ConfigTextFile.IO
+﻿namespace ConfigTextFile
 {
 	/// <summary>
 	/// These are the syntax characters used in config text files.
@@ -33,10 +33,7 @@
 		/// Lines starting with this are a comment
 		/// </summary>
 		public const char CommentStart = '#';
-		/// <summary>
-		/// Delimits section names. e.g. Section1:Section2:Key
-		/// </summary>
-		public const char SectionDelimiter = ':';
+		
 
 		/// <summary>
 		/// ArrayElementDelimiter and ArrayEnd

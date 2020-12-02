@@ -1,6 +1,7 @@
 ﻿namespace ConfigTextFile.IO
 {
 	using System;
+	using System.Diagnostics;
 	using System.IO;
 	using System.Linq;
 
@@ -75,8 +76,8 @@
 		/// <param name="key">The key to write</param>
 		public void WriteKey(string key)
 		{
-			if (key == null) throw new ArgumentNullException(nameof(key));
-			if (key.Length == 0) throw new ArgumentException(nameof(key) + " cannot be an emppty string", nameof(key));
+			if (key == null) throw new ArgumentNullException(nameof(key), nameof(key) + " cannot be null");
+			if (key.Length == 0) throw new ArgumentException(nameof(key) + " cannot be an empty string", nameof(key));
 			if (CanWrite(ConfigFileToken.Key))
 			{
 				WriteBlankLineIfNeeded(previousWrite, ConfigFileToken.Key);
@@ -317,6 +318,42 @@
 			else
 			{
 				throw new ConfigFileFormatException(nameof(ConfigFileWriter) + " cannot currently finish. It must currently write: " + ValidWrites);
+			}
+		}
+		/// <summary>
+		/// Writes the <paramref name="root"/> and all of its children to the stream, recursively.
+		/// This does not enclose <paramref name="root"/> in a section (but all child sections are).
+		/// If you need <paramref name="root"/> to be enclosed in its own section, call <see cref="WriteStartSection"/> and <see cref="WriteEndSection"/>.
+		/// </summary>
+		public void WriteSection(ConfigSectionElement root)
+		{
+			foreach (IConfigElement e in root.Elements.Values)
+			{
+				Debug.Assert(e.Type != ConfigElementType.Invalid, "Should never get an invalid element when iterating elements");
+				foreach (string comment in e.Comments)
+				{
+					WriteComment(comment);
+				}
+				WriteKey(e.Key);
+				switch (e.Type)
+				{
+					case ConfigElementType.String:
+						WriteValue(e.Value);
+						break;
+					case ConfigElementType.Array:
+						WriteStartArray();
+						foreach (string val in e.AsArrayElement().GetValues())
+						{
+							WriteValue(val);
+						}
+						WriteEndArray();
+						break;
+					case ConfigElementType.Section:
+						WriteStartSection();
+						WriteSection(e.AsSectionElement());
+						WriteEndSection();
+						break;
+				}
 			}
 		}
 		private void WriteString(string str, bool isKey, bool isArrayMember)
