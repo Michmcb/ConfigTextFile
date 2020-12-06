@@ -130,11 +130,11 @@
 		/// <summary>
 		/// Creates a new <see cref="ConfigStringElement"/>, and adds it to <see cref="Elements"/>.
 		/// </summary>
-		/// <param name="value">The value. If null, will be set to <see cref="string.Empty"/> instead.</param>
+		/// <param name="value">The value.</param>
 		/// <returns>A new <see cref="ConfigStringElement"/></returns>
 		public ConfigStringElement AddNewString(string value)
 		{
-			ConfigStringElement e = new ConfigStringElement(_elements.Count.ToString(), value ?? string.Empty, Array.Empty<string>(), copyComments: false);
+			ConfigStringElement e = new ConfigStringElement(_elements.Count.ToString(), value, Array.Empty<string>(), copyComments: false);
 			e.Path = ConfigPath.Join(Path, e.Key);
 			_elements.Add(e);
 			return e;

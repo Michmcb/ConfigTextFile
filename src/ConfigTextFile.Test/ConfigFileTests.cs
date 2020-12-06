@@ -171,7 +171,7 @@ namespace ConfigTextFile.Test
 			subSection.AddElement(new ConfigStringElement("Key2", "\"value  2"));
 			subSection.AddElement(new ConfigStringElement("Key3", "`value3"));
 
-			using (ConfigFileWriter w = new ConfigFileWriter(new StreamWriter(new FileStream("test.cfg", FileMode.Create, FileAccess.Write), Encoding.UTF8, leaveOpen: false), closeOutput: true))
+			using (ConfigFileWriter w = new ConfigFileWriter(new StreamWriter(new FileStream("test_Save.cfg", FileMode.Create, FileAccess.Write), Encoding.UTF8, leaveOpen: false), closeOutput: true))
 			{
 				file.Save(w);
 			}

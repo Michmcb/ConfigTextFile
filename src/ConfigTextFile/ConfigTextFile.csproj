@@ -13,15 +13,13 @@
     <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
     <Description>A .NET library which allows you to read and write plain-text minimal syntax configuration files</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- Changed how creating new elements and adding them works, so it's actually usable now
-- ConfigPath class to help construct paths
-- Save method on ConfigFile
-- Removed Obsolete members</PackageReleaseNotes>
+    <PackageReleaseNotes>- Added a ConfigBuilder, which provides a fluent interface to build up a hierarchy of config elements
+- When passing a null for the value of a ConfigStringElement, it no longer coalesces it to string.Empty</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.9</Version>
+    <Version>1.9.1</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.9.0.0</AssemblyVersion>
-    <FileVersion>1.9.0.0</FileVersion>
+    <AssemblyVersion>1.9.1.0</AssemblyVersion>
+    <FileVersion>1.9.1.0</FileVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

@@ -14,26 +14,26 @@
 		/// Comments are set to a new empty list.
 		/// </summary>
 		/// <param name="key">This element's key</param>
-		/// <param name="value">The value. If null, will be set to <see cref="string.Empty"/> instead.</param>
+		/// <param name="value">The value.</param>
 		public ConfigStringElement(string key, string value)
 		{
 			Path = string.Empty;
 			Key = key;
-			Value = value ?? string.Empty;
+			Value = value;
 			Comments = new List<string>();
 		}
 		/// <summary>
 		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/> or a <see cref="ConfigArrayElement"/>.
 		/// </summary>
 		/// <param name="key">This element's key</param>
-		/// <param name="value">The value. If null, will be set to <see cref="string.Empty"/> instead.</param>
+		/// <param name="value">The value.</param>
 		/// <param name="comments">The comments to use. If <paramref name="copyComments"/> is true they are copied, otherwise they are used directly.</param>
 		/// <param name="copyComments">If true, copies <paramref name="comments"/> into a new list. Otherwise, assigns directly.</param>
 		public ConfigStringElement(string key, string value, ICollection<string> comments, bool copyComments = true)
 		{
 			Path = string.Empty;
 			Key = key;
-			Value = value ?? string.Empty;
+			Value = value;
 			Comments = copyComments ? new List<string>(comments) : comments;
 		}
 		/// <summary>
