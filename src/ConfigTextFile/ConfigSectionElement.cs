@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics.CodeAnalysis;
 
 	/// <summary>
 	/// Represents a section within the <see cref="ConfigFile"/>.
@@ -14,12 +15,13 @@
 		/// Creates a new instance, whose key/path are <see cref="string.Empty"/>, and comments are <see cref="Array.Empty{T}"/>.
 		/// This can be used as an argument to create a new <see cref="ConfigFile"/>, if needed.
 		/// </summary>
+		/// <param name="keyComparer">The comparer to use when comparing keys for elements added to this.</param>
 		/// <returns>A <see cref="ConfigSectionElement"/> which can be used as a root.</returns>
-		public ConfigSectionElement()
+		public ConfigSectionElement(IEqualityComparer<string> keyComparer)
 		{
 			Path = string.Empty;
 			Key = string.Empty;
-			_elements = new Dictionary<string, IConfigElement>();
+			_elements = new Dictionary<string, IConfigElement>(keyComparer);
 			Comments = Array.Empty<string>();
 		}
 		/// <summary>
@@ -27,11 +29,12 @@
 		/// Comments are set to a new empty list. Value is set to <see cref="string.Empty"/>.
 		/// </summary>
 		/// <param name="key">This element's key</param>
-		public ConfigSectionElement(string key)
+		/// <param name="keyComparer">The comparer to use when comparing keys for elements added to this.</param>
+		public ConfigSectionElement(string key, IEqualityComparer<string> keyComparer)
 		{
 			Path = string.Empty;
 			Key = key;
-			_elements = new Dictionary<string, IConfigElement>();
+			_elements = new Dictionary<string, IConfigElement>(keyComparer);
 			Comments = new List<string>();
 		}
 		/// <summary>
@@ -39,13 +42,14 @@
 		/// Comments are set to . Value is set to <see cref="string.Empty"/>.
 		/// </summary>
 		/// <param name="key">This element's key</param>
+		/// <param name="keyComparer">The comparer to use when comparing keys for elements added to this.</param>
 		/// <param name="comments">The comments to use. If <paramref name="copyComments"/> is true they are copied, otherwise they are used directly.</param>
 		/// <param name="copyComments">If true, copies <paramref name="comments"/> into a new list. Otherwise, assigns directly.</param>
-		public ConfigSectionElement(string key, ICollection<string> comments, bool copyComments = true)
+		public ConfigSectionElement(string key, IEqualityComparer<string> keyComparer, ICollection<string> comments, bool copyComments = true)
 		{
 			Path = string.Empty;
 			Key = key;
-			_elements = new Dictionary<string, IConfigElement>();
+			_elements = new Dictionary<string, IConfigElement>(keyComparer);
 			Comments = copyComments ? new List<string>(comments) : comments;
 		}
 		/// <summary>
@@ -92,6 +96,16 @@
 			set => throw new InvalidOperationException("You cannot set the value of a " + nameof(ConfigSectionElement));
 		}
 		/// <summary>
+		/// Returns <paramref name="alternative"/> because this is a <see cref="ConfigSectionElement"/>.
+		/// </summary>
+		/// <param name="alternative">Returns this.</param>
+		/// <returns><paramref name="alternative"/></returns>
+		[return: NotNullIfNotNull("alternative")]
+		public string? ValueOr(string? alternative)
+		{
+			return alternative;
+		}
+		/// <summary>
 		/// Always true.
 		/// </summary>
 		public bool IsValid => true;
@@ -104,9 +118,54 @@
 		/// </summary>
 		public ConfigElementType Type => ConfigElementType.Section;
 		/// <summary>
-		/// The comments that preceded this <see cref="ConfigSectionElement"/>.
+		/// The comments that preceded this.
 		/// </summary>
 		public ICollection<string> Comments { get; set; }
+		/// <summary>
+		/// The <see cref="IEqualityComparer{T}"/> used to compare the keys of elements added to this.
+		/// </summary>
+		public IEqualityComparer<string> KeyComparer => _elements.Comparer;
+		/// <summary>
+		/// Enumerates over all elements that this section contains. Does not filter by type.
+		/// </summary>
+		/// <returns>All <see cref="IConfigElement"/> in this section.</returns>
+		public IEnumerable<IConfigElement> EnumerateElements()
+		{
+			return _elements.Values;
+		}
+		/// <summary>
+		/// Enumerates over all <see cref="ConfigStringElement"/> elements that this section contains.
+		/// </summary>
+		/// <returns>All <see cref="ConfigStringElement"/> in this section.</returns>
+		public IEnumerable<ConfigStringElement> EnumerateStringElements()
+		{
+			foreach (IConfigElement elem in _elements.Values)
+			{
+				if (elem.Type == ConfigElementType.String) yield return elem.AsStringElement();
+			}
+		}
+		/// <summary>
+		/// Enumerates over all <see cref="ConfigSectionElement"/> elements that this section contains.
+		/// </summary>
+		/// <returns>All <see cref="ConfigSectionElement"/> in this section.</returns>
+		public IEnumerable<ConfigSectionElement> EnumerateSectionElements()
+		{
+			foreach (IConfigElement elem in _elements.Values)
+			{
+				if (elem.Type == ConfigElementType.Section) yield return elem.AsSectionElement();
+			}
+		}
+		/// <summary>
+		/// Enumerates over all <see cref="ConfigArrayElement"/> elements that this section contains.
+		/// </summary>
+		/// <returns>All <see cref="ConfigArrayElement"/> in this section.</returns>
+		public IEnumerable<ConfigArrayElement> EnumerateArrayElements()
+		{
+			foreach (IConfigElement elem in _elements.Values)
+			{
+				if (elem.Type == ConfigElementType.Array) yield return elem.AsArrayElement();
+			}
+		}
 		/// <summary>
 		/// Adds <paramref name="element"/> to <see cref="Elements"/>. Sets the Path of <paramref name="element"/> if successful.
 		/// If <paramref name="element"/> has already been added to something else, or the Key is already taken, throws a <see cref="ArgumentException"/>.

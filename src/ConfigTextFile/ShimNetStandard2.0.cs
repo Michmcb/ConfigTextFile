@@ -3,11 +3,17 @@
 namespace System.Diagnostics.CodeAnalysis
 {
 	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property, Inherited = false)]
-	internal sealed class AllowNullAttribute : Attribute	{	}
+	internal sealed class AllowNullAttribute : Attribute { }
 	[AttributeUsage(AttributeTargets.Field | AttributeTargets.Parameter | AttributeTargets.Property, Inherited = false)]
-	internal sealed class DisallowNullAttribute : Attribute {	}
+	internal sealed class DisallowNullAttribute : Attribute { }
+	[AttributeUsage(AttributeTargets.ReturnValue, Inherited = false)]
+	internal sealed class NotNullIfNotNullAttribute : Attribute
+	{
+		internal NotNullIfNotNullAttribute(string parameterName) { }
+	}
 	[AttributeUsage(AttributeTargets.Parameter, Inherited = false)]
-	internal sealed class NotNullWhenAttribute : Attribute {
+	internal sealed class NotNullWhenAttribute : Attribute
+	{
 		internal NotNullWhenAttribute(bool returnValue) { }
 	}
 }

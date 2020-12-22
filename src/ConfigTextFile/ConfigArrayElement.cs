@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics.CodeAnalysis;
 
 	/// <summary>
 	/// Represents an array of strings within the <see cref="ConfigFile"/>.
@@ -110,6 +111,16 @@
 		{
 			get => string.Empty;
 			set => throw new InvalidOperationException("You cannot set the value of a " + nameof(ConfigArrayElement));
+		}
+		/// <summary>
+		/// Returns <paramref name="alternative"/> because this is a <see cref="ConfigArrayElement"/>.
+		/// </summary>
+		/// <param name="alternative">Returns this.</param>
+		/// <returns><paramref name="alternative"/></returns>
+		[return: NotNullIfNotNull("alternative")]
+		public string? ValueOr(string? alternative)
+		{
+			return alternative;
 		}
 		/// <summary>
 		/// Always true.

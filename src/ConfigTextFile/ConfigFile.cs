@@ -14,9 +14,9 @@
 		/// <summary>
 		/// Creates a new instance with <see cref="Root"/>
 		/// </summary>
-		public ConfigFile()
+		public ConfigFile(IEqualityComparer<string> keyComparer)
 		{
-			Root = new ConfigSectionElement();
+			Root = new ConfigSectionElement(keyComparer);
 		}
 		/// <summary>
 		/// Creates a new instance. <paramref name="root"/> must be created by using the parameterless constructor of <see cref="ConfigSectionElement"/>.
@@ -137,11 +137,12 @@
 		/// <param name="path">Path of the file to load.</param>
 		/// <param name="encoding">Encoding to use.</param>
 		/// <param name="commentLoading">Defines how to load comments.</param>
+		/// <param name="keyComparer">The comparer to use when comparing keys for elements added to a <see cref="ConfigSectionElement"/>. If null, defaults to <see cref="StringComparer.Ordinal"/>.</param>
 		/// <returns>The loaded <see cref="ConfigFile"/></returns>
-		public static ConfigFile LoadFile(string path, Encoding encoding, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load)
+		public static ConfigFile LoadFile(string path, Encoding encoding, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load, IEqualityComparer<string>? keyComparer = null)
 		{
 			using StreamReader sin = new StreamReader(path, encoding);
-			return LoadFile(sin, commentLoading);
+			return LoadFile(sin, commentLoading, keyComparer);
 		}
 		/// <summary>
 		/// Attempts to load a file from <paramref name="stream"/>.
@@ -149,10 +150,11 @@
 		/// </summary>
 		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
 		/// <param name="commentLoading">Defines how to load comments.</param>
+		/// <param name="keyComparer">The comparer to use when comparing keys for elements added to a <see cref="ConfigSectionElement"/>. If null, defaults to <see cref="StringComparer.Ordinal"/>.</param>
 		/// <returns>The loaded <see cref="ConfigFile"/></returns>
-		public static ConfigFile LoadFile(StreamReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load)
+		public static ConfigFile LoadFile(StreamReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load, IEqualityComparer<string>? keyComparer = null)
 		{
-			return LoadFile(new ConfigFileReader(stream, false), commentLoading);
+			return LoadFile(new ConfigFileReader(stream, false), commentLoading, keyComparer);
 		}
 		/// <summary>
 		/// Attempts to load a file from <paramref name="stream"/>.
@@ -160,10 +162,11 @@
 		/// </summary>
 		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
 		/// <param name="commentLoading">Defines how to load comments.</param>
+		/// <param name="keyComparer">The comparer to use when comparing keys for elements added to a <see cref="ConfigSectionElement"/>. If null, defaults to <see cref="StringComparer.Ordinal"/>.</param>
 		/// <returns>The loaded <see cref="ConfigFile"/></returns>
-		public static ConfigFile LoadFile(ConfigFileReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load)
+		public static ConfigFile LoadFile(ConfigFileReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load, IEqualityComparer<string>? keyComparer = null)
 		{
-			LoadResult result = TryLoadFile(stream, commentLoading);
+			LoadResult result = TryLoadFile(stream, commentLoading, keyComparer);
 			return result.ConfigTextFile ?? throw new ConfigFileFormatException(result.ErrMsg);
 		}
 		/// <summary>
@@ -172,34 +175,43 @@
 		/// <param name="path">Path of the file to load.</param>
 		/// <param name="encoding">Encoding to use.</param>
 		/// <param name="commentLoading">Defines how to load comments.</param>
+		/// <param name="keyComparer">The comparer to use when comparing keys for elements added to a <see cref="ConfigSectionElement"/>. If null, defaults to <see cref="StringComparer.Ordinal"/>.</param>
 		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
-		public static LoadResult TryLoadFile(string path, Encoding encoding, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load)
+		public static LoadResult TryLoadFile(string path, Encoding encoding, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load, IEqualityComparer<string>? keyComparer = null)
 		{
 			using StreamReader sin = new StreamReader(path, encoding);
-			return TryLoadFile(sin, commentLoading);
+			return TryLoadFile(sin, commentLoading, keyComparer);
 		}
 		/// <summary>
 		/// Attempts to load a file from <paramref name="stream"/>.
 		/// </summary>
 		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
 		/// <param name="commentLoading">Defines how to load comments.</param>
+		/// <param name="keyComparer">The comparer to use when comparing keys for elements added to a <see cref="ConfigSectionElement"/>. If null, defaults to <see cref="StringComparer.Ordinal"/>.</param>
 		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
-		public static LoadResult TryLoadFile(StreamReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load)
+		public static LoadResult TryLoadFile(StreamReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load, IEqualityComparer<string>? keyComparer = null)
 		{
-			return TryLoadFile(new ConfigFileReader(stream, false), commentLoading);
+			return TryLoadFile(new ConfigFileReader(stream, false), commentLoading, keyComparer);
 		}
 		/// <summary>
 		/// Attempts to load a file from <paramref name="stream"/>.
 		/// </summary>
 		/// <param name="stream">Stream from which to read the file. Does not have to be seekable. Not closed.</param>
 		/// <param name="commentLoading">Defines how to load comments.</param>
+		/// <param name="keyComparer">The comparer to use when comparing keys for elements added to a <see cref="ConfigSectionElement"/>. If null, defaults to <see cref="StringComparer.Ordinal"/>.</param>
 		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
-		public static LoadResult TryLoadFile(ConfigFileReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load)
+		public static LoadResult TryLoadFile(ConfigFileReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load, IEqualityComparer<string>? keyComparer = null)
 		{
-			ICollection<string> comments = commentLoading == LoadCommentsPreference.Load ? new List<string>() : (ICollection<string>)Array.Empty<string>();
+			// If we are ignoring comments then we'll assign everything an empty array.
+			// Otherwise, we'll need lists.
+			ICollection<string> comments = commentLoading == LoadCommentsPreference.Ignore
+				? (ICollection<string>)Array.Empty<string>()
+				: new List<string>();
 			Stack<ConfigSectionElement> parentSections = new Stack<ConfigSectionElement>();
+			// Default to ordinal comparison
+			keyComparer ??= StringComparer.Ordinal;
 			// Root can never have comments
-			ConfigSectionElement root = new ConfigSectionElement();
+			ConfigSectionElement root = new ConfigSectionElement(keyComparer);
 			ConfigSectionElement currentSection = root;
 			string key = string.Empty;
 			try
@@ -218,7 +230,7 @@
 							{
 								return new LoadResult(string.Concat("Duplicate key \"", ConfigPath.Join(currentSection.Path, key), "\" was found"));
 							}
-							if (commentLoading == LoadCommentsPreference.Load)
+							if (commentLoading != LoadCommentsPreference.Ignore)
 							{
 								comments = new List<string>();
 							}
@@ -229,7 +241,7 @@
 							{
 								return new LoadResult(string.Concat("Duplicate key \"", ConfigPath.Join(currentSection.Path, key), "\" was found"));
 							}
-							if (commentLoading == LoadCommentsPreference.Load)
+							if (commentLoading != LoadCommentsPreference.Ignore)
 							{
 								comments = new List<string>();
 							}
@@ -249,12 +261,12 @@
 							break;
 						case ConfigFileToken.StartSection:
 							parentSections.Push(currentSection);
-							ConfigSectionElement newSection = new ConfigSectionElement(key, comments, copyComments: false);
+							ConfigSectionElement newSection = new ConfigSectionElement(key, keyComparer, comments, copyComments: false);
 							if (!currentSection.TryAddElement(newSection))
 							{
 								return new LoadResult(string.Concat("Duplicate key \"", ConfigPath.Join(currentSection.Path, key), "\" was found"));
 							}
-							if (commentLoading == LoadCommentsPreference.Load)
+							if (commentLoading != LoadCommentsPreference.Ignore)
 							{
 								comments = new List<string>();
 							}

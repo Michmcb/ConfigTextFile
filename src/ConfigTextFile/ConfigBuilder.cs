@@ -87,20 +87,22 @@
 			return this;
 		}
 		/// <summary>
-		/// Adds a new <see cref="ConfigStringElement"/> to the current section.
+		/// Adds a new <see cref="ConfigSectionElement"/> to the current section.
+		/// Uses the same <see cref="IEqualityComparer{T}"/> as the parent section.
 		/// </summary>
 		/// <param name="key">This element's key</param>
 		/// <param name="build">An action used to build the newly added section.</param>
 		/// <returns>This object allowing for chained calls.</returns>	
 		public ConfigBuilder Section(string key, Action<ConfigBuilder> build)
 		{
-			ConfigSectionElement subSection = new ConfigSectionElement(key);
+			ConfigSectionElement subSection = new ConfigSectionElement(key, section.KeyComparer);
 			section.AddElement(subSection);
 			build(new ConfigBuilder(subSection));
 			return this;
 		}
 		/// <summary>
-		/// Adds a new <see cref="ConfigStringElement"/> to the current section.
+		/// Adds a new <see cref="ConfigSectionElement"/> to the current section.
+		/// Uses the same <see cref="IEqualityComparer{T}"/> as the parent section.
 		/// </summary>
 		/// <param name="key">This element's key</param>
 		/// <param name="build">An action used to build the newly added section.</param>
@@ -109,7 +111,7 @@
 		/// <returns>This object allowing for chained calls.</returns>	
 		public ConfigBuilder Section(string key, ICollection<string> comments, bool copyComments, Action<ConfigBuilder> build)
 		{
-			ConfigSectionElement subSection = new ConfigSectionElement(key, comments, copyComments);
+			ConfigSectionElement subSection = new ConfigSectionElement(key, section.KeyComparer, comments, copyComments);
 			section.AddElement(subSection);
 			build(new ConfigBuilder(subSection));
 			return this;

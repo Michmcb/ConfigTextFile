@@ -9,13 +9,12 @@ namespace ConfigTextFile.Test
 
 	public sealed class ConfigFileTests
 	{
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
 		[Fact]
 		public void WellFormedTest()
 		{
 			LoadResult loaded = ConfigFile.TryLoadFile("WellFormedConfigTextFile.cfg", Encoding.UTF8);
-			ConfigFile? ctf = loaded.ConfigTextFile;
-			Assert.NotNull(loaded.ConfigTextFile);
+			ConfigFile ctf = loaded.ConfigTextFile!;
+			Assert.NotNull(ctf);
 
 			ConfigSectionElement root = ctf.Root;
 			ConfigStringElement val = (ConfigStringElement)root.Elements["First KEy"];
@@ -96,7 +95,7 @@ namespace ConfigTextFile.Test
 		[Fact]
 		public void Reader()
 		{
-			using ConfigFileReader reader = new ConfigFileReader(new System.IO.StreamReader("WellFormedConfigTextFile.cfg", Encoding.UTF8));
+			using ConfigFileReader reader = new ConfigFileReader(new StreamReader("WellFormedConfigTextFile.cfg", Encoding.UTF8));
 			ReadAndAssertToken(reader, "First KEy", ConfigFileToken.Key);
 			ReadAndAssertToken(reader, "blah blah", ConfigFileToken.Value);
 			ReadAndAssertToken(reader, "global", ConfigFileToken.Key);
@@ -158,13 +157,13 @@ namespace ConfigTextFile.Test
 		[Fact]
 		public void Save()
 		{
-			ConfigFile file = new();
+			ConfigFile file = new(StringComparer.Ordinal);
 			ConfigSectionElement root = file.Root;
 			root.AddElement(new ConfigStringElement("Key1", "value1"));
 			root.AddElement(new ConfigStringElement("Key2", "value  2"));
 			root.AddElement(new ConfigStringElement("Key3", "value~3"));
 			root.AddElement(new ConfigArrayElement("ArrayKey", "Value 1", "Valu,e 2", "Va]lue 3!"));
-			ConfigSectionElement subSection = new ConfigSectionElement("Subsection");
+			ConfigSectionElement subSection = new ConfigSectionElement("Subsection", root.KeyComparer);
 			root.AddElement(subSection);
 
 			subSection.AddElement(new ConfigStringElement("Key1", "'value1", new string[] { "My comments", "hehey!" }, false));
@@ -215,22 +214,21 @@ namespace ConfigTextFile.Test
 		[Fact]
 		public void AddingBadStuffSaysNo()
 		{
-			ConfigSectionElement section = new();
+			ConfigSectionElement section = new(StringComparer.Ordinal);
 			ConfigStringElement str = new ConfigStringElement("Key", "value");
 			section.AddElement(str);
 			Assert.Throws<ArgumentException>(() => section.AddElement(new ConfigStringElement("Key", "value")));
 			Assert.Throws<ArgumentException>(() => section.AddElement(str));
 			Assert.Throws<ArgumentException>(() => section.AddElement(new ConfigArrayElement("Key", "value")));
-			Assert.Throws<ArgumentException>(() => section.AddElement(new ConfigSectionElement("Key")));
+			Assert.Throws<ArgumentException>(() => section.AddElement(new ConfigSectionElement("Key", section.KeyComparer)));
 
 			ConfigArrayElement array = new ConfigArrayElement("Key1");
 			section.AddElement(array);
 			Assert.Throws<ArgumentException>(() => section.AddElement(array));
 
-			ConfigSectionElement sect = new ConfigSectionElement("Key2");
+			ConfigSectionElement sect = new ConfigSectionElement("Key2", section.KeyComparer);
 			section.AddElement(sect);
 			Assert.Throws<ArgumentException>(() => section.AddElement(sect));
 		}
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
 	}
 }

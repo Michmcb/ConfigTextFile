@@ -2,6 +2,8 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics.CodeAnalysis;
+
 	/// <summary>
 	/// Represents a ConfigElement within a ConfigFile.
 	/// </summary>
@@ -30,6 +32,14 @@
 		/// and the setter throws either a <see cref="ConfigInvalidElementException"/> when it is a <see cref="ConfigInvalidElement"/>, or an <see cref="InvalidOperationException"/> when it isn't.
 		/// </summary>
 		string Value { get; set; }
+		/// <summary>
+		/// If this is a <see cref="ConfigStringElement"/>, returns <see cref="Value"/>.
+		/// Otherwise, returns <paramref name="alternative"/>.
+		/// </summary>
+		/// <param name="alternative">Returned if this is not a <see cref="ConfigStringElement"/>.</param>
+		/// <returns><see cref="Value"/> if this is a <see cref="ConfigStringElement"/>, otherwise <paramref name="alternative"/>.</returns>
+		[return: NotNullIfNotNull("alternative")]
+		string? ValueOr(string? alternative);
 		/// <summary>
 		/// The Type of this element.
 		/// </summary>

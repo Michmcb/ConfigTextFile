@@ -1,6 +1,7 @@
 ﻿namespace ConfigTextFile.Test
 {
 	using ConfigTextFile;
+	using System;
 	using Xunit;
 
 	public sealed class ConfigBuilderTests
@@ -8,7 +9,7 @@
 		[Fact]
 		public void SaveFluent()
 		{
-			ConfigSectionElement root = new();
+			ConfigSectionElement root = new(StringComparer.Ordinal);
 			ConfigBuilder.Build(root, a =>
 			{
 				a.String("Key1", "value1");

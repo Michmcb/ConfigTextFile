@@ -13,13 +13,15 @@
     <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
     <Description>A .NET library which allows you to read and write plain-text minimal syntax configuration files</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- Added a ConfigBuilder, which provides a fluent interface to build up a hierarchy of config elements
-- When passing a null for the value of a ConfigStringElement, it no longer coalesces it to string.Empty</PackageReleaseNotes>
+    <PackageReleaseNotes>- ConfigSectionElement accept an IEqualityComparer&lt;string&gt;, used to compare Keys of elements added to them
+- ConfigSectionElement has methods to loop over child elements, either of all types or just a specific type
+- IConfigElement.ValueOr(string alternate) method, used to fall back to a default value
+- Fixed a bug when loading comments</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.9.1</Version>
+    <Version>1.10</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.9.1.0</AssemblyVersion>
-    <FileVersion>1.9.1.0</FileVersion>
+    <AssemblyVersion>1.10.0.0</AssemblyVersion>
+    <FileVersion>1.10.0.0</FileVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

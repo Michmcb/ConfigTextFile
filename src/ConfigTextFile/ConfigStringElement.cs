@@ -2,6 +2,7 @@
 {
 	using System;
 	using System.Collections.Generic;
+	using System.Diagnostics.CodeAnalysis;
 
 	/// <summary>
 	/// Represents a single string within the <see cref="ConfigFile"/>.
@@ -58,6 +59,16 @@
 		/// Gets or sets this <see cref="ConfigStringElement"/>'s value.
 		/// </summary>
 		public string Value { get; set; }
+		/// <summary>
+		/// Returns <see cref="Value"/> because this is a <see cref="ConfigStringElement"/>.
+		/// </summary>
+		/// <param name="alternative">This is never returned</param>
+		/// <returns><see cref="Value"/></returns>
+		[return: NotNullIfNotNull("alternative")]
+		public string? ValueOr(string? alternative)
+		{
+			return Value;
+		}
 		/// <summary>
 		/// Always true.
 		/// </summary>
@@ -132,15 +143,6 @@
 		public ConfigStringElement AsStringElement()
 		{
 			return this;
-		}
-		/// <summary>
-		/// If <see cref="Value"/> is null or empty, returns <paramref name="alternate"/>. Otherwise, returns <see cref="Value"/>.
-		/// </summary>
-		/// <param name="alternate">The alternate value to return.</param>
-		/// <returns><see cref="Value"/> if it's not null/empty, or <paramref name="alternate"/> if it is.</returns>
-		public string ValueOr(string alternate)
-		{
-			return string.IsNullOrEmpty(Value) ? alternate : Value;
 		}
 	}
 }

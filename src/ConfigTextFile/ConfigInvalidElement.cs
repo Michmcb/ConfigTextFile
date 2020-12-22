@@ -1,6 +1,8 @@
 ﻿namespace ConfigTextFile
 {
 	using System.Collections.Generic;
+	using System.Diagnostics.CodeAnalysis;
+
 	/// <summary>
 	/// Represents that a requested element did not exist.
 	/// This is a singleton, and you can't do too much with this.
@@ -38,6 +40,16 @@
 		/// Always throws <see cref="ConfigInvalidElementException"/> on setting. Always returns <see cref="string.Empty"/>.
 		/// </summary>
 		public string Value { get => string.Empty; set => throw new ConfigInvalidElementException(); }
+		/// <summary>
+		/// Returns <paramref name="alternative"/> because this is a <see cref="ConfigInvalidElement"/>.
+		/// </summary>
+		/// <param name="alternative">Returns this.</param>
+		/// <returns><paramref name="alternative"/></returns>
+		[return: NotNullIfNotNull("alternative")]
+		public string? ValueOr(string? alternative)
+		{
+			return alternative;
+		}
 		/// <summary>
 		/// Always false.
 		/// </summary>

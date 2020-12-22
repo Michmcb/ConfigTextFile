@@ -15,10 +15,11 @@
 	  <RepositoryUrl>https://github.com/Michmcb/ConfigTextFile</RepositoryUrl>
 	  <RepositoryType>Github</RepositoryType>
 	  <PackageTags>config configuration text fluent</PackageTags>
-	  <PackageReleaseNotes>- Initial Release</PackageReleaseNotes>
+	  <PackageReleaseNotes></PackageReleaseNotes>
 	  <Description>A ConfigTextFile configuration provider for Microsoft.Extensions.Configuration</Description>
-	  <Version>1.9.1</Version>
-	  <FileVersion>1.9.1.0</FileVersion>
+	  <Version>1.10</Version>
+	  <FileVersion>1.9.0.0</FileVersion>
+	  <AssemblyVersion>1.10.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

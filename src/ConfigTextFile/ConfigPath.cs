@@ -24,10 +24,10 @@
 				!key.Contains(Separator)
 				? !string.IsNullOrEmpty(path)
 					? path[path.Length - 1] == Separator
-						? path + key
-						: string.Concat(path, Separator, key)
-					: key
-				: throw new ArgumentException("key should not contain a section delimiter (which is " + Separator + ")", nameof(key));
+						? path + key // If path ends with a separator, just concat them normally
+						: string.Concat(path, Separator, key) // If it doesn't we have to insert a separator
+					: key // Path being null/empty, just return the key
+				: throw new ArgumentException("key should not contain a section delimiter (which is " + Separator + ")", nameof(key)); // Contains separator is bad
 		}
 	}
 }
