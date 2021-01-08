@@ -79,6 +79,18 @@
 		/// Writes an array of strings.
 		/// </summary>
 		/// <param name="key">The key.</param>
+		/// <param name="array">Action to write strings in the new array.</param>
+		public void WriteArray(string key, Action<FluentConfigFileArray> array)
+		{
+			writer.WriteKey(key);
+			writer.WriteStartArray();
+			array(new(writer));
+			writer.WriteEndArray();
+		}
+		/// <summary>
+		/// Writes an array of strings.
+		/// </summary>
+		/// <param name="key">The key.</param>
 		/// <param name="values">The values.</param>
 		public void WriteArray(string key, IEnumerable<string> values)
 		{
@@ -105,5 +117,121 @@
 			}
 			writer.WriteEndArray();
 		}
+#if !NETSTANDARD2_0
+		/// <summary>
+		/// Writes a section with the provided <paramref name="key"/>. That section can be filled in using <paramref name="section"/>.
+		/// </summary>
+		/// <param name="key">The new section's key.</param>
+		/// <param name="section">Action to write stuff in the new section.</param>
+		public void WriteSection(in ReadOnlySpan<char> key, Action<FluentConfigFileSection> section)
+		{
+			writer.WriteKey(key);
+			writer.WriteStartSection();
+			section(new FluentConfigFileSection(writer, SectionLevel + 1));
+			writer.WriteEndSection();
+		}
+		/// <summary>
+		/// Writes a comment.
+		/// </summary>
+		/// <param name="comment">Comment text.</param>
+		public void WriteComment(in ReadOnlySpan<char> comment)
+		{
+			writer.WriteComment(comment);
+		}
+		/// <summary>
+		/// Writes a string value (<paramref name="key"/>=<paramref name="value"/>).
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="value">The value.</param>
+		public void WriteValue(in ReadOnlySpan<char> key, in ReadOnlySpan<char> value)
+		{
+			writer.WriteKey(key);
+			writer.WriteValue(value);
+		}
+		/// <summary>
+		/// Writes an array of strings.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="array">Action to write strings in the new array.</param>
+		public void WriteArray(in ReadOnlySpan<char> key, Action<FluentConfigFileArray> array)
+		{
+			writer.WriteKey(key);
+			writer.WriteStartArray();
+			array(new(writer));
+			writer.WriteEndArray();
+		}
+		/// <summary>
+		/// Writes an array of strings.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="values">The values.</param>
+		public void WriteArray(in ReadOnlySpan<char> key, IEnumerable<string> values)
+		{
+			writer.WriteKey(key);
+			writer.WriteStartArray();
+			foreach (string v in values)
+			{
+				writer.WriteValue(v);
+			}
+			writer.WriteEndArray();
+		}
+		/// <summary>
+		/// Writes an array of strings.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="values">The values.</param>
+		public void WriteArray(in ReadOnlySpan<char> key, params string[] values)
+		{
+			writer.WriteKey(key);
+			writer.WriteStartArray();
+			foreach (string v in values)
+			{
+				writer.WriteValue(v);
+			}
+			writer.WriteEndArray();
+		}
+		/// <summary>
+		/// Writes an array of strings.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="value0">The first value.</param>
+		public void WriteArray(in ReadOnlySpan<char> key, in ReadOnlySpan<char> value0)
+		{
+			writer.WriteKey(key);
+			writer.WriteStartArray();
+			writer.WriteValue(value0);
+			writer.WriteEndArray();
+		}
+		/// <summary>
+		/// Writes an array of strings.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="value0">The first value.</param>
+		/// <param name="value1">The second value.</param>
+		public void WriteArray(in ReadOnlySpan<char> key, in ReadOnlySpan<char> value0, in ReadOnlySpan<char> value1)
+		{
+			writer.WriteKey(key);
+			writer.WriteStartArray();
+			writer.WriteValue(value0);
+			writer.WriteValue(value1);
+			writer.WriteEndArray();
+		}
+		/// <summary>
+		/// Writes an array of strings.
+		/// </summary>
+		/// <param name="key">The key.</param>
+		/// <param name="value0">The first value.</param>
+		/// <param name="value1">The second value.</param>
+		/// <param name="value2">The third value.</param>
+		public void WriteArray(in ReadOnlySpan<char> key, in ReadOnlySpan<char> value0, in ReadOnlySpan<char> value1, in ReadOnlySpan<char> value2)
+		{
+			writer.WriteKey(key);
+			writer.WriteStartArray();
+			writer.WriteValue(value0);
+			writer.WriteValue(value1);
+			writer.WriteValue(value2);
+			writer.WriteEndArray();
+		}
+#endif
 	}
 }

@@ -8,6 +8,9 @@
 	/// </summary>
 	public class ConfigTextFileConfigurationProvider : FileConfigurationProvider
 	{
+		/// <summary>
+		/// Creates a new instance
+		/// </summary>
 		public ConfigTextFileConfigurationProvider(ConfigTextFileConfigurationSource src) : base(src)
 		{
 			Encoding = src.Encoding;

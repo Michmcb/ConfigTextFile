@@ -59,11 +59,9 @@
 						if (!c.HasValue)
 						{
 							State = ReadState.EndOfFile;
-							if (SectionLevel != 0)
-							{
-								throw new ConfigFileFormatException("Found end of file when there were still " + SectionLevel.ToString() + " sections to close");
-							}
-							return new ReadCfgToken(string.Empty, ConfigFileToken.Finish);
+							return SectionLevel != 0
+								? throw new ConfigFileFormatException("Found end of file when there were still " + SectionLevel.ToString() + " sections to close")
+								: new ReadCfgToken(string.Empty, ConfigFileToken.Finish);
 						}
 						if (c == SyntaxCharacters.CommentStart)
 						{
@@ -75,11 +73,9 @@
 						{
 							State = ReadState.Expecting_Key_Comment_EndSection_EndFile;
 							--SectionLevel;
-							if (SectionLevel < 0)
-							{
-								throw new ConfigFileFormatException("Found } (section close) when there was no section to close.");
-							}
-							return new ReadCfgToken(string.Empty, ConfigFileToken.EndSection);
+							return SectionLevel < 0
+								? throw new ConfigFileFormatException("Found } (section close) when there was no section to close.")
+								: new ReadCfgToken(string.Empty, ConfigFileToken.EndSection);
 						}
 						// In all other cases it's either a quoted or unquoted key
 						if (IsQuote(c.Value))
@@ -234,7 +230,7 @@
 		/// </summary>
 		private static string ReadQuotedString(StreamReader reader, char quoteChar)
 		{
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 			while (true)
 			{
 				int r = reader.Read();
@@ -254,7 +250,7 @@
 				}
 				else
 				{
-					throw new ConfigFileFormatException("Reached end of file before finding the end quote " + quoteChar.ToString());
+					throw new ConfigFileFormatException("Reached end of file before finding the end quote " + quoteChar);
 				}
 			}
 		}
@@ -265,7 +261,7 @@
 		private static (string str, char? nextChar) ReadStringUntil(StreamReader reader, char firstChar, char[] until)
 		{
 			// TODO test perf difference between Span<char> and HashSet<char>
-			StringBuilder sb = new StringBuilder();
+			StringBuilder sb = new();
 			sb.Append(firstChar);
 			while (true)
 			{
@@ -294,24 +290,17 @@
 		private static string TrimEndStringBuilder(StringBuilder sb)
 		{
 			int i = sb.Length - 1;
-			for (; i > 0 && char.IsWhiteSpace(sb[i]); --i)
-			{
-			}
+			for (; i > 0 && char.IsWhiteSpace(sb[i]); --i) { }
 			return sb.ToString(0, i + 1);
 		}
 		private void CheckCharAndUpdateStateInsideArray(char c)
 		{
-			switch (c)
+			State = c switch
 			{
-				case SyntaxCharacters.ArrayEnd:
-					State = ReadState.AtEndOfArray;
-					break;
-				case SyntaxCharacters.ArrayElementDelimiter:
-					State = ReadState.ReadingArray;
-					break;
-				default:
-					throw new ConfigFileFormatException("Found unexpected character when searching for next array element or end of array: " + c.ToString());
-			}
+				SyntaxCharacters.ArrayEnd => ReadState.AtEndOfArray,
+				SyntaxCharacters.ArrayElementDelimiter => ReadState.ReadingArray,
+				_ => throw new ConfigFileFormatException("Found unexpected character when searching for next array element or end of array: " + c),
+			};
 		}
 		private void CheckCharAndUpdateStateAfterKey(char c)
 		{

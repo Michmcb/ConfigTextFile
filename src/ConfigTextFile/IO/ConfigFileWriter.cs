@@ -10,6 +10,12 @@
 	/// </summary>
 	public sealed class ConfigFileWriter : IDisposable
 	{
+		private enum StringType
+		{
+			Key,
+			Value,
+			ArrayValue
+		}
 		private string currentIndentation = string.Empty;
 		private ConfigFileToken previousWrite = 0;
 		/// <summary>
@@ -65,7 +71,15 @@
 		/// <summary>
 		/// Just adds a blank line. Valid to call at any time.
 		/// </summary>
+		[Obsolete("Prefer WriteLine() instead - it's consistent naming")]
 		public void WriteBlankLine()
+		{
+			Writer.WriteLine();
+		}
+		/// <summary>
+		/// Just adds a blank line. Valid to call at any time.
+		/// </summary>
+		public void WriteLine()
 		{
 			Writer.WriteLine();
 		}
@@ -82,7 +96,7 @@
 			{
 				WriteBlankLineIfNeeded(previousWrite, ConfigFileToken.Key);
 				Writer.Write(currentIndentation);
-				WriteString(key, true, false);
+				WriteStr(key, StringType.Key);
 				ValidWrites = ConfigFileToken.StartArray | ConfigFileToken.StartSection | ConfigFileToken.Value;
 				previousWrite = ConfigFileToken.Key;
 			}
@@ -99,6 +113,8 @@
 		public void WriteComment(string text)
 		{
 			text ??= string.Empty;
+			// Because this overload allocates a lot of substrings we call the Span version which doesn't allocate if we're able to do so
+#if NETSTANDARD2_0
 			if (CanWrite(ConfigFileToken.Comment))
 			{
 				WriteBlankLineIfNeeded(previousWrite, ConfigFileToken.Comment);
@@ -112,29 +128,15 @@
 				else
 				{
 					// The comment spans multiple lines, so break it up and write # before each line
-					int from = 0;
-					while (indexOfNewline != -1)
+					// By splitting on \n and trimming off any trailing \r, we can cleanly handle both \n and \r\n.
+					// That doesn't handle only \r, but that's fine, only old macs use that so we don't have to complicate this method with that.
+					string[] lines = text.Split('\n');
+					foreach (string line in lines)
 					{
 						Writer.Write(currentIndentation);
 						Writer.Write(SyntaxCharacters.CommentStart);
-
-						Writer.WriteLine(text.Substring(from, indexOfNewline - from));
-
-						// Find the next line
-						from = text.IndexOfNotAny(SyntaxCharacters.EndOfLine, indexOfNewline + 1);
-						if (from == -1)
-						{
-							// The comment ended with a newline, so just write a newline and we're all good
-							Writer.Write(currentIndentation);
-							Writer.WriteLine(SyntaxCharacters.CommentStart);
-							return;
-						}
-						indexOfNewline = text.IndexOfAny(SyntaxCharacters.EndOfLine, from);
+						Writer.WriteLine(line.TrimEnd('\r'));
 					}
-					Writer.Write(currentIndentation);
-					Writer.Write(SyntaxCharacters.CommentStart);
-
-					Writer.WriteLine(text.Substring(from, text.Length - from));
 				}
 				previousWrite = ConfigFileToken.Comment;
 			}
@@ -142,6 +144,9 @@
 			{
 				throw CannotWrite(ConfigFileToken.Comment);
 			}
+#else
+			WriteComment(text.AsSpan());
+#endif
 		}
 		/// <summary>
 		/// Writes a single Value into an Array or as the value of a Key.
@@ -159,7 +164,7 @@
 					Writer.Write(currentIndentation);
 					Writer.Write(Formatting.Indentation);
 				}
-				WriteString(value, false, false);
+				WriteStr(value, StringType.Value);
 				Writer.WriteLine();
 				ValidWrites = SectionLevel > 0
 					? ConfigFileToken.Key | ConfigFileToken.Comment | ConfigFileToken.EndSection
@@ -178,7 +183,7 @@
 				{
 					Writer.Write(currentIndentation);
 					Writer.Write(Formatting.Indentation);
-					WriteString(value, false, true);
+					WriteStr(value, StringType.ArrayValue);
 				}
 				else
 				{
@@ -187,7 +192,7 @@
 					{
 						Writer.Write(' ');
 					}
-					WriteString(value, false, true);
+					WriteStr(value, StringType.ArrayValue);
 				}
 				ValidWrites = ConfigFileToken.ArrayValue | ConfigFileToken.EndArray;
 				previousWrite = ConfigFileToken.ArrayValue;
@@ -198,6 +203,139 @@
 				throw CannotWrite(ConfigFileToken.Value);
 			}
 		}
+#if !NETSTANDARD2_0
+		/// <summary>
+		/// Writes <paramref name="key"/> which can be used to identify a Value, Array or Section.
+		/// If <paramref name="key"/> requires it (or if Formatting specifies always quote) then it will be quoted.
+		/// </summary>
+		/// <param name="key">The key to write</param>
+		public void WriteKey(in ReadOnlySpan<char> key)
+		{
+			if (key.Length == 0) throw new ArgumentException(nameof(key) + " cannot be an empty string", nameof(key));
+			if (CanWrite(ConfigFileToken.Key))
+			{
+				WriteBlankLineIfNeeded(previousWrite, ConfigFileToken.Key);
+				Writer.Write(currentIndentation);
+				WriteStr(key, StringType.Key);
+				ValidWrites = ConfigFileToken.StartArray | ConfigFileToken.StartSection | ConfigFileToken.Value;
+				previousWrite = ConfigFileToken.Key;
+			}
+			else
+			{
+				throw CannotWrite(ConfigFileToken.Key);
+			}
+		}
+		/// <summary>
+		/// Writes a comment. If <paramref name="text"/> contains any newlines, the comment will be split over multiple lines,
+		/// and each line will be a comment.
+		/// </summary>
+		/// <param name="text">The text of the comment</param>
+		public void WriteComment(in ReadOnlySpan<char> text)
+		{
+			if (CanWrite(ConfigFileToken.Comment))
+			{
+				WriteBlankLineIfNeeded(previousWrite, ConfigFileToken.Comment);
+				int indexOfNewline = text.IndexOfAny(SyntaxCharacters.EndOfLine);
+				if (indexOfNewline == -1)
+				{
+					Writer.Write(currentIndentation);
+					Writer.Write(SyntaxCharacters.CommentStart);
+					Writer.WriteLine(text);
+				}
+				else
+				{
+					int from;
+					int to = -1;
+					// The comment spans multiple lines, so break it up and write # before each line
+					// By splitting on \n and trimming off any trailing \r, we can cleanly handle both \n and \r\n.
+					// That doesn't handle only \r, but that's fine, only old macs use that so we don't have to complicate this method with that.
+					while (true)
+					{
+						from = to + 1;
+						// If from is at least the length of the string, that means that the string ended with a \n
+						// In that case, write an extra comment char with nothing
+						if (from >= text.Length)
+						{
+							Writer.Write(currentIndentation);
+							Writer.WriteLine(SyntaxCharacters.CommentStart);
+						}
+						int index = text[from..].IndexOf('\n');
+						Writer.Write(currentIndentation);
+						Writer.Write(SyntaxCharacters.CommentStart);
+						if (index != -1)
+						{
+							Writer.WriteLine(text[from..(to = from + index)].TrimEnd('\r'));
+						}
+						else
+						{
+							// Last one
+							Writer.WriteLine(text[from..].TrimEnd('\r'));
+							break;
+						}
+					}
+				}
+				previousWrite = ConfigFileToken.Comment;
+			}
+			else
+			{
+				throw CannotWrite(ConfigFileToken.Comment);
+			}
+		}
+		/// <summary>
+		/// Writes a single Value into an Array or as the value of a Key.
+		/// If <paramref name="value"/> requires it (or if Formatting specifies always quote) then it will be quoted.
+		/// </summary>
+		/// <param name="value">The value to write</param>
+		public void WriteValue(in ReadOnlySpan<char> value)
+		{
+			if (CanWrite(ConfigFileToken.Value))
+			{
+				Writer.Write(SyntaxCharacters.ValueStart);
+				if (WriteBlankLineIfNeeded(previousWrite, ConfigFileToken.Value))
+				{
+					Writer.Write(currentIndentation);
+					Writer.Write(Formatting.Indentation);
+				}
+				WriteStr(value, StringType.Value);
+				Writer.WriteLine();
+				ValidWrites = SectionLevel > 0
+					? ConfigFileToken.Key | ConfigFileToken.Comment | ConfigFileToken.EndSection
+					: ConfigFileToken.Key | ConfigFileToken.Comment | ConfigFileToken.Finish;
+				previousWrite = ConfigFileToken.Value;
+				return;
+			}
+			else if (CanWrite(ConfigFileToken.ArrayValue))
+			{
+				// Only write the delimiter if the previous token written was also a value within the array
+				if (previousWrite == ConfigFileToken.ArrayValue)
+				{
+					Writer.Write(SyntaxCharacters.ArrayElementDelimiter);
+				}
+				if (WriteBlankLineIfNeeded(previousWrite, ConfigFileToken.ArrayValue))
+				{
+					Writer.Write(currentIndentation);
+					Writer.Write(Formatting.Indentation);
+					WriteStr(value, StringType.ArrayValue);
+				}
+				else
+				{
+					// Space between array values if we're not writing blank lines
+					if (previousWrite == ConfigFileToken.ArrayValue)
+					{
+						Writer.Write(' ');
+					}
+					WriteStr(value, StringType.ArrayValue);
+				}
+				ValidWrites = ConfigFileToken.ArrayValue | ConfigFileToken.EndArray;
+				previousWrite = ConfigFileToken.ArrayValue;
+				return;
+			}
+			else
+			{
+				throw CannotWrite(ConfigFileToken.Value);
+			}
+		}
+#endif
 		/// <summary>
 		/// Opens a new Section
 		/// </summary>
@@ -312,12 +450,12 @@
 				}
 				else
 				{
-					throw new ConfigFileFormatException(nameof(ConfigFileWriter) + " cannot currently finish. You need to close " + SectionLevel.ToString() + " sections");
+					throw new ConfigFileFormatException(string.Concat(nameof(ConfigFileWriter) + " cannot currently finish. You need to close ", SectionLevel, " sections"));
 				}
 			}
 			else
 			{
-				throw new ConfigFileFormatException(nameof(ConfigFileWriter) + " cannot currently finish. It must currently write: " + ValidWrites);
+				throw new ConfigFileFormatException(string.Concat(nameof(ConfigFileWriter) + " cannot currently finish. It must currently write: ", ValidWrites));
 			}
 		}
 		/// <summary>
@@ -356,66 +494,6 @@
 				}
 			}
 		}
-		private void WriteString(string str, bool isKey, bool isArrayMember)
-		{
-			if (str.Length == 0)
-			{
-				// Even if it's an empty string we have to write quotes if they always want them
-				// null/empty keys are not valid
-				if (Formatting.AlwaysQuoteValues)
-				{
-					char q = Formatting.QuotesInOrderOfPreference[0];
-					Writer.Write(q);
-					Writer.Write(q);
-				}
-				return;
-			}
-
-			// TODO quoting rules are a bit strict, they could be loosened up a bit. For example, for single values, only starting with a syntax character is bad; containing them partway through is perfectly fine.
-			bool needsQuoting;
-			if (isKey)
-			{
-				needsQuoting = Formatting.AlwaysQuoteKeys
-					// Keys need to be quoted if they start with a quote, or some syntax characters, or whitespace
-					|| str[0] == '"' || str[0] == '\'' || str[0] == '`' || str[0] == SyntaxCharacters.CommentStart || char.IsWhiteSpace(str[0])
-					// Or if it contains other certain syntax characters; this is an array (= [ { \r \n)
-					|| str.IndexOfAny(SyntaxCharacters.EndOfKey) != -1;
-			}
-			else
-			{
-				needsQuoting = Formatting.AlwaysQuoteValues
-					// We need to quote the string regardless if it starts with quote character or whitespace char...
-					|| str[0] == '"' || str[0] == '\'' || str[0] == '`' || str[0] == SyntaxCharacters.CommentStart || char.IsWhiteSpace(str[0])
-					// Or if it contains a newline...
-					|| str.IndexOfAny(SyntaxCharacters.EndOfLine) != -1
-					// Or if it's an array, it contains an array end or array element delimiter
-					|| (isArrayMember && (str.IndexOfAny(SyntaxCharacters.ArrayElementDelimiterAndEnd) != -1));
-			}
-
-			if (needsQuoting)
-			{
-				char quote = '\0';
-				foreach (char q in Formatting.QuotesInOrderOfPreference)
-				{
-					if (!str.Contains(q))
-					{
-						quote = q;
-						break;
-					}
-				}
-				if (quote == '\0')
-				{
-					throw new ConfigFileFormatException("Couldn't find an appropriate quote to use (Order of preference is: " + string.Concat(Formatting.QuotesInOrderOfPreference) + ") for the provided string: " + str);
-				}
-				Writer.Write(quote);
-				Writer.Write(str);
-				Writer.Write(quote);
-			}
-			else
-			{
-				Writer.Write(str);
-			}
-		}
 		/// <summary>
 		/// Returns true if this writer is in a state such that it can write <paramref name="token"/>, which should be a single flag.
 		/// </summary>
@@ -424,6 +502,124 @@
 		public bool CanWrite(ConfigFileToken token)
 		{
 			return (ValidWrites & token) == token;
+		}
+#if NETSTANDARD2_0
+		private void WriteStr(string str, StringType type)
+#else
+		private void WriteStr(in ReadOnlySpan<char> str, StringType type)
+#endif
+		{
+			if (str.Length == 0)
+			{
+				// When it's an empty string we have to write quotes
+				char q = Formatting.QuotesInOrderOfPreference[0];
+				Writer.Write(q);
+				Writer.Write(q);
+				return;
+			}
+			bool needsQuoting;
+			char c = str[0];
+			switch (type)
+			{
+				case StringType.Key:
+					// Keys can be either Key=Value, Key [Values], Key { Section }
+					// Thus that means =, [, and { create ambiguity if they're contained in the Key
+					// And also starting with # would make this a comment instead, so quote that
+					// And finally starting with } would be interpreted as closing the section
+
+					// Fine: , ]
+					// Starts with these needs quoting: } # " ' `
+					// Contains these needs quoting: = [ { \r \n
+					needsQuoting = Formatting.AlwaysQuoteValues
+						|| c == SyntaxCharacters.SectionEnd
+						|| c == SyntaxCharacters.CommentStart
+						|| c == '"'
+						|| c == '\''
+						|| c == '`'
+						|| char.IsWhiteSpace(c)
+						|| char.IsWhiteSpace(str[str.Length - 1])
+#if NETSTANDARD2_0
+						|| str.IndexOfAny(SyntaxCharacters.EndOfKey) != -1;
+#else
+						|| str.Contains(SyntaxCharacters.EndOfKey, StringComparison.Ordinal);
+#endif
+					break;
+				case StringType.Value:
+						// A Value is like this: Key=Value
+						// It's impossible to start a section, so Key={Value is not ambiguous
+						// Key==Value isn't ambiguous. The 1st equals sign means "start value" and the 2nd is part of the Value.
+						// Starting Value with [ makes it ambiguous because that's Key=[Value, which looks like an array.
+
+						// Fine: { } # = , ]
+						// Starts with these needs quoting: [ " ' `
+						// Contains these needs quoting: \r \n
+						needsQuoting = Formatting.AlwaysQuoteValues
+							||	c == SyntaxCharacters.ArrayStart
+							|| c == '"'
+							|| c == '\''
+							|| c == '`'
+							|| char.IsWhiteSpace(c)
+							|| char.IsWhiteSpace(str[str.Length - 1])
+#if NETSTANDARD2_0
+							|| str.IndexOfAny(SyntaxCharacters.EndOfLine) != -1;
+#else
+							|| str.Contains(SyntaxCharacters.EndOfLine, StringComparison.Ordinal);
+#endif
+					break;
+				case StringType.ArrayValue:
+					// Arrays are like this (= is optional): Key=[Value 1, Value 2, Value 3]
+					// Pretty much everything inside the array is fine, except for array separators and array close
+
+					// Fine: { } # =
+					// Starts with these needs quoting: " ' `
+					// Contains these needs quoting: , ] \r \n
+					needsQuoting = Formatting.AlwaysQuoteValues
+						|| c == '"'
+						|| c == '\''
+						|| c == '`'
+						|| char.IsWhiteSpace(c)
+						|| char.IsWhiteSpace(str[str.Length - 1])
+#if NETSTANDARD2_0
+						|| str.IndexOfAny(SyntaxCharacters.ArrayElementDelimiterAndEndAndEndOfLine) != -1;
+#else
+						|| str.Contains(SyntaxCharacters.ArrayElementDelimiterAndEndAndEndOfLine, StringComparison.Ordinal);
+#endif
+					break;
+				default:
+					needsQuoting = false; // This should never actually happen
+					break;
+			}
+			if (needsQuoting)
+			{
+				char quote = '\0';
+				foreach (char q in Formatting.QuotesInOrderOfPreference)
+				{
+#if NETSTANDARD2_1
+					if (str.IndexOf(q) == -1)
+#else
+					if (!str.Contains(q))
+#endif
+					{
+						quote = q;
+						break;
+					}
+				}
+				if (quote == '\0')
+				{
+#if NETSTANDARD2_1
+					throw new ConfigFileFormatException(string.Concat("Couldn't find an appropriate quote to use for the provided string: ", str.ToString()));
+#else
+					throw new ConfigFileFormatException(string.Concat("Couldn't find an appropriate quote to use for the provided string: ", str));
+#endif
+				}
+				Writer.Write(quote);
+				Writer.Write(str);
+				Writer.Write(quote);
+			}
+			else
+			{
+				Writer.Write(str);
+			}
 		}
 		/// <summary>
 		/// If the last thing written was something that's configured to have an blank line after it, then write that line.
@@ -442,7 +638,7 @@
 		{
 			return new ConfigFileFormatException(string.Concat(nameof(ConfigFileWriter), " cannot currently write a ", token.ToString(), ". It can currently write: ", ValidWrites.ToString()));
 		}
-		#region IDisposable Support
+#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
 		/// <summary>
 		/// Disposes of <see cref="Writer"/> if <see cref="CloseOutput"/> is true. Otherwise does nothing.
@@ -459,6 +655,6 @@
 				disposedValue = true;
 			}
 		}
-		#endregion
+#endregion
 	}
 }

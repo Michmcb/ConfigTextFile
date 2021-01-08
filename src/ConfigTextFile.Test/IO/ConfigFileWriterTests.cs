@@ -84,8 +84,8 @@
 		[Fact]
 		public static void WriteAFileAndMakeSureBadStuffFails()
 		{
-			using MemoryStream ms = new MemoryStream();
-			using (ConfigFileWriter cfg = new ConfigFileWriter(new StreamWriter(ms, Encoding.Unicode)))
+			using MemoryStream ms = new();
+			using (ConfigFileWriter cfg = new(new StreamWriter(ms, Encoding.Unicode, leaveOpen: true)))
 			{
 				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteValue(""));
 				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteStartArray());
@@ -94,9 +94,8 @@
 				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteEndSection());
 
 				cfg.WriteComment("Test Comment");
-				cfg.WriteComment(@"Test Comment
-That spans many lines
-Look at me go!");
+				cfg.WriteComment("Test Comment\nThat spans many lines\nLook at me go!");
+				cfg.WriteComment("A Comment\nThat has both types of newline\r\nAnd ends with a newline\n");
 				cfg.WriteKey("Key");
 				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteKey("key"));
 				Assert.Throws<ConfigFileFormatException>(() => cfg.WriteComment(""));
@@ -132,9 +131,7 @@ Look at me go!");
 						cfg.WriteComment("Super Smart!");
 						cfg.WriteKey("`Key3");
 						cfg.WriteValue("Value3");
-						cfg.WriteComment(@"This is a stupid key
-Very Stupid
-So Stupid");
+						cfg.WriteComment("This is a stupid key\nVery Stupid\nSo Stupid");
 						cfg.WriteKey("#Key4");
 						cfg.WriteValue("Value4");
 						cfg.WriteKey("Key5");

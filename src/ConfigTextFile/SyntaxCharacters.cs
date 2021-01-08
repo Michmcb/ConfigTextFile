@@ -40,7 +40,11 @@
 		/// </summary>
 		internal static readonly char[] ArrayElementDelimiterAndEnd = new char[] { ArrayElementDelimiter, ArrayEnd };
 		/// <summary>
-		/// ValueStart, ArrayStart, ScopeStart, \r and \n
+		/// ArrayElementDelimiter and ArrayEnd
+		/// </summary>
+		internal static readonly char[] ArrayElementDelimiterAndEndAndEndOfLine = new char[] { ArrayElementDelimiter, ArrayEnd, '\r', '\n' };
+		/// <summary>
+		/// ValueStart, ArrayStart, SectionStart, \r and \n
 		/// </summary>
 		internal static readonly char[] EndOfKey = new char[] { ValueStart, ArrayStart, SectionStart, '\r', '\n' };
 		/// <summary>

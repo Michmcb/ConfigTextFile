@@ -13,15 +13,18 @@
     <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
     <Description>A .NET library which allows you to read and write plain-text minimal syntax configuration files</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- ConfigSectionElement accept an IEqualityComparer&lt;string&gt;, used to compare Keys of elements added to them
-- ConfigSectionElement has methods to loop over child elements, either of all types or just a specific type
-- IConfigElement.ValueOr(string alternate) method, used to fall back to a default value
-- Fixed a bug when loading comments</PackageReleaseNotes>
+    <PackageReleaseNotes>- Added overloads for ReadOnlySpan&lt;char&gt; for the ConfigFileWriter. Of note this eliminates a string[] allocation for WriteComment(string text) when the text parameter contains newlines
+- WriteComment(string text) will call the WriteComment(ReadOnlySpan&lt;char&gt; text) overload on .netstandard2.1 or higher
+- Overloads for ReadOnlySpan&lt;char&gt; for FluentConfigFileWriter, and an overload for WriteArray which allows you to write array values one at a time
+- Fixed not quoting Keys/Values properly in a few cases. Specific cases are...
+  - Keys are quoted if they start with any of " ' ` } # , start/end with whitespace, or contain any of = [ { \r \n
+  - Singular Values are quoted if they start with any of [ " ' `, start/end with whitespace, or contain any of \r \n
+  - Array Values are quoted if they start with any of " ' `, start/end with whitespace, or contain any of , ] \r \n</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.10</Version>
+    <Version>1.11</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.10.0.0</AssemblyVersion>
-    <FileVersion>1.10.0.0</FileVersion>
+    <AssemblyVersion>1.11.0.0</AssemblyVersion>
+    <FileVersion>1.11.0.0</FileVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
