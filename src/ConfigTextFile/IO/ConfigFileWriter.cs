@@ -253,15 +253,15 @@
 					{
 						from = to + 1;
 						// If from is at least the length of the string, that means that the string ended with a \n
-						// In that case, write an extra comment char with nothing
+						// In that case, write an extra comment character with nothing, but add a newline
+						Writer.Write(currentIndentation);
 						if (from >= text.Length)
 						{
-							Writer.Write(currentIndentation);
 							Writer.WriteLine(SyntaxCharacters.CommentStart);
+							break;
 						}
-						int index = text[from..].IndexOf('\n');
-						Writer.Write(currentIndentation);
 						Writer.Write(SyntaxCharacters.CommentStart);
+						int index = text[from..].IndexOf('\n');
 						if (index != -1)
 						{
 							Writer.WriteLine(text[from..(to = from + index)].TrimEnd('\r'));
@@ -545,21 +545,21 @@
 #endif
 					break;
 				case StringType.Value:
-						// A Value is like this: Key=Value
-						// It's impossible to start a section, so Key={Value is not ambiguous
-						// Key==Value isn't ambiguous. The 1st equals sign means "start value" and the 2nd is part of the Value.
-						// Starting Value with [ makes it ambiguous because that's Key=[Value, which looks like an array.
+					// A Value is like this: Key=Value
+					// It's impossible to start a section, so Key={Value is not ambiguous
+					// Key==Value isn't ambiguous. The 1st equals sign means "start value" and the 2nd is part of the Value.
+					// Starting Value with [ makes it ambiguous because that's Key=[Value, which looks like an array.
 
-						// Fine: { } # = , ]
-						// Starts with these needs quoting: [ " ' `
-						// Contains these needs quoting: \r \n
-						needsQuoting = Formatting.AlwaysQuoteValues
-							||	c == SyntaxCharacters.ArrayStart
-							|| c == '"'
-							|| c == '\''
-							|| c == '`'
-							|| char.IsWhiteSpace(c)
-							|| char.IsWhiteSpace(str[str.Length - 1])
+					// Fine: { } # = , ]
+					// Starts with these needs quoting: [ " ' `
+					// Contains these needs quoting: \r \n
+					needsQuoting = Formatting.AlwaysQuoteValues
+						|| c == SyntaxCharacters.ArrayStart
+						|| c == '"'
+						|| c == '\''
+						|| c == '`'
+						|| char.IsWhiteSpace(c)
+						|| char.IsWhiteSpace(str[str.Length - 1])
 #if NETSTANDARD2_0
 							|| str.IndexOfAny(SyntaxCharacters.EndOfLine) != -1;
 #else
@@ -638,7 +638,7 @@
 		{
 			return new ConfigFileFormatException(string.Concat(nameof(ConfigFileWriter), " cannot currently write a ", token.ToString(), ". It can currently write: ", ValidWrites.ToString()));
 		}
-#region IDisposable Support
+		#region IDisposable Support
 		private bool disposedValue = false; // To detect redundant calls
 		/// <summary>
 		/// Disposes of <see cref="Writer"/> if <see cref="CloseOutput"/> is true. Otherwise does nothing.
@@ -655,6 +655,6 @@
 				disposedValue = true;
 			}
 		}
-#endregion
+		#endregion
 	}
 }

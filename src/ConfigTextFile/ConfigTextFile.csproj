@@ -13,18 +13,12 @@
     <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
     <Description>A .NET library which allows you to read and write plain-text minimal syntax configuration files</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- Added overloads for ReadOnlySpan&lt;char&gt; for the ConfigFileWriter. Of note this eliminates a string[] allocation for WriteComment(string text) when the text parameter contains newlines
-- WriteComment(string text) will call the WriteComment(ReadOnlySpan&lt;char&gt; text) overload on .netstandard2.1 or higher
-- Overloads for ReadOnlySpan&lt;char&gt; for FluentConfigFileWriter, and an overload for WriteArray which allows you to write array values one at a time
-- Fixed not quoting Keys/Values properly in a few cases. Specific cases are...
-  - Keys are quoted if they start with any of " ' ` } # , start/end with whitespace, or contain any of = [ { \r \n
-  - Singular Values are quoted if they start with any of [ " ' `, start/end with whitespace, or contain any of \r \n
-  - Array Values are quoted if they start with any of " ' `, start/end with whitespace, or contain any of , ] \r \n</PackageReleaseNotes>
+    <PackageReleaseNotes>- Fixed a bug causing Comments that ended with a newline to have two extra newlines instead of one output, or possibly crash</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.11</Version>
+    <Version>1.11.1</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.11.0.0</AssemblyVersion>
-    <FileVersion>1.11.0.0</FileVersion>
+    <AssemblyVersion>1.11.1.0</AssemblyVersion>
+    <FileVersion>1.11.1.0</FileVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
