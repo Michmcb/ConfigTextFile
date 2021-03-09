@@ -35,9 +35,7 @@ namespace ConfigTextFile.Test
 			Assert.Equal("12345", global["Value Two"]);
 			val = (ConfigStringElement)global.Elements["Multiline'd Value"];
 			Assert.Equal("Hello,\r\nThis is a long string\nthat spans many lines", val.Value);
-			Assert.Equal(2, val.Comments.Count);
-			Assert.Contains(" This has got lots of text here", val.Comments);
-			Assert.Contains(" Make sure you keep it in quotes!", val.Comments);
+			Assert.Equal(" This has got lots of text here\r\n Make sure you keep it in quotes!", val.Comments);
 			Assert.Contains("myscope", global.Elements);
 			Assert.Equal("Hello World!", global["Value=3"]);
 			ConfigArrayElement array = (ConfigArrayElement)global.Elements["ArrayValue"];
@@ -95,7 +93,7 @@ namespace ConfigTextFile.Test
 		[Fact]
 		public void Reader()
 		{
-			using ConfigFileReader reader = new ConfigFileReader(new StreamReader("WellFormedConfigTextFile.cfg", Encoding.UTF8));
+			using ConfigFileReader reader = new(new StreamReader("WellFormedConfigTextFile.cfg", Encoding.UTF8));
 			ReadAndAssertToken(reader, "First KEy", ConfigFileToken.Key);
 			ReadAndAssertToken(reader, "blah blah", ConfigFileToken.Value);
 			ReadAndAssertToken(reader, "global", ConfigFileToken.Key);
@@ -163,14 +161,14 @@ namespace ConfigTextFile.Test
 			root.AddElement(new ConfigStringElement("Key2", "value  2"));
 			root.AddElement(new ConfigStringElement("Key3", "value~3"));
 			root.AddElement(new ConfigArrayElement("ArrayKey", "Value 1", "Valu,e 2", "Va]lue 3!"));
-			ConfigSectionElement subSection = new ConfigSectionElement("Subsection", root.KeyComparer);
+			ConfigSectionElement subSection = new("Subsection", root.KeyComparer);
 			root.AddElement(subSection);
 
-			subSection.AddElement(new ConfigStringElement("Key1", "'value1", new string[] { "My comments", "hehey!" }, false));
+			subSection.AddElement(new ConfigStringElement("Key1", "'value1", "My comments\r\nhehey!"));
 			subSection.AddElement(new ConfigStringElement("Key2", "\"value  2"));
 			subSection.AddElement(new ConfigStringElement("Key3", "`value3"));
 
-			using (ConfigFileWriter w = new ConfigFileWriter(new StreamWriter(new FileStream("test_Save.cfg", FileMode.Create, FileAccess.Write), Encoding.UTF8, leaveOpen: false), closeOutput: true))
+			using (ConfigFileWriter w = new(new StreamWriter(new FileStream("test_Save.cfg", FileMode.Create, FileAccess.Write), Encoding.UTF8, leaveOpen: false), closeOutput: true))
 			{
 				file.Save(w);
 			}
@@ -196,7 +194,7 @@ namespace ConfigTextFile.Test
 					str = Assert.IsType<ConfigStringElement>(x);
 					Assert.Equal("Key1", str.Key);
 					Assert.Equal("'value1", str.Value);
-					Assert.Collection(x.Comments, y => Assert.Equal("My comments", y), y => Assert.Equal("hehey!", y));
+					Assert.Equal("My comments\r\nhehey!", x.Comments);
 				},
 				x =>
 				{
@@ -215,18 +213,18 @@ namespace ConfigTextFile.Test
 		public void AddingBadStuffSaysNo()
 		{
 			ConfigSectionElement section = new(StringComparer.Ordinal);
-			ConfigStringElement str = new ConfigStringElement("Key", "value");
+			ConfigStringElement str = new("Key", "value");
 			section.AddElement(str);
 			Assert.Throws<ArgumentException>(() => section.AddElement(new ConfigStringElement("Key", "value")));
 			Assert.Throws<ArgumentException>(() => section.AddElement(str));
 			Assert.Throws<ArgumentException>(() => section.AddElement(new ConfigArrayElement("Key", "value")));
 			Assert.Throws<ArgumentException>(() => section.AddElement(new ConfigSectionElement("Key", section.KeyComparer)));
 
-			ConfigArrayElement array = new ConfigArrayElement("Key1");
+			ConfigArrayElement array = new("Key1");
 			section.AddElement(array);
 			Assert.Throws<ArgumentException>(() => section.AddElement(array));
 
-			ConfigSectionElement sect = new ConfigSectionElement("Key2", section.KeyComparer);
+			ConfigSectionElement sect = new("Key2", section.KeyComparer);
 			section.AddElement(sect);
 			Assert.Throws<ArgumentException>(() => section.AddElement(sect));
 		}

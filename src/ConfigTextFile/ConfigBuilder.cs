@@ -43,12 +43,11 @@
 		/// </summary>
 		/// <param name="key">This element's key</param>
 		/// <param name="value">The value.</param>
-		/// <param name="comments">The comments to use. If <paramref name="copyComments"/> is true they are copied, otherwise they are used directly.</param>
-		/// <param name="copyComments">If true, copies <paramref name="comments"/> into a new list. Otherwise, assigns directly.</param>
+		/// <param name="comments">The comments to use.</param>
 		/// <returns>This object allowing for chained calls.</returns>
-		public ConfigBuilder String(string key, string value, ICollection<string> comments, bool copyComments = true)
+		public ConfigBuilder String(string key, string value, string? comments)
 		{
-			section.AddElement(new ConfigStringElement(key, value, comments, copyComments));
+			section.AddElement(new ConfigStringElement(key, value, comments));
 			return this;
 		}
 		/// <summary>
@@ -67,12 +66,11 @@
 		/// </summary>
 		/// <param name="key">This element's key</param>
 		/// <param name="values">The values; creates a new <see cref="ConfigStringElement"/> for every string in this collection.</param>
-		/// <param name="comments">The comments to use. If <paramref name="copyComments"/> is true they are copied, otherwise they are used directly.</param>
-		/// <param name="copyComments">If true, copies <paramref name="comments"/> into a new list. Otherwise, assigns directly.</param>
+		/// <param name="comments">The comments to use.</param>
 		/// <returns>This object allowing for chained calls.</returns>
-		public ConfigBuilder Array(string key, IEnumerable<string> values, ICollection<string> comments, bool copyComments = true)
+		public ConfigBuilder Array(string key, IEnumerable<string> values, string? comments)
 		{
-			section.AddElement(new ConfigArrayElement(key, values, comments, copyComments));
+			section.AddElement(new ConfigArrayElement(key, values, comments));
 			return this;
 		}
 		/// <summary>
@@ -95,7 +93,7 @@
 		/// <returns>This object allowing for chained calls.</returns>	
 		public ConfigBuilder Section(string key, Action<ConfigBuilder> build)
 		{
-			ConfigSectionElement subSection = new ConfigSectionElement(key, section.KeyComparer);
+			ConfigSectionElement subSection = new(key, section.KeyComparer);
 			section.AddElement(subSection);
 			build(new ConfigBuilder(subSection));
 			return this;
@@ -106,12 +104,11 @@
 		/// </summary>
 		/// <param name="key">This element's key</param>
 		/// <param name="build">An action used to build the newly added section.</param>
-		/// <param name="comments">The comments to use. If <paramref name="copyComments"/> is true they are copied, otherwise they are used directly.</param>
-		/// <param name="copyComments">If true, copies <paramref name="comments"/> into a new list. Otherwise, assigns directly.</param>
+		/// <param name="comments">The comments to use.</param>
 		/// <returns>This object allowing for chained calls.</returns>	
-		public ConfigBuilder Section(string key, ICollection<string> comments, bool copyComments, Action<ConfigBuilder> build)
+		public ConfigBuilder Section(string key, string? comments, Action<ConfigBuilder> build)
 		{
-			ConfigSectionElement subSection = new ConfigSectionElement(key, section.KeyComparer, comments, copyComments);
+			ConfigSectionElement subSection = new(key, section.KeyComparer, comments);
 			section.AddElement(subSection);
 			build(new ConfigBuilder(subSection));
 			return this;

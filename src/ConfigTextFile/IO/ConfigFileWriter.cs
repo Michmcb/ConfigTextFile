@@ -4,6 +4,7 @@
 	using System.Diagnostics;
 	using System.IO;
 	using System.Linq;
+	using System.Threading.Tasks;
 
 	/// <summary>
 	/// Writes a formatted <see cref="ConfigFile"/> to a <see cref="StreamWriter"/>.
@@ -110,7 +111,7 @@
 		/// and each line will be a comment.
 		/// </summary>
 		/// <param name="text">The text of the comment</param>
-		public void WriteComment(string text)
+		public void WriteComment(string? text)
 		{
 			text ??= string.Empty;
 			// Because this overload allocates a lot of substrings we call the Span version which doesn't allocate if we're able to do so
@@ -468,10 +469,7 @@
 			foreach (IConfigElement e in root.Elements.Values)
 			{
 				Debug.Assert(e.Type != ConfigElementType.Invalid, "Should never get an invalid element when iterating elements");
-				foreach (string comment in e.Comments)
-				{
-					WriteComment(comment);
-				}
+				WriteComment(e.Comments);
 				WriteKey(e.Key);
 				switch (e.Type)
 				{

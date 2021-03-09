@@ -19,7 +19,7 @@
 
 				a.Section("Subsection", b =>
 				{
-					b.String("Key1", "'value1", new string[] { "My comments", "hehey!" }, false);
+					b.String("Key1", "'value1", "My comments\r\nhehey!");
 					b.String("Key2", "\"value  2");
 					b.String("Key3", "`value3");
 				});
@@ -44,7 +44,7 @@
 					str = Assert.IsType<ConfigStringElement>(x);
 					Assert.Equal("Key1", str.Key);
 					Assert.Equal("'value1", str.Value);
-					Assert.Collection(x.Comments, y => Assert.Equal("My comments", y), y => Assert.Equal("hehey!", y));
+					Assert.Equal("My comments\r\nhehey!", x.Comments);
 				},
 				x =>
 				{

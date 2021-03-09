@@ -1,7 +1,6 @@
 ﻿namespace ConfigTextFile
 {
 	using System;
-	using System.Collections.Generic;
 	using System.Diagnostics.CodeAnalysis;
 
 	/// <summary>
@@ -21,21 +20,20 @@
 			Path = string.Empty;
 			Key = key;
 			Value = value;
-			Comments = new List<string>();
+			Comments = string.Empty;
 		}
 		/// <summary>
 		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/> or a <see cref="ConfigArrayElement"/>.
 		/// </summary>
 		/// <param name="key">This element's key</param>
 		/// <param name="value">The value.</param>
-		/// <param name="comments">The comments to use. If <paramref name="copyComments"/> is true they are copied, otherwise they are used directly.</param>
-		/// <param name="copyComments">If true, copies <paramref name="comments"/> into a new list. Otherwise, assigns directly.</param>
-		public ConfigStringElement(string key, string value, ICollection<string> comments, bool copyComments = true)
+		/// <param name="comments">The comments to use.</param>
+		public ConfigStringElement(string key, string value, string? comments)
 		{
 			Path = string.Empty;
 			Key = key;
 			Value = value;
-			Comments = copyComments ? new List<string>(comments) : comments;
+			Comments = comments;
 		}
 		/// <summary>
 		/// Always throws an <see cref="InvalidOperationException"/>, as strings don't have any children.
@@ -80,7 +78,7 @@
 		/// <summary>
 		/// The comments that preceded this <see cref="ConfigStringElement"/>.
 		/// </summary>
-		public ICollection<string> Comments { get; set; }
+		public string? Comments { get; set; }
 		/// <summary>
 		/// Always throws an <see cref="InvalidOperationException"/>.
 		/// </summary>

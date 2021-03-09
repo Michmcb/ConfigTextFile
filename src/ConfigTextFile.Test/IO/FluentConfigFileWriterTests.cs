@@ -10,8 +10,8 @@
 		[Fact]
 		public void WriteStuff()
 		{
-			ConfigFileFormatting f = new ConfigFileFormatting();
-			using FluentConfigFileWriter cfg = new FluentConfigFileWriter(new ConfigFileWriter(new StreamWriter(new FileStream("FluentTest.cfg", FileMode.Create), Encoding.UTF8), f));
+			ConfigFileFormatting f = new();
+			using FluentConfigFileWriter cfg = new(new ConfigFileWriter(new StreamWriter(new FileStream("FluentTest.cfg", FileMode.Create), Encoding.UTF8), f));
 			cfg.Write(root =>
 			{
 				root.WriteValue("Key1", "Value1");

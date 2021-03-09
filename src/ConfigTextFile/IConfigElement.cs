@@ -79,7 +79,7 @@
 		/// <summary>
 		/// The comments that preceded this <see cref="IConfigElement"/>.
 		/// </summary>
-		ICollection<string> Comments { get; set; }
+		string? Comments { get; set; }
 		/// <summary>
 		/// Returns the <see cref="IConfigElement"/> as a <see cref="ConfigArrayElement"/>, if possible.
 		/// Throws an <see cref="InvalidOperationException"/> if this is not a <see cref="ConfigArrayElement"/>.

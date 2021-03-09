@@ -1,6 +1,5 @@
 ﻿namespace ConfigTextFile
 {
-	using System;
 	/// <summary>
 	/// Defines how to load comments.
 	/// </summary>
@@ -12,13 +11,9 @@
 		/// </summary>
 		Load,
 		/// <summary>
-		/// Ignores comments, and sets <see cref="IConfigElement.Comments"/> to <see cref="Array.Empty{T}"/>.
+		/// Ignores comments, and sets <see cref="IConfigElement.Comments"/> to null.
 		/// Use this when you don't need to re-save the file.
 		/// </summary>
-		Ignore,
-		/// <summary>
-		/// Ignores comments, instead giving each <see cref="IConfigElement"/> its own new empty list.
-		/// </summary>
-		IgnoreSetEmptyList,
+		Ignore
 	}
 }

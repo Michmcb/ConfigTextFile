@@ -10,7 +10,7 @@
 		/// <summary>
 		/// Default formatting. Same as using the parameterless constuctor.
 		/// </summary>
-		public static readonly ConfigFileFormatting Default = new ConfigFileFormatting();
+		public static readonly ConfigFileFormatting Default = new();
 		private readonly char[] quotesInOrderOfPreference;
 		private QuotePreference quotePreference;
 		/// <summary>

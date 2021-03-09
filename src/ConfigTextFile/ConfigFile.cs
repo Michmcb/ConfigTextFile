@@ -51,7 +51,7 @@
 		/// </summary>
 		public Dictionary<string, string> CreateStringDictionary()
 		{
-			Dictionary<string, string> dict = new Dictionary<string, string>();
+			Dictionary<string, string> dict = new();
 			FillStringDictionary(dict);
 			return dict;
 		}
@@ -63,7 +63,7 @@
 		/// <param name="overwrite">If true, overwrites key/value pairs in the provided <paramref name="dict"/>. Otherwise, throws an exception.</param>
 		public void FillStringDictionary(IDictionary<string, string> dict, bool overwrite = true)
 		{
-			Stack<ConfigSectionElement> sections = new Stack<ConfigSectionElement>();
+			Stack<ConfigSectionElement> sections = new();
 			sections.Push(Root);
 			while (sections.Count > 0)
 			{
@@ -112,7 +112,7 @@
 		/// <param name="configs">The ConfigFiles from which to create a Dictionary.</param>
 		public static Dictionary<string, string> CreateStringDictionary(bool overwrite, params ConfigFile[] configs)
 		{
-			Dictionary<string, string> dict = new Dictionary<string, string>();
+			Dictionary<string, string> dict = new();
 			FillStringDictionary(dict, overwrite, configs);
 			return dict;
 		}
@@ -141,7 +141,7 @@
 		/// <returns>The loaded <see cref="ConfigFile"/></returns>
 		public static ConfigFile LoadFile(string path, Encoding encoding, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load, IEqualityComparer<string>? keyComparer = null)
 		{
-			using StreamReader sin = new StreamReader(path, encoding);
+			using StreamReader sin = new(path, encoding);
 			return LoadFile(sin, commentLoading, keyComparer);
 		}
 		/// <summary>
@@ -179,7 +179,7 @@
 		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
 		public static LoadResult TryLoadFile(string path, Encoding encoding, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load, IEqualityComparer<string>? keyComparer = null)
 		{
-			using StreamReader sin = new StreamReader(path, encoding);
+			using StreamReader sin = new(path, encoding);
 			return TryLoadFile(sin, commentLoading, keyComparer);
 		}
 		/// <summary>
@@ -204,14 +204,13 @@
 		{
 			// If we are ignoring comments then we'll assign everything an empty array.
 			// Otherwise, we'll need lists.
-			ICollection<string> comments = commentLoading == LoadCommentsPreference.Ignore
-				? (ICollection<string>)Array.Empty<string>()
-				: new List<string>();
-			Stack<ConfigSectionElement> parentSections = new Stack<ConfigSectionElement>();
+			StringBuilder? comments = commentLoading == LoadCommentsPreference.Load ? new() : null;
+			string? commentsAsStr = null;
+			Stack<ConfigSectionElement> parentSections = new();
 			// Default to ordinal comparison
 			keyComparer ??= StringComparer.Ordinal;
 			// Root can never have comments
-			ConfigSectionElement root = new ConfigSectionElement(keyComparer);
+			ConfigSectionElement root = new(keyComparer);
 			ConfigSectionElement currentSection = root;
 			string key = string.Empty;
 			try
@@ -225,25 +224,27 @@
 							key = fRead.Value;
 							break;
 						case ConfigFileToken.Value:
-							ConfigStringElement singleString = new ConfigStringElement(key, fRead.Value, comments, copyComments: false);
+							if (comments != null)
+							{
+								commentsAsStr = ToStringTrimCrLf(comments);
+								comments = new();
+							}
+							ConfigStringElement singleString = new(key, fRead.Value, commentsAsStr);
 							if (!currentSection.TryAddElement(singleString))
 							{
 								return new LoadResult(string.Concat("Duplicate key \"", ConfigPath.Join(currentSection.Path, key), "\" was found"));
 							}
-							if (commentLoading != LoadCommentsPreference.Ignore)
-							{
-								comments = new List<string>();
-							}
 							break;
 						case ConfigFileToken.StartArray:
-							ConfigArrayElement array = new ConfigArrayElement(key, Array.Empty<string>(), comments, copyComments: false);
+							if (comments != null)
+							{
+								commentsAsStr = ToStringTrimCrLf(comments);
+								comments = new();
+							}
+							ConfigArrayElement array = new(key, Array.Empty<string>(), commentsAsStr);
 							if (!currentSection.TryAddElement(array))
 							{
 								return new LoadResult(string.Concat("Duplicate key \"", ConfigPath.Join(currentSection.Path, key), "\" was found"));
-							}
-							if (commentLoading != LoadCommentsPreference.Ignore)
-							{
-								comments = new List<string>();
 							}
 							while (true)
 							{
@@ -261,14 +262,15 @@
 							break;
 						case ConfigFileToken.StartSection:
 							parentSections.Push(currentSection);
-							ConfigSectionElement newSection = new ConfigSectionElement(key, keyComparer, comments, copyComments: false);
+							if (comments != null)
+							{
+								commentsAsStr = ToStringTrimCrLf(comments);
+								comments = new();
+							}
+							ConfigSectionElement newSection = new(key, keyComparer, commentsAsStr);
 							if (!currentSection.TryAddElement(newSection))
 							{
 								return new LoadResult(string.Concat("Duplicate key \"", ConfigPath.Join(currentSection.Path, key), "\" was found"));
-							}
-							if (commentLoading != LoadCommentsPreference.Ignore)
-							{
-								comments = new List<string>();
 							}
 							currentSection = newSection;
 							break;
@@ -277,9 +279,9 @@
 							currentSection = parentSections.Pop();
 							break;
 						case ConfigFileToken.Comment:
-							if (commentLoading == LoadCommentsPreference.Load)
+							if (comments != null)
 							{
-								comments.Add(fRead.Value);
+								comments.AppendLine(fRead.Value);
 							}
 							break;
 						case ConfigFileToken.Finish:
@@ -294,6 +296,25 @@
 			{
 				return new LoadResult(ex.Message);
 			}
+		}
+		private static string ToStringTrimCrLf(StringBuilder sb)
+		{
+			int i = sb.Length - 1;
+
+			for (; i >= 0; i--)
+			{
+				char c = sb[i];
+				if (c != '\r' && c != '\n')
+				{
+					break;
+				}
+			}
+			if (i < sb.Length - 1)
+			{
+				sb.Length = i + 1;
+			}
+
+			return sb.ToString();
 		}
 	}
 }

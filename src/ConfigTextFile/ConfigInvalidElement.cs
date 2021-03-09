@@ -1,6 +1,5 @@
 ﻿namespace ConfigTextFile
 {
-	using System.Collections.Generic;
 	using System.Diagnostics.CodeAnalysis;
 
 	/// <summary>
@@ -14,7 +13,7 @@
 		/// <summary>
 		/// The singleton instance of <see cref="ConfigInvalidElement"/>.
 		/// </summary>
-		public static readonly ConfigInvalidElement Inst = new ConfigInvalidElement();
+		public static readonly ConfigInvalidElement Inst = new();
 		private ConfigInvalidElement() { }
 		/// <summary>
 		/// Always throws a <see cref="ConfigInvalidElementException"/>.
@@ -57,7 +56,7 @@
 		/// <summary>
 		/// Always throws <see cref="ConfigInvalidElementException"/>.
 		/// </summary>
-		public ICollection<string> Comments { get => throw new ConfigInvalidElementException(); set => throw new ConfigInvalidElementException(); }
+		public string? Comments { get => throw new ConfigInvalidElementException(); set => throw new ConfigInvalidElementException(); }
 		/// <summary>
 		/// Always throws a <see cref="ConfigInvalidElementException"/>.
 		/// </summary>

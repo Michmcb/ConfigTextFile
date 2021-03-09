@@ -11,8 +11,8 @@
 		[Fact]
 		public static void WriteTestFile()
 		{
-			using MemoryStream ms = new MemoryStream();
-			ConfigFileFormatting f = new ConfigFileFormatting()
+			using MemoryStream ms = new();
+			ConfigFileFormatting f = new()
 			{
 				ExtraBlankLines = new Dictionary<ConfigFileToken, ConfigFileToken>()
 				{
@@ -23,7 +23,7 @@
 					{ ConfigFileToken.Value, ConfigFileToken.Key }
 				}
 			};
-			using (ConfigFileWriter cfg = new ConfigFileWriter(new StreamWriter(ms, Encoding.Unicode), f))
+			using (ConfigFileWriter cfg = new(new StreamWriter(ms, Encoding.Unicode), f))
 			{
 				cfg.WriteComment("Test Comment1");
 				cfg.WriteComment("Test Comment2");
@@ -64,22 +64,24 @@
 			}
 			File.WriteAllBytes("WriteTestFile.cfg", ms.ToArray());
 			ConfigFile x = ConfigFile.LoadFile("WriteTestFile.cfg", Encoding.Unicode);
-			var root = x.Root;
+			ConfigSectionElement root = x.Root;
 			Assert.Equal("Value1", root["Key1"]);
 			Assert.Equal("Value2", root["Key2"]);
 			Assert.Equal("Value3", root["Key3"]);
 
-			Assert.Equal("Value4",  root.FindElement("Section:Key1").Value);
-			Assert.Equal("Value5",  root.FindElement("Section:Key2").Value);
+			Assert.Equal("Value4", root.FindElement("Section:Key1").Value);
+			Assert.Equal("Value5", root.FindElement("Section:Key2").Value);
 			Assert.Equal("aValue1", root.FindElement("Section:Array:0").Value);
 			Assert.Equal("aValue2", root.FindElement("Section:Array:1").Value);
 			Assert.Equal("aValue3", root.FindElement("Section:Array:2").Value);
-			Assert.Equal("Value6",  root.FindElement("Section:Section:Key3").Value);
+			Assert.Equal("Value6", root.FindElement("Section:Section:Key3").Value);
 
 			ConfigStringElement key1 = root.GetElement("Key1").AsStringElement();
-			Assert.Equal(3, key1.Comments.Count);
+			Assert.NotNull(key1.Comments);
+			Assert.Equal("Test Comment1\r\nTest Comment2\r\nTest Comment3", key1.Comments);
 			key1 = root.FindElement("Section:Key1").AsStringElement();
-			Assert.Equal(2, key1.Comments.Count);
+			Assert.NotNull(key1.Comments);
+			Assert.Equal(" Test Comment1\r\n Test Comment2", key1.Comments);
 		}
 		[Fact]
 		public static void WriteAFileAndMakeSureBadStuffFails()

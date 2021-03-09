@@ -26,7 +26,7 @@
 			{
 				AddNewString(val);
 			}
-			Comments = new List<string>();
+			Comments = string.Empty;
 		}
 		/// <summary>
 		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/>.
@@ -43,7 +43,7 @@
 			{
 				AddNewString(val);
 			}
-			Comments = new List<string>();
+			Comments = string.Empty;
 		}
 		/// <summary>
 		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/>.
@@ -51,9 +51,8 @@
 		/// </summary>
 		/// <param name="key">This element's key</param>
 		/// <param name="values">The values; creates a new <see cref="ConfigStringElement"/> for every string in this collection.</param>
-		/// <param name="comments">The comments to use. If <paramref name="copyComments"/> is true they are copied, otherwise they are used directly.</param>
-		/// <param name="copyComments">If true, copies <paramref name="comments"/> into a new list. Otherwise, assigns directly.</param>
-		public ConfigArrayElement(string key, IEnumerable<string> values, ICollection<string> comments, bool copyComments = true)
+		/// <param name="comments">The comments to use.</param>
+		public ConfigArrayElement(string key, IEnumerable<string> values, string? comments)
 		{
 			Path = string.Empty;
 			Key = key;
@@ -62,7 +61,7 @@
 			{
 				AddNewString(val);
 			}
-			Comments = copyComments ? new List<string>(comments) : comments;
+			Comments = comments;
 		}
 		/// <summary>
 		/// Gets or sets a child element's value.
@@ -137,7 +136,7 @@
 		/// <summary>
 		/// The comments that preceded this <see cref="ConfigArrayElement"/>.
 		/// </summary>
-		public ICollection<string> Comments { get; set; }
+		public string? Comments { get; set; }
 		/// <summary>
 		/// Creates a new <see cref="ConfigStringElement"/>, and adds it to <see cref="Elements"/>.
 		/// </summary>
@@ -145,7 +144,7 @@
 		/// <returns>A new <see cref="ConfigStringElement"/></returns>
 		public ConfigStringElement AddNewString(string value)
 		{
-			ConfigStringElement e = new ConfigStringElement(_elements.Count.ToString(), value, Array.Empty<string>(), copyComments: false);
+			ConfigStringElement e = new(_elements.Count.ToString(), value, null);
 			e.Path = ConfigPath.Join(Path, e.Key);
 			_elements.Add(e);
 			return e;

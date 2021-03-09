@@ -13,12 +13,12 @@
     <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
     <Description>A .NET library which allows you to read and write plain-text minimal syntax configuration files</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- Fixed a bug causing Comments that ended with a newline to have two extra newlines instead of one output, or possibly crash</PackageReleaseNotes>
+    <PackageReleaseNotes>- Comments are now stored as a single string, rather than a collection of strings. Because, the collection just indicated multiple lines, a single string can represent that fine too, and has less complexity.</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.11.1</Version>
+    <Version>1.11.2</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.11.1.0</AssemblyVersion>
-    <FileVersion>1.11.1.0</FileVersion>
+    <AssemblyVersion>1.11.2.0</AssemblyVersion>
+    <FileVersion>1.11.2.0</FileVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

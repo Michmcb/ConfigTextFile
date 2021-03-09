@@ -22,7 +22,7 @@
 			Path = string.Empty;
 			Key = string.Empty;
 			_elements = new Dictionary<string, IConfigElement>(keyComparer);
-			Comments = Array.Empty<string>();
+			Comments = string.Empty;
 		}
 		/// <summary>
 		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/>.
@@ -35,7 +35,7 @@
 			Path = string.Empty;
 			Key = key;
 			_elements = new Dictionary<string, IConfigElement>(keyComparer);
-			Comments = new List<string>();
+			Comments = string.Empty;
 		}
 		/// <summary>
 		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/>.
@@ -43,14 +43,13 @@
 		/// </summary>
 		/// <param name="key">This element's key</param>
 		/// <param name="keyComparer">The comparer to use when comparing keys for elements added to this.</param>
-		/// <param name="comments">The comments to use. If <paramref name="copyComments"/> is true they are copied, otherwise they are used directly.</param>
-		/// <param name="copyComments">If true, copies <paramref name="comments"/> into a new list. Otherwise, assigns directly.</param>
-		public ConfigSectionElement(string key, IEqualityComparer<string> keyComparer, ICollection<string> comments, bool copyComments = true)
+		/// <param name="comments">The comments to use.</param>
+		public ConfigSectionElement(string key, IEqualityComparer<string> keyComparer, string? comments)
 		{
 			Path = string.Empty;
 			Key = key;
 			_elements = new Dictionary<string, IConfigElement>(keyComparer);
-			Comments = copyComments ? new List<string>(comments) : comments;
+			Comments = comments;
 		}
 		/// <summary>
 		/// Gets or sets a child element's value.
@@ -120,7 +119,7 @@
 		/// <summary>
 		/// The comments that preceded this.
 		/// </summary>
-		public ICollection<string> Comments { get; set; }
+		public string? Comments { get; set; }
 		/// <summary>
 		/// The <see cref="IEqualityComparer{T}"/> used to compare the keys of elements added to this.
 		/// </summary>
