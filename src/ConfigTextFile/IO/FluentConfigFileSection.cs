@@ -39,28 +39,28 @@
 		/// Writes a comment.
 		/// </summary>
 		/// <param name="comment">Comment text.</param>
-		public void WriteComment(string comment)
+		public void WriteComment(string? comment)
 		{
 			writer.WriteComment(comment);
 		}
 		/// <summary>
-		/// Writes multiple comments.
+		/// Writes multiple comments, each on a new line.
 		/// </summary>
 		/// <param name="comments">Comments texts.</param>
-		public void WriteComments(IEnumerable<string> comments)
+		public void WriteComments(IEnumerable<string?> comments)
 		{
-			foreach (string c in comments)
+			foreach (string? c in comments)
 			{
 				writer.WriteComment(c);
 			}
 		}
 		/// <summary>
-		/// Writes multiple comments.
+		/// Writes multiple comments, each on a new line.
 		/// </summary>
 		/// <param name="comments">Comments texts.</param>
-		public void WriteComments(params string[] comments)
+		public void WriteComments(params string?[] comments)
 		{
-			foreach (string c in comments)
+			foreach (string? c in comments)
 			{
 				writer.WriteComment(c);
 			}

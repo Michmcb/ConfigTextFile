@@ -13,7 +13,7 @@
 		private readonly List<ConfigStringElement> _elements;
 		/// <summary>
 		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/>.
-		/// Comments are set to a new empty list. Value is set to <see cref="string.Empty"/>.
+		/// Comments are set to null.
 		/// </summary>
 		/// <param name="key">This element's key</param>
 		/// <param name="values">The values; creates a new <see cref="ConfigStringElement"/> for every string in this collection.</param>
@@ -26,11 +26,11 @@
 			{
 				AddNewString(val);
 			}
-			Comments = string.Empty;
+			Comments = null;
 		}
 		/// <summary>
 		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/>.
-		/// Comments are set to a new empty list. Value is set to <see cref="string.Empty"/>.
+		/// Comments are set to null.
 		/// </summary>
 		/// <param name="key">This element's key</param>
 		/// <param name="values">The values; creates a new <see cref="ConfigStringElement"/> for every string in this collection.</param>
@@ -43,11 +43,10 @@
 			{
 				AddNewString(val);
 			}
-			Comments = string.Empty;
+			Comments = null;
 		}
 		/// <summary>
 		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/>.
-		/// Comments are set to . Value is set to <see cref="string.Empty"/>.
 		/// </summary>
 		/// <param name="key">This element's key</param>
 		/// <param name="values">The values; creates a new <see cref="ConfigStringElement"/> for every string in this collection.</param>

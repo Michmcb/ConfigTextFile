@@ -108,12 +108,12 @@
 		}
 		/// <summary>
 		/// Writes a comment. If <paramref name="text"/> contains any newlines, the comment will be split over multiple lines,
-		/// and each line will be a comment.
+		/// and each line will be a comment. If <paramref name="text"/> is null, writes nothing.
 		/// </summary>
 		/// <param name="text">The text of the comment</param>
 		public void WriteComment(string? text)
 		{
-			text ??= string.Empty;
+			if (text == null) return;
 			// Because this overload allocates a lot of substrings we call the Span version which doesn't allocate if we're able to do so
 #if NETSTANDARD2_0
 			if (CanWrite(ConfigFileToken.Comment))

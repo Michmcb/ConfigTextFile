@@ -22,11 +22,11 @@
 			Path = string.Empty;
 			Key = string.Empty;
 			_elements = new Dictionary<string, IConfigElement>(keyComparer);
-			Comments = string.Empty;
+			Comments = null;
 		}
 		/// <summary>
 		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/>.
-		/// Comments are set to a new empty list. Value is set to <see cref="string.Empty"/>.
+		/// Comments are set to null. Comments are set to a new empty list. Value is set to <see cref="string.Empty"/>.
 		/// </summary>
 		/// <param name="key">This element's key</param>
 		/// <param name="keyComparer">The comparer to use when comparing keys for elements added to this.</param>
@@ -35,11 +35,11 @@
 			Path = string.Empty;
 			Key = key;
 			_elements = new Dictionary<string, IConfigElement>(keyComparer);
-			Comments = string.Empty;
+			Comments = null;
 		}
 		/// <summary>
 		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/>.
-		/// Comments are set to . Value is set to <see cref="string.Empty"/>.
+		/// Value is set to <see cref="string.Empty"/>.
 		/// </summary>
 		/// <param name="key">This element's key</param>
 		/// <param name="keyComparer">The comparer to use when comparing keys for elements added to this.</param>

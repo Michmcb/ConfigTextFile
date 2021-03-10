@@ -11,7 +11,7 @@
 	{
 		/// <summary>
 		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/> or a <see cref="ConfigArrayElement"/>.
-		/// Comments are set to a new empty list.
+		/// Comments are set to null.
 		/// </summary>
 		/// <param name="key">This element's key</param>
 		/// <param name="value">The value.</param>
@@ -20,7 +20,7 @@
 			Path = string.Empty;
 			Key = key;
 			Value = value;
-			Comments = string.Empty;
+			Comments = null;
 		}
 		/// <summary>
 		/// Creates a new instance. Path is set when this is added to a <see cref="ConfigSectionElement"/> or a <see cref="ConfigArrayElement"/>.
