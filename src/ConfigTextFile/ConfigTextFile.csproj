@@ -13,12 +13,13 @@
     <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
     <Description>A .NET library which allows you to read and write plain-text minimal syntax configuration files</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- Comments are now stored as a single string, rather than a collection of strings. Because, the collection just indicated multiple lines, a single string can represent that fine too, and has less complexity.</PackageReleaseNotes>
+    <PackageReleaseNotes>- Writing null as comments will now do nothing, so anything with null as the comments will write out nothing.
+- The default value for Comments is now null, not String.Empty.</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.11.2</Version>
+    <Version>1.11.3</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.11.2.0</AssemblyVersion>
-    <FileVersion>1.11.2.0</FileVersion>
+    <AssemblyVersion>1.11.3.0</AssemblyVersion>
+    <FileVersion>1.11.3.0</FileVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
