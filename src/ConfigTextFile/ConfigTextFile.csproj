@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net5.0;netstandard2.1;netstandard2.0</TargetFrameworks>
@@ -13,13 +13,12 @@
     <PackageProjectUrl>https://github.com/Michmcb/ConfigTextFile</PackageProjectUrl>
     <Description>A .NET library which allows you to read and write plain-text minimal syntax configuration files</Description>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
-    <PackageReleaseNotes>- Writing null as comments will now do nothing, so anything with null as the comments will write out nothing.
-- The default value for Comments is now null, not String.Empty.</PackageReleaseNotes>
+    <PackageReleaseNotes>- When reading in a ConfigFile, comments are no longer set to string.Empty if there were none. Instead they are set to null.</PackageReleaseNotes>
     <PackageIcon>icon.png</PackageIcon>
-    <Version>1.11.3</Version>
+    <Version>1.11.4</Version>
     <PackageRequireLicenseAcceptance>true</PackageRequireLicenseAcceptance>
-    <AssemblyVersion>1.11.3.0</AssemblyVersion>
-    <FileVersion>1.11.3.0</FileVersion>
+    <AssemblyVersion>1.11.4.0</AssemblyVersion>
+    <FileVersion>1.11.4.0</FileVersion>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 

@@ -17,9 +17,9 @@
 	  <PackageTags>config configuration text fluent</PackageTags>
 	  <PackageReleaseNotes></PackageReleaseNotes>
 	  <Description>A ConfigTextFile configuration provider for Microsoft.Extensions.Configuration</Description>
-	  <Version>1.11.3</Version>
-	  <FileVersion>1.11.3.0</FileVersion>
-	  <AssemblyVersion>1.11.3.0</AssemblyVersion>
+	  <Version>1.11.4</Version>
+	  <FileVersion>1.11.4.0</FileVersion>
+	  <AssemblyVersion>1.11.4.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>

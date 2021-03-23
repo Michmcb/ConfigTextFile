@@ -206,6 +206,7 @@
 			// Otherwise, we'll need lists.
 			StringBuilder? comments = commentLoading == LoadCommentsPreference.Load ? new() : null;
 			string? commentsAsStr = null;
+			bool readSomeComments = false;
 			Stack<ConfigSectionElement> parentSections = new();
 			// Default to ordinal comparison
 			keyComparer ??= StringComparer.Ordinal;
@@ -226,7 +227,8 @@
 						case ConfigFileToken.Value:
 							if (comments != null)
 							{
-								commentsAsStr = ToStringTrimCrLf(comments);
+								commentsAsStr = readSomeComments ? ToStringTrimCrLf(comments) : null;
+								readSomeComments = false;
 								comments = new();
 							}
 							ConfigStringElement singleString = new(key, fRead.Value, commentsAsStr);
@@ -238,7 +240,8 @@
 						case ConfigFileToken.StartArray:
 							if (comments != null)
 							{
-								commentsAsStr = ToStringTrimCrLf(comments);
+								commentsAsStr = readSomeComments ? ToStringTrimCrLf(comments) : null;
+								readSomeComments = false;
 								comments = new();
 							}
 							ConfigArrayElement array = new(key, Array.Empty<string>(), commentsAsStr);
@@ -264,7 +267,8 @@
 							parentSections.Push(currentSection);
 							if (comments != null)
 							{
-								commentsAsStr = ToStringTrimCrLf(comments);
+								commentsAsStr = readSomeComments ? ToStringTrimCrLf(comments) : null;
+								readSomeComments = false;
 								comments = new();
 							}
 							ConfigSectionElement newSection = new(key, keyComparer, commentsAsStr);
@@ -281,6 +285,7 @@
 						case ConfigFileToken.Comment:
 							if (comments != null)
 							{
+								readSomeComments = true;
 								comments.AppendLine(fRead.Value);
 							}
 							break;
