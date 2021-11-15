@@ -152,7 +152,7 @@
 		/// <param name="commentLoading">Defines how to load comments.</param>
 		/// <param name="keyComparer">The comparer to use when comparing keys for elements added to a <see cref="ConfigSectionElement"/>. If null, defaults to <see cref="StringComparer.Ordinal"/>.</param>
 		/// <returns>The loaded <see cref="ConfigFile"/></returns>
-		public static ConfigFile LoadFile(StreamReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load, IEqualityComparer<string>? keyComparer = null)
+		public static ConfigFile LoadFile(TextReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load, IEqualityComparer<string>? keyComparer = null)
 		{
 			return LoadFile(new ConfigFileReader(stream, false), commentLoading, keyComparer);
 		}
@@ -189,7 +189,7 @@
 		/// <param name="commentLoading">Defines how to load comments.</param>
 		/// <param name="keyComparer">The comparer to use when comparing keys for elements added to a <see cref="ConfigSectionElement"/>. If null, defaults to <see cref="StringComparer.Ordinal"/>.</param>
 		/// <returns>A <see cref="LoadResult"/> which indicates success/failure.</returns>
-		public static LoadResult TryLoadFile(StreamReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load, IEqualityComparer<string>? keyComparer = null)
+		public static LoadResult TryLoadFile(TextReader stream, LoadCommentsPreference commentLoading = LoadCommentsPreference.Load, IEqualityComparer<string>? keyComparer = null)
 		{
 			return TryLoadFile(new ConfigFileReader(stream, false), commentLoading, keyComparer);
 		}

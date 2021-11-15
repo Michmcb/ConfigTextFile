@@ -1,6 +1,7 @@
 ﻿namespace ConfigTextFile.IO
 {
 	using System;
+	using System.Collections.Generic;
 	using System.IO;
 	using System.Linq;
 	using System.Text;
@@ -14,9 +15,9 @@
 		/// <summary>
 		/// Creates a new ConfigFileReader which reads from <paramref name="reader"/>.
 		/// </summary>
-		/// <param name="reader">The StreamReader to read from. Does not have to be seekable.</param>
+		/// <param name="reader">The <see cref="TextReader"/> to read from. Does not have to be seekable.</param>
 		/// <param name="closeInput">If true, disposes of <paramref name="reader"/> when this object is disposed of</param>
-		public ConfigFileReader(StreamReader reader, bool closeInput = true)
+		public ConfigFileReader(TextReader reader, bool closeInput = true)
 		{
 			Reader = reader;
 			CloseInput = closeInput;
@@ -24,9 +25,9 @@
 			SectionLevel = 0;
 		}
 		/// <summary>
-		/// The underlying Reader being used. Fiddling around with this is a great way to cause errors so you shouldn't do that.
+		/// The underlying <see cref="TextWriter"/> being used. Fiddling around with this is a great way to cause errors so you shouldn't do that.
 		/// </summary>
-		public StreamReader Reader { get; }
+		public TextReader Reader { get; }
 		/// <summary>
 		/// If true, <see cref="Reader"/> will be closed when this is disposed. Otherwise, it will not.
 		/// </summary>
@@ -206,7 +207,7 @@
 		/// Skips all whitespace and returns the first non-whitespace character found.
 		/// </summary>
 		/// <returns>The first non-whitespace character, or null if end of file was found.</returns>
-		private static char? SkipWhiteSpaceAndGetNextChar(StreamReader reader)
+		private static char? SkipWhiteSpaceAndGetNextChar(TextReader reader)
 		{
 			while (true)
 			{
@@ -228,7 +229,7 @@
 		/// <summary>
 		/// Reads a string until <paramref name="quoteChar"/> is encountered.
 		/// </summary>
-		private static string ReadQuotedString(StreamReader reader, char quoteChar)
+		private static string ReadQuotedString(TextReader reader, char quoteChar)
 		{
 			StringBuilder sb = new();
 			while (true)
@@ -258,7 +259,7 @@
 		/// Reads a string until finding one of the characters in the array <paramref name="until"/>.
 		/// Prepends <paramref name="firstChar"/> to the returned string, and trims whitespace off the end of the returned string.
 		/// </summary>
-		private static (string str, char? nextChar) ReadStringUntil(StreamReader reader, char firstChar, char[] until)
+		private static (string str, char? nextChar) ReadStringUntil(TextReader reader, char firstChar, IReadOnlyCollection<char> until)
 		{
 			// TODO test perf difference between Span<char> and HashSet<char>
 			StringBuilder sb = new();

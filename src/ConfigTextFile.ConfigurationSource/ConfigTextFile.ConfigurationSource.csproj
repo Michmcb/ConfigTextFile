@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	  <TargetFrameworks>net5.0;netstandard2.1;netstandard2.0</TargetFrameworks>
+	  <TargetFrameworks>net6.0;net5.0;netstandard2.1;netstandard2.0</TargetFrameworks>
 	  <Nullable>enable</Nullable>
 	  <LangVersion>latest</LangVersion>
 	  <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -17,9 +17,9 @@
 	  <PackageTags>config configuration text fluent</PackageTags>
 	  <PackageReleaseNotes></PackageReleaseNotes>
 	  <Description>A ConfigTextFile configuration provider for Microsoft.Extensions.Configuration</Description>
-	  <Version>1.11.4</Version>
-	  <FileVersion>1.11.4.0</FileVersion>
-	  <AssemblyVersion>1.11.4.0</AssemblyVersion>
+	  <Version>1.12</Version>
+	  <FileVersion>1.12.0.0</FileVersion>
+	  <AssemblyVersion>1.12.0.0</AssemblyVersion>
   </PropertyGroup>
 
   <ItemGroup>
